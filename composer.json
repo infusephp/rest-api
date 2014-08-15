@@ -1,0 +1,25 @@
+{
+	"name": "idealistsoft/framework-api",
+	"version": "1.0",
+	"description": "API scaffolding module for Idealist Framework",
+	"type": "library",
+	"keywords": ["idealist","framework","api"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "jaredtking",
+			"email": "j@jaredtking.com",
+			"homepage": "http://jaredtking.com"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/idealistsoft/framework-api/issues",
+		"source": "https://github.com/idealistsoft/framework-api"
+	},
+    "autoload": {
+        "psr-0": {"\\": "src/"}
+    },
+	"require": {
+		"php": ">=5.4.0"
+	}
+}
