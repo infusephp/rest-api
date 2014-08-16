@@ -8,16 +8,16 @@ use app\api\libs\ApiRoute;
 
 class ApiRouteTest extends \PHPUnit_Framework_TestCase
 {
-	static $app;
 	private static $api;
 	private static $req;
 	private static $res;
 
 	static function setUpBeforeClass()
 	{
-		self::$api = new Api( TestBootstrap::app() );
+		$app = TestBootstrap::app();
+		self::$api = new Api( $app );
 		self::$req = new Request();
-		self::$res = new Response( TestBootstrap::app() );
+		self::$res = new Response( $app );
 	}
 
 	function testExecute()

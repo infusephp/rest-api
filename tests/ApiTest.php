@@ -13,9 +13,10 @@ class ApiTest extends \PHPUnit_Framework_TestCase
 
 	static function setUpBeforeClass()
 	{
-		self::$api = new Api( TestBootstrap::app() );
+		$app = TestBootstrap::app();
+		self::$api = new Api( $app );
 		self::$req = new Request();
-		self::$res = new Response( TestBootstrap::app() );
+		self::$res = new Response( $app );
 	}
 
 	function testParseFetchModel()

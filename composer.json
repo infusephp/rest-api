@@ -17,9 +17,13 @@
 		"source": "https://github.com/idealistsoft/framework-api"
 	},
     "autoload": {
-        "psr-0": {"\\": "src/"}
+        "psr-0": {"": "src"}
     },
 	"require": {
 		"php": ">=5.4.0"
+	},
+	"require-dev": {
+		"satooshi/php-coveralls": "dev-master",
+		"idealistsoft/framework-bootstrap": "dev-master"
 	}
 }
