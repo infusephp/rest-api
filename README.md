@@ -6,7 +6,6 @@ framework-api
 [![Latest Stable Version](https://poser.pugx.org/idealistsoft/framework-api/v/stable.png)](https://packagist.org/packages/idealistsoft/framework-api)
 [![Total Downloads](https://poser.pugx.org/idealistsoft/framework-api/downloads.png)](https://packagist.org/packages/idealistsoft/framework-api)
 
-
 API scaffolding module for Idealist Framework
 
 ## Installation
