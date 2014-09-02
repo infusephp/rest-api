@@ -186,12 +186,16 @@ class Api
 
     public function queryModelFindOne(array $query)
     {
-        return new $query[ 'model'() ]( $query[ 'model_id' ] );
+        $modelClass = $query[ 'model' ];
+
+        return new $modelClass( $query[ 'model_id' ] );
     }
 
     public function queryModelEdit(array $query)
     {
-        $modelObj = new $query[ 'model'() ]( $query[ 'model_id' ] );
+        $modelClass = $query[ 'model' ];
+
+        $modelObj = new $modelClass( $query[ 'model_id' ] );
 
         if( !$modelObj->can( 'edit', $this->app[ 'user' ] ) )
 
@@ -202,7 +206,9 @@ class Api
 
     public function queryModelDelete(array $query)
     {
-        $modelObj = new $query[ 'model'() ]( $query[ 'model_id' ] );
+        $modelClass = $query[ 'model' ];
+
+        $modelObj = new $modelClass( $query[ 'model_id' ] );
 
         if( !$modelObj->can( 'delete', $this->app[ 'user' ] ) )
 
@@ -394,7 +400,8 @@ class Api
 
     private function require_permission(Request $req, Response $res, array &$query, $permission)
     {
-        $modelObj = new $query[ 'model'() ]();
+        $modelClass = $query[ 'model' ];
+        $modelObj = new $modelClass();
 
         if ( !$modelObj->can( $permission, $this->app[ 'user' ] ) ) {
             $result = [ 'error' => 'no_permission' ];
