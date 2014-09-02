@@ -10,7 +10,7 @@ use infuse\Response;
 	i) Parse:
 			Given a request can return the relevant query parameters
 	ii) Query:
-			Performs the query using the previously generated parameters against a 
+			Performs the query using the previously generated parameters against a
 			model or service
 	iii) Transform:
 			Takes the result and produces an output
@@ -24,25 +24,25 @@ use infuse\Response;
 
 class ApiRoute
 {
-	private $parseSteps;
-	private $queryStep;
-	private $transformSteps;
+    private $parseSteps;
+    private $queryStep;
+    private $transformSteps;
 
-	/**
+    /**
 	 * Creates a new API route object
 	 *
 	 * @param array $parseSteps collection of ordered callables for parsing
 	 * @param callable $queryStep step for performing query
 	 * @param array $transformSteps collection of ordered callables for transformation
 	 */
-	function __construct( array $parseSteps, callable $queryStep, array $transformSteps )
-	{
-		$this->parseSteps = $parseSteps;
-		$this->queryStep = $queryStep;
-		$this->transformSteps = $transformSteps;
-	}
+    public function __construct(array $parseSteps, callable $queryStep, array $transformSteps)
+    {
+        $this->parseSteps = $parseSteps;
+        $this->queryStep = $queryStep;
+        $this->transformSteps = $transformSteps;
+    }
 
-	/**
+    /**
 	 * Executes the steps in this API route in this order:
 	 * Parse, Query, Transform
 	 *
@@ -51,23 +51,23 @@ class ApiRoute
 	 *
 	 * @return void
 	 */
-	function execute( Request $req, Response $res )
-	{
-		$query = [];
+    public function execute(Request $req, Response $res)
+    {
+        $query = [];
 
-		foreach( $this->parseSteps as $step )
-		{
-			if( $step( $req, $res, $query ) === false )
-				return;
-		}
+        foreach ($this->parseSteps as $step) {
+            if( $step( $req, $res, $query ) === false )
 
-		$q = $this->queryStep;
-		$result = $q( $query );
+                return;
+        }
 
-		foreach( $this->transformSteps as $step )
-		{
-			if( $step( $res, $query, $result ) === false )
-				return;
-		}
-	}
+        $q = $this->queryStep;
+        $result = $q( $query );
+
+        foreach ($this->transformSteps as $step) {
+            if( $step( $res, $query, $result ) === false )
+
+                return;
+        }
+    }
 }

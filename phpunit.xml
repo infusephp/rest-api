@@ -3,7 +3,7 @@
     <includePath>.</includePath>
     <const name="INFUSE_BASE_DIR" value="." />
   </php>
-  
+
   <listeners>
     <listener file="vendor/autoload.php"></listener>
     <listener class="\TestBootstrap">
