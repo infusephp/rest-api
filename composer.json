@@ -1,6 +1,5 @@
 {
 	"name": "idealistsoft/framework-api",
-	"version": "1.0",
 	"description": "API scaffolding module for Idealist Framework",
 	"type": "library",
 	"keywords": ["idealist","framework","api"],
@@ -17,7 +16,7 @@
 		"source": "https://github.com/idealistsoft/framework-api"
 	},
     "autoload": {
-        "psr-0": {"": "src"}
+        "psr-4": {"app\\api\\": "src/"}
     },
 	"require": {
 		"php": ">=5.4.0"
