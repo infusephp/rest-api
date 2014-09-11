@@ -11,13 +11,12 @@
 
 namespace app\api;
 
-use InjectApp;
 use app\api\libs\Api;
 use app\api\libs\ApiRoute;
 
 class Controller
 {
-    use InjectApp;
+    use \InjectApp;
     
     public static $properties = [
         'routes' => [
