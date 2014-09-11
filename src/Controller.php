@@ -11,12 +11,14 @@
 
 namespace app\api;
 
-use App;
+use InjectApp;
 use app\api\libs\Api;
 use app\api\libs\ApiRoute;
 
 class Controller
 {
+    use InjectApp;
+    
     public static $properties = [
         'routes' => [
             'post /api/:module' => 'create',
@@ -30,13 +32,6 @@ class Controller
             'delete /api/:module/:model/:id' => 'delete',
         ],
     ];
-
-    private $app;
-
-    public function __construct(App $app)
-    {
-        $this->app = $app;
-    }
 
     public function create($req, $res)
     {
