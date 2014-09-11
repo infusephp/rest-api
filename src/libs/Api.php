@@ -35,7 +35,9 @@ class Api
             return false;
         }
 
-        $controllerObj = new $controller( $this->app );
+        $controllerObj = new $controller;
+        if (method_exists($controllerObj, 'injectApp'))
+            $controllerObj->injectApp($this->app);
 
         // TODO this is an inefficient function, needs refactor
 
