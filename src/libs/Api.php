@@ -298,7 +298,7 @@ class Api
         // can the model be viewed?
         if ( !$modelObj->can( 'view', $this->app[ 'user' ] ) ) {
             $result = [ 'error' => 'no_permission' ];
-            $res->setCode( 401 );
+            $res->setCode( 403 );
 
             return;
         }
@@ -327,7 +327,7 @@ class Api
 
             foreach ( $errorStack->errors() as $error ) {
                 if( $error[ 'error' ] == 'no_permission' )
-                    $res->setCode( 401 );
+                    $res->setCode( 403 );
             }
         }
 
@@ -346,7 +346,7 @@ class Api
 
             foreach ( $errorStack->errors() as $error ) {
                 if( $error[ 'error' ] == 'no_permission' )
-                    $res->setCode( 401 );
+                    $res->setCode( 403 );
             }
         }
 
@@ -407,7 +407,7 @@ class Api
 
         if ( !$modelObj->can( $permission, $this->app[ 'user' ] ) ) {
             $result = [ 'error' => 'no_permission' ];
-            $res->setCode( 401 );
+            $res->setCode( 403 );
 
             return false;
         }
