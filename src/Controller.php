@@ -46,7 +46,8 @@ class Controller
             [ [ $api, 'transformModelCreate' ],
                 [ $api, 'transformOutputJson' ] ] );
 
-        $route->execute( $req, $res );
+        if (!$route->execute($req, $res) && $res->getCode() == 200)
+            return SKIP_ROUTE;
     }
 
     public function findAll($req, $res)
@@ -82,7 +83,8 @@ class Controller
                 [ $api, 'transformPaginate' ],
                 [ $api, 'transformOutputJson' ] ] );
 
-        $route->execute( $req, $res );
+        if (!$route->execute($req, $res) && $res->getCode() == 200)
+            return SKIP_ROUTE;
     }
 
     public function findOne($req, $res)
@@ -99,7 +101,8 @@ class Controller
                 [ $api, 'transformModelToArray' ],
                 [ $api, 'transformOutputJson' ] ] );
 
-        $route->execute( $req, $res );
+        if (!$route->execute($req, $res) && $res->getCode() == 200)
+            return SKIP_ROUTE;
     }
 
     public function edit($req, $res)
@@ -115,7 +118,8 @@ class Controller
             [ [ $api, 'transformModelEdit' ],
                 [ $api, 'transformOutputJson' ] ] );
 
-        $route->execute( $req, $res );
+        if (!$route->execute($req, $res) && $res->getCode() == 200)
+            return SKIP_ROUTE;
     }
 
     public function delete($req, $res)
@@ -131,6 +135,7 @@ class Controller
             [ [ $api, 'transformModelDelete' ],
                 [ $api, 'transformOutputJson' ] ] );
 
-        $route->execute( $req, $res );
+        if (!$route->execute($req, $res) && $res->getCode() == 200)
+            return SKIP_ROUTE;
     }
 }

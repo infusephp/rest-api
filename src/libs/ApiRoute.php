@@ -49,7 +49,7 @@ class ApiRoute
 	 * @param Request $req request object
 	 * @param Response $res response object
 	 *
-	 * @return void
+	 * @return boolean true when completed, false when failed at some step
 	 */
     public function execute(Request $req, Response $res)
     {
@@ -69,5 +69,7 @@ class ApiRoute
 
                 return;
         }
+
+        return true;
     }
 }
