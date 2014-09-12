@@ -58,7 +58,7 @@ class ApiRoute
         foreach ($this->parseSteps as $step) {
             if( $step( $req, $res, $query ) === false )
 
-                return;
+                return false;
         }
 
         $q = $this->queryStep;
@@ -67,7 +67,7 @@ class ApiRoute
         foreach ($this->transformSteps as $step) {
             if( $step( $res, $query, $result ) === false )
 
-                return;
+                return false;
         }
 
         return true;
