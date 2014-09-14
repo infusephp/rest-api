@@ -5,7 +5,7 @@ namespace app\api\libs;
 use infuse\Inflector;
 use infuse\Request;
 use infuse\Response;
-use infuse\Util;
+use infuse\Utility as U;
 
 use App;
 
@@ -50,14 +50,14 @@ class Api
             if( count( $modelsInfo ) == 1 )
                 $model = array_keys( $modelsInfo )[ 0 ];
             else
-                $model = Util::array_value( $controller::$properties, 'defaultModel' );
+                $model = U::array_value( $controller::$properties, 'defaultModel' );
         }
 
         // convert the route name to the pluralized name
         $modelName = Inflector::singularize( Inflector::camelize( $model ) );
 
         // attempt to fetch the model info
-        $modelInfo = Util::array_value( $modelsInfo, $modelName );
+        $modelInfo = U::array_value( $modelsInfo, $modelName );
 
         if( !$modelInfo )
 
@@ -376,7 +376,7 @@ class Api
 
         $models = [];
 
-        foreach ( (array) Util::array_value( $properties, 'models' ) as $model ) {
+        foreach ( (array) U::array_value( $properties, 'models' ) as $model ) {
             $modelClassName = '\\app\\' . $module . '\\models\\' . $model;
 
             $models[ $model ] = $modelClassName::metadata();
