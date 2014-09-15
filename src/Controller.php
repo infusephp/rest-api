@@ -56,23 +56,7 @@ class Controller
 
         $route = new ApiRoute(
             [
-                function ($req, $res, &$query) use ($api) {
-                    // if the model could not be determined, then it might
-                    // be the case that the model is actually a model id for
-                    // a module with only 1 model or a defaultModel set
-                    if ( !$api->parseFetchModelFromParams( $req, $res, $query ) ) {
-                        if ( $req->params( 'model' ) ) {
-                            $req->setParams( [
-                                'model' => false,
-                                'id' => $req->params( 'model' ) ] );
-                            $this->findOne( $req, $res );
-                        }
-
-                        return false;
-                    }
-
-                    return true;
-                },
+                [ $api, 'parseFetchModelFromParams' ],
                 [ $api, 'parseRequireApiScaffolding' ],
                 [ $api, 'parseRequireJson' ],
                 [ $api, 'parseRequireFindPermission' ],
@@ -83,8 +67,19 @@ class Controller
                 [ $api, 'transformPaginate' ],
                 [ $api, 'transformOutputJson' ] ] );
 
-        if (!$route->execute($req, $res) && $res->getCode() == 200)
+        if (!$route->execute($req, $res) && $res->getCode() == 200) {
+            // if the model could not be determined, then it might
+            // be the case that the model is actually a model id for
+            // a module with only 1 model or a defaultModel set
+            if ($req->params('model')) {
+                $req->setParams( [
+                    'model' => false,
+                    'id' => $req->params('model') ] );
+                return $this->findOne($req, $res);
+            }
+
             return SKIP_ROUTE;
+        }
     }
 
     public function findOne($req, $res)
