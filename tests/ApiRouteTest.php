@@ -24,10 +24,11 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = new ApiRoute( [], function ($query) { return new \stdClass(); }, [] );
 
+        $app = TestBootstrap::app();
         $req = new Request();
-        $res = new Response( TestBootstrap::app() );
+        $res = new Response($app);
 
-        $route->execute( $req, $res );
+        $route->execute($req, $res, $app);
 
         $this->markTestIncomplete();
     }
