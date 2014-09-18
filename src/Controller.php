@@ -16,7 +16,7 @@ use app\api\libs\ApiRoute;
 class Controller
 {
     use \InjectApp;
-    
+
     public static $properties = [
         'routes' => [
             'post /api/:module' => 'create',
@@ -68,6 +68,7 @@ class Controller
                 $req->setParams( [
                     'model' => false,
                     'id' => $req->params('model') ] );
+
                 return $this->findOne($req, $res);
             }
 
@@ -85,7 +86,7 @@ class Controller
         'queryModelFindOne', [
             'transformModelFindOne',
             'transformModelToArray',
-            'transformOutputJson']];
+            'transformOutputJson']);
 
         if (!$route->execute($req, $res, $this->app) && $res->getCode() == 200)
             return SKIP_ROUTE;
