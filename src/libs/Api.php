@@ -35,7 +35,7 @@ class Api
             return false;
         }
 
-        $controllerObj = new $controller;
+        $controllerObj = new $controller();
         if (method_exists($controllerObj, 'injectApp'))
             $controllerObj->injectApp($this->app);
 
@@ -355,7 +355,7 @@ class Api
 
     public function transformOutputJson(Response $res, array $query, &$result)
     {
-        $res->setBodyJson( $result );
+        $res->json( $result );
     }
 
     ///////////////////////////////
