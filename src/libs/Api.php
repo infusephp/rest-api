@@ -11,26 +11,23 @@ use App;
 
 class Api
 {
-    private $app;
-
-    public function __construct(App $app)
-    {
-        $this->app = $app;
-    }
+    use \InjectApp;
 
     ///////////////////////////////
     // PARSE METHODS
     ///////////////////////////////
 
-    public function parseFetchModelFromParams(Request $req, Response $res, array &$query)
+    public function parseFetchModelFromParams(ApiRoute $route)
     {
+        $req = $route->getRequest();
+
         $module = $req->params( 'module' );
         $model = $req->params( 'model' );
 
         // instantiate the controller
         $controller = '\\app\\' . $module . '\\Controller';
         if ( !class_exists( $controller ) ) {
-            $res->setCode( 404 );
+            $route->getResponse()->setCode( 404 );
 
             return false;
         }
@@ -63,17 +60,18 @@ class Api
 
             return false;
 
-        $query[ 'model' ] = $modelInfo[ 'class_name' ];
-        $query[ 'module' ] = $module;
+        $route->addQueryParams([
+            'model' => $modelInfo['class_name'],
+            'module' => $module]);
 
         return true;
     }
 
-    public function parseRequireApiScaffolding(Request $req, Response $res, array &$query)
+    public function parseRequireApiScaffolding(ApiRoute $route)
     {
         // check if api scaffolding is enabled on the model
-        if ( !property_exists( $query[ 'model' ], 'scaffoldApi' ) ) {
-            $res->setCode( 404 );
+        if (!property_exists($route->getQueryParams('model'), 'scaffoldApi')) {
+            $route->getResponse()->setCode(404);
 
             return false;
         }
@@ -81,10 +79,10 @@ class Api
         return true;
     }
 
-    public function parseRequireJson(Request $req, Response $res, array &$query)
+    public function parseRequireJson(ApiRoute $route)
     {
-        if ( !$req->isJson() ) {
-            $res->setCode( 415 );
+        if (!$route->getRequest()->isJson()) {
+            $route->getResponse()->setCode(415);
 
             return false;
         }
@@ -92,74 +90,77 @@ class Api
         return true;
     }
 
-    public function parseRequireFindPermission(Request $req, Response $res, array &$query)
+    public function parseRequireFindPermission(ApiRoute $route)
     {
-        return $this->require_permission( $req, $res, $query, 'find' );
+        return $this->require_permission('find', $route);
     }
 
-    public function parseRequireCreatePermission(Request $req, Response $res, array &$query)
+    public function parseRequireCreatePermission(ApiRoute $route)
     {
-        return $this->require_permission( $req, $res, $query, 'create' );
+        return $this->require_permission('create', $route);
     }
 
-    public function parseModelCreateParameters(Request $req, Response $res, array &$query)
+    public function parseModelCreateParameters(ApiRoute $route)
     {
-        $query[ 'properties' ] = $req->request();
+        $req = $route->getRequest();
 
-        $query[ 'expand' ] = (array) $req->query( 'expand' );
+        $route->addQueryParams([
+            'properties' => $req->request(),
+            'expand' => (array) $req->query('expand')]);
 
         return true;
     }
 
-    public function parseModelFindAllParameters(Request $req, Response $res, array &$query)
+    public function parseModelFindAllParameters(ApiRoute $route)
     {
+        $req = $route->getRequest();
+
         // start
-        $start = $req->query( 'start' );
+        $start = $req->query('start');
         if( $start < 0 || !is_numeric( $start ) )
             $start = 0;
-        $query[ 'start' ] = $start;
 
         // limit
-        $limit = $req->query( 'limit' );
-        if( $limit <= 0 || $limit > 1000 )
+        $limit = $req->query('limit');
+        if ($limit <= 0 || $limit > 1000)
             $limit = 100;
-        $query[ 'limit' ] = $limit;
 
-        // sort
-        $query[ 'sort' ] = $req->query( 'sort' );
-
-        // search
-        $query[ 'search' ] = $req->query( 'search' );
-
-        // filter
-        $query[ 'where' ] = (array) $req->query( 'filter' );
-
-        // expand
-        $query[ 'expand' ] = (array) $req->query( 'expand' );
+        $route->addQueryParams([
+            'start' => $start,
+            'limit' => $limit,
+            'sort' => $req->query('sort'),
+            'search' => $req->query('search'),
+            'where' => (array) $req->query('filter'),
+            'expand' => (array) $req->query('expand')]);
 
         return true;
     }
 
-    public function parseModelFindOneParameters(Request $req, Response $res, array &$query)
+    public function parseModelFindOneParameters(ApiRoute $route)
     {
-        $query[ 'model_id' ] = $req->params( 'id' );
+        $req = $route->getRequest();
 
-        $query[ 'expand' ] = (array) $req->query( 'expand' );
+        $route->addQueryParams([
+            'model_id' => $req->params('id'),
+            'expand' => (array) $req->query('expand')]);
 
         return true;
     }
 
-    public function parseModelEditParameters(Request $req, Response $res, array &$query)
+    public function parseModelEditParameters(ApiRoute $route)
     {
-        $query[ 'model_id' ] = $req->params( 'id' );
-        $query[ 'properties' ] = $req->request();
+        $req = $route->getRequest();
+
+        $route->addQueryParams([
+            'model_id' => $req->params('id'),
+            'properties' => $req->request()]);
 
         return true;
     }
 
-    public function parseModelDeleteParameters(Request $req, Response $res, array &$query)
+    public function parseModelDeleteParameters(ApiRoute $route)
     {
-        $query[ 'model_id' ] = $req->params( 'id' );
+        $route->addQueryParams(['model_id' => $route->getRequest()->params('id')]);
 
         return true;
     }
@@ -168,52 +169,50 @@ class Api
     // QUERY METHODS
     ///////////////////////////////
 
-    public function queryModelCreate(array $query)
+    public function queryModelCreate(ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
+        $modelClass = $route->getQueryParams('model');
         $model = new $modelClass();
-        if( $model->create( $query[ 'properties' ] ) )
+        if($model->create($route->getQueryParams('properties')))
 
             return $model;
 
         return false;
     }
 
-    public function queryModelFindAll(array $query)
+    public function queryModelFindAll(ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
+        $modelClass = $route->getQueryParams('model');
 
-        return $modelClass::find( $query );
+        return $modelClass::find($route->getQueryParams());
     }
 
-    public function queryModelFindOne(array $query)
+    public function queryModelFindOne(ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
+        $modelClass = $route->getQueryParams('model');
 
-        return new $modelClass( $query[ 'model_id' ] );
+        return new $modelClass($route->getQueryParams('model_id'));
     }
 
-    public function queryModelEdit(array $query)
+    public function queryModelEdit(ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
+        $modelClass = $route->getQueryParams('model');
 
-        $modelObj = new $modelClass( $query[ 'model_id' ] );
+        $modelObj = new $modelClass($route->getQueryParams('model_id'));
 
-        if( !$modelObj->can( 'edit', $this->app[ 'user' ] ) )
-
+        if (!$modelObj->can('edit', $this->app['user']))
             return false;
 
-        return $modelObj->set( $query[ 'properties' ] );
+        return $modelObj->set($route->getQueryParams('properties'));
     }
 
-    public function queryModelDelete(array $query)
+    public function queryModelDelete(ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
+        $modelClass = $route->getQueryParams('model');
 
-        $modelObj = new $modelClass( $query[ 'model_id' ] );
+        $modelObj = new $modelClass($route->getQueryParams('model_id'));
 
-        if( !$modelObj->can( 'delete', $this->app[ 'user' ] ) )
-
+        if (!$modelObj->can('delete', $this->app['user']))
             return false;
 
         return $modelObj->delete();
@@ -223,139 +222,143 @@ class Api
     // TRANSFORM METHODS
     ///////////////////////////////
 
-    public function transformModelCreate(Response $res, array $query, &$result)
+    public function transformModelCreate(&$result, ApiRoute $route)
     {
         $response = new \stdClass();
 
         if ($result) {
-            $modelInfo = $query[ 'model' ]::metadata();
-            $modelRouteName = $modelInfo[ 'singular_key' ];
-            $response->$modelRouteName = $result->toArray( [], [], $query[ 'expand' ] );
+            $modelClass = $route->getQueryParams('model');
+            $modelInfo = $modelClass::metadata();
+            $modelRouteName = $modelInfo['singular_key'];
+            $response->$modelRouteName = $result->toArray([], [], $route->getQueryParams('expand'));
             $response->success = true;
-            $res->setCode( 201 );
+            $route->getResponse()->setCode(201);
         } else {
-            $response->error = $this->app[ 'errors' ]->messages();
+            $response->error = $this->app['errors']->messages();
         }
 
         $result = $response;
     }
 
-    public function transformModelFindAll(Response $res, array $query, &$result)
+    public function transformModelFindAll(&$result, ApiRoute $route)
     {
         $response = new \stdClass();
-        $modelInfo = $query[ 'model' ]::metadata();
-        $modelRouteName = $modelInfo[ 'plural_key' ];
+        $modelClass = $route->getQueryParams('model');
+        $modelInfo = $modelClass::metadata();
+        $modelRouteName = $modelInfo['plural_key'];
         $response->$modelRouteName = [];
 
-        foreach( $result[ 'models' ] as $m )
-            array_push( $response->$modelRouteName, $m->toArray( [], [], $query[ 'expand' ] ) );
+        foreach ($result['models'] as $m)
+            array_push($response->$modelRouteName, $m->toArray([], [], $route->getQueryParams('expand')));
 
-        $response->filtered_count = $result[ 'count' ];
+        $response->filtered_count = $result['count'];
 
         $result = $response;
     }
 
-    public function transformPaginate(Response $res, array $query, &$result)
+    public function transformPaginate(&$result, ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
-        $total = $modelClass::totalRecords( $query[ 'where' ] );
-        $page = $query[ 'start' ] / $query[ 'limit' ] + 1;
-        $page_count = max( 1, ceil( $result->filtered_count / $query[ 'limit' ] ) );
+        $query = $route->getQueryParams();
+        $modelClass = $query['model'];
+        $total = $modelClass::totalRecords($query['where']);
+        $page = $query['start'] / $query['limit'] + 1;
+        $page_count = max(1, ceil($result->filtered_count / $query['limit']));
 
         $result->page = $page;
-        $result->per_page = $query[ 'limit' ];
+        $result->per_page = $query['limit'];
         $result->page_count = $page_count;
         $result->total_count = $total;
 
         // links
         $modelInfo = $modelClass::metadata();
-        $routeBase = '/' . $query[ 'module' ] . '/' . $modelInfo[ 'plural_key' ];
+        $routeBase = '/' . $query['module'] . '/' . $modelInfo['plural_key'];
         $base = $routeBase . "?sort={$query['sort']}&limit={$query['limit']}";
-        $last = ($page_count-1) * $query[ 'limit' ];
+        $last = ($page_count-1) * $query['limit'];
         $result->links = [
             'self' => "$base&start={$query['start']}",
             'first' => "$base&start=0",
             'last' => "$base&start=$last",
         ];
-        if( $page > 1 )
-            $result->links[ 'previous' ] = "$base&start=" . ($page-2) * $query[ 'limit' ];
+        if ($page > 1)
+            $result->links['previous'] = "$base&start=" . ($page-2) * $query['limit'];
         if( $page < $page_count )
-            $result->links[ 'next' ] = "$base&start=" . ($page) * $query[ 'limit' ];
+            $result->links['next'] = "$base&start=" . ($page) * $query['limit'];
     }
 
-    public function transformModelFindOne(Response $res, array $query, &$result)
+    public function transformModelFindOne(&$result, ApiRoute $route)
     {
         $modelObj = $result;
 
         // does the model exist?
         if ( !$modelObj->exists() ) {
             $result = [ 'error' => 'not_found' ];
-            $res->setCode( 404 );
+            $route->getResponse()->setCode( 404 );
 
             return;
         }
 
         // can the model be viewed?
-        if ( !$modelObj->can( 'view', $this->app[ 'user' ] ) ) {
-            $result = [ 'error' => 'no_permission' ];
-            $res->setCode( 403 );
+        if (!$modelObj->can('view', $this->app['user'])) {
+            $result = ['error' => 'no_permission'];
+            $route->getResponse()->setCode(403);
 
             return;
         }
     }
 
-    public function transformModelToArray(Response $res, array $query, &$result)
+    public function transformModelToArray(&$result, ApiRoute $route)
     {
         $modelObj = $result;
 
-        if ( ($modelObj instanceof $query[ 'model' ]) ) {
+        $modelClass = $route->getQueryParams('model');
+        if ($modelObj instanceof $modelClass) {
             $modelInfo = $modelObj::metadata();
             $result = [
-                $modelInfo[ 'singular_key' ] => $modelObj->toArray( [], [], $query[ 'expand' ] ) ];
+                $modelInfo['singular_key'] => $modelObj->toArray([], [], $route->getQueryParams('expand'))];
         }
     }
 
-    public function transformModelEdit(Response $res, array $query, &$result)
+    public function transformModelEdit(&$result, ApiRoute $route)
     {
         $response = new \stdClass();
 
-        if( $result )
+        if ($result)
             $response->success = true;
         else {
-            $errorStack = $this->app[ 'errors' ];
+            $errorStack = $this->app['errors'];
             $response->error = $errorStack->messages();
 
-            foreach ( $errorStack->errors() as $error ) {
-                if( $error[ 'error' ] == 'no_permission' )
-                    $res->setCode( 403 );
+            foreach ($errorStack->errors() as $error) {
+                if ($error['error'] == 'no_permission')
+                    $route->getResponse()->setCode(403);
             }
         }
 
         $result = $response;
     }
 
-    public function transformModelDelete(Response $res, array $query, &$result)
+    public function transformModelDelete(&$result, ApiRoute $route)
     {
         $response = new \stdClass();
 
-        if( $result )
+        if ($result)
             $response->success = true;
         else {
-            $errorStack = $this->app[ 'errors' ];
+            $errorStack = $this->app['errors'];
             $response->error = $errorStack->messages();
 
-            foreach ( $errorStack->errors() as $error ) {
-                if( $error[ 'error' ] == 'no_permission' )
-                    $res->setCode( 403 );
+            foreach ($errorStack->errors() as $error) {
+                if ($error['error'] == 'no_permission')
+                    $route->getResponse()->setCode( 403 );
             }
         }
 
         $result = $response;
     }
 
-    public function transformOutputJson(Response $res, array $query, &$result)
+    public function transformOutputJson(&$result, ApiRoute $route)
     {
-        $res->json( $result );
+        $route->getResponse()->json($result);
     }
 
     ///////////////////////////////
@@ -372,14 +375,14 @@ class Api
     private function models($controller)
     {
         $properties = $controller::$properties;
-        $module = $this->name( $controller );
+        $module = $this->name($controller);
 
         $models = [];
 
-        foreach ( (array) U::array_value( $properties, 'models' ) as $model ) {
+        foreach ((array) U::array_value($properties, 'models') as $model) {
             $modelClassName = '\\app\\' . $module . '\\models\\' . $model;
 
-            $models[ $model ] = $modelClassName::metadata();
+            $models[$model] = $modelClassName::metadata();
         }
 
         return $models;
@@ -395,19 +398,27 @@ class Api
     private function name($controller)
     {
         // compute module name
-        $parts = explode( '\\', get_class( $controller ) );
+        $parts = explode('\\', get_class($controller));
 
-        return $parts[ 1 ];
+        return $parts[1];
     }
 
-    private function require_permission(Request $req, Response $res, array &$query, $permission)
+    /**
+     * Checks for the specified permission on a model. Returns 403 if it fails
+     *
+     * @param string   $permission
+     * @param ApiRoute $route
+     *
+     * @return boolean
+     */
+    private function require_permission($permission, ApiRoute $route)
     {
-        $modelClass = $query[ 'model' ];
+        $modelClass = $route->getQueryParams('model');
         $modelObj = new $modelClass();
 
-        if ( !$modelObj->can( $permission, $this->app[ 'user' ] ) ) {
-            $result = [ 'error' => 'no_permission' ];
-            $res->setCode( 403 );
+        if (!$modelObj->can($permission, $this->app['user'])) {
+            $route->getResponse()->json(['error' => 'no_permission'])
+                ->setCode(403);
 
             return false;
         }

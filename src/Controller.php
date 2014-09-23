@@ -33,15 +33,17 @@ class Controller
 
     public function create($req, $res)
     {
-        $route = new ApiRoute([
-            'parseFetchModelFromParams',
-            'parseRequireApiScaffolding',
-            'parseRequireJson',
-            'parseRequireCreatePermission',
-            'parseModelCreateParameters' ],
-        'queryModelCreate', [
-            'transformModelCreate',
-            'transformOutputJson' ]);
+        $route = new ApiRoute();
+        $route->addParseSteps([
+                'parseFetchModelFromParams',
+                'parseRequireApiScaffolding',
+                'parseRequireJson',
+                'parseRequireCreatePermission',
+                'parseModelCreateParameters' ])
+              ->addQueryStep('queryModelCreate')
+              ->addTransformSteps([
+                'transformModelCreate',
+                'transformOutputJson']);
 
         if (!$route->execute($req, $res, $this->app) && $res->getCode() == 200)
             return SKIP_ROUTE;
@@ -49,16 +51,18 @@ class Controller
 
     public function findAll($req, $res)
     {
-        $route = new ApiRoute([
-            'parseFetchModelFromParams',
-            'parseRequireApiScaffolding',
-            'parseRequireJson',
-            'parseRequireFindPermission',
-            'parseModelFindAllParameters' ],
-        'queryModelFindAll', [
-            'transformModelFindAll',
-            'transformPaginate',
-            'transformOutputJson' ]);
+        $route = new ApiRoute();
+        $route->addParseSteps([
+                'parseFetchModelFromParams',
+                'parseRequireApiScaffolding',
+                'parseRequireJson',
+                'parseRequireFindPermission',
+                'parseModelFindAllParameters'])
+              ->addQueryStep('queryModelFindAll')
+              ->addTransformSteps([
+                'transformModelFindAll',
+                'transformPaginate',
+                'transformOutputJson']);
 
         if (!$route->execute($req, $res, $this->app) && $res->getCode() == 200) {
             // if the model could not be determined, then it might
@@ -78,15 +82,17 @@ class Controller
 
     public function findOne($req, $res)
     {
-        $route = new ApiRoute([
-            'parseFetchModelFromParams',
-            'parseRequireApiScaffolding',
-            'parseRequireJson',
-            'parseModelFindOneParameters' ],
-        'queryModelFindOne', [
-            'transformModelFindOne',
-            'transformModelToArray',
-            'transformOutputJson']);
+        $route = new ApiRoute();
+        $route->addParseSteps([
+                'parseFetchModelFromParams',
+                'parseRequireApiScaffolding',
+                'parseRequireJson',
+                'parseModelFindOneParameters' ])
+              ->addQueryStep('queryModelFindOne')
+              ->addTransformSteps([
+                'transformModelFindOne',
+                'transformModelToArray',
+                'transformOutputJson']);
 
         if (!$route->execute($req, $res, $this->app) && $res->getCode() == 200)
             return SKIP_ROUTE;
@@ -94,14 +100,16 @@ class Controller
 
     public function edit($req, $res)
     {
-        $route = new ApiRoute([
-            'parseFetchModelFromParams',
-            'parseRequireApiScaffolding',
-            'parseRequireJson',
-            'parseModelEditParameters' ],
-        'queryModelEdit', [
-            'transformModelEdit',
-            'transformOutputJson']);
+        $route = new ApiRoute();
+        $route->addParseSteps([
+                'parseFetchModelFromParams',
+                'parseRequireApiScaffolding',
+                'parseRequireJson',
+                'parseModelEditParameters' ])
+              ->addQueryStep('queryModelEdit')
+              ->addTransformSteps([
+                'transformModelEdit',
+                'transformOutputJson']);
 
         if (!$route->execute($req, $res, $this->app) && $res->getCode() == 200)
             return SKIP_ROUTE;
@@ -109,14 +117,16 @@ class Controller
 
     public function delete($req, $res)
     {
-        $route = new ApiRoute([
-            'parseFetchModelFromParams',
-            'parseRequireApiScaffolding',
-            'parseRequireJson',
-            'parseModelDeleteParameters' ],
-        'queryModelDelete', [
-            'transformModelDelete',
-            'transformOutputJson']);
+        $route = new ApiRoute();
+        $route->addParseSteps([
+                'parseFetchModelFromParams',
+                'parseRequireApiScaffolding',
+                'parseRequireJson',
+                'parseModelDeleteParameters' ])
+              ->addQueryStep('queryModelDelete')
+              ->addTransformSteps([
+                'transformModelDelete',
+                'transformOutputJson']);
 
         if (!$route->execute($req, $res, $this->app) && $res->getCode() == 200)
             return SKIP_ROUTE;

@@ -23,7 +23,8 @@
 	},
 	"require-dev": {
 		"satooshi/php-coveralls": "dev-master",
-		"idealistsoft/framework-bootstrap": "dev-master"
+		"idealistsoft/framework-bootstrap": "dev-master",
+		"mockery/mockery": "0.9.1"
 	},
 	"minimum-stability": "dev"
 }
