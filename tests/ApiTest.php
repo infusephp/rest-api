@@ -3,7 +3,6 @@
 use infuse\Request;
 use infuse\Response;
 
-use App;
 use app\api\libs\Api;
 use app\api\libs\ApiRoute;
 
