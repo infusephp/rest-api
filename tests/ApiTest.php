@@ -148,7 +148,8 @@ class ApiTest extends \PHPUnit_Framework_TestCase
 
         $expected = [
             'model_id' => 101,
-            'expand' => []];
+            'expand' => [],
+            'include' => []];
         $this->assertEquals($expected, $route->getQueryParams());
     }
 

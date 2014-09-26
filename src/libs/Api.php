@@ -142,7 +142,8 @@ class Api
 
         $route->addQueryParams([
             'model_id' => $req->params('id'),
-            'expand' => (array) $req->query('expand')]);
+            'expand' => (array) $req->query('expand'),
+            'include' => (array) $req->query('include')]);
 
         return true;
     }
@@ -314,7 +315,10 @@ class Api
         if ($modelObj instanceof $modelClass) {
             $modelInfo = $modelObj::metadata();
             $result = [
-                $modelInfo['singular_key'] => $modelObj->toArray([], [], $route->getQueryParams('expand'))];
+                $modelInfo['singular_key'] => $modelObj->toArray(
+                    [], // exclude
+                    $route->getQueryParams('include'),
+                    $route->getQueryParams('expand'))];
         }
     }
 
