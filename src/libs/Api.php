@@ -201,9 +201,6 @@ class Api
 
         $modelObj = new $modelClass($route->getQueryParams('model_id'));
 
-        if (!$modelObj->can('edit', $this->app['user']))
-            return false;
-
         return $modelObj->set($route->getQueryParams('properties'));
     }
 
@@ -212,9 +209,6 @@ class Api
         $modelClass = $route->getQueryParams('model');
 
         $modelObj = new $modelClass($route->getQueryParams('model_id'));
-
-        if (!$modelObj->can('delete', $this->app['user']))
-            return false;
 
         return $modelObj->delete();
     }
