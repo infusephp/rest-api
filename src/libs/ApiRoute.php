@@ -33,6 +33,7 @@ class ApiRoute
     private $transformSteps;
     private $req;
     private $res;
+    private $controller;
 
     /**
      * Creates a new API route object
@@ -54,6 +55,13 @@ class ApiRoute
     // SETUP
     ////////////////////////
 
+    /**
+     * Sets (replaces) the query parameters
+     *
+     * @param array $query
+     *
+     * @return self
+     */
     public function addQueryParams(array $query)
     {
         $this->query = array_replace($this->query, $query);
@@ -66,7 +74,7 @@ class ApiRoute
      *
      * @param array $parseSteps collection of ordered callables for parsing
      *
-     * @return ApiRoute
+     * @return self
      */
     public function addParseSteps(array $parseSteps)
     {
@@ -80,7 +88,7 @@ class ApiRoute
      *
      * @param callable|string $queryStep step for performing the query
      *
-     * @return ApiRoute
+     * @return self
      */
     public function addQueryStep($queryStep)
     {
@@ -94,7 +102,7 @@ class ApiRoute
      *
      * @param array $transformSteps collection of ordered callables for transforming the result
      *
-     * @return ApiRoute
+     * @return self
      */
     public function addTransformSteps(array $transformSteps)
     {
@@ -108,7 +116,7 @@ class ApiRoute
      *
      * @param Response $res
      *
-     * @return ApiRoute
+     * @return self
      */
     public function setRequest(Request $req)
     {
@@ -122,11 +130,25 @@ class ApiRoute
      *
      * @param Response $res
      *
-     * @return ApiRoute
+     * @return self
      */
     public function setResponse(Response $res)
     {
         $this->res = $res;
+
+        return $this;
+    }
+
+    /**
+     * Sets the controller object
+     *
+     * @param object $controller
+     *
+     * @return self
+     */
+    public function setController($controller)
+    {
+        $this->controller = $controller;
 
         return $this;
     }
@@ -165,6 +187,16 @@ class ApiRoute
     public function getResponse()
     {
         return $this->res;
+    }
+
+    /**
+     * Gets the controller object
+     *
+     * @return object controller
+     */
+    public function getController()
+    {
+        return $this->controller;
     }
 
     /**
@@ -210,17 +242,23 @@ class ApiRoute
      *
      * @return boolean true when completed, false when failed at some step
      */
-    public function execute(Request $req, Response $res, App $app = null)
+    public function execute(Request $req = null, Response $res = null, App $app = null)
     {
-        $this->setRequest($req);
-        $this->setResponse($res);
+        if ($req)
+            $this->setRequest($req);
 
-        $api = new Api();
-        $api->injectApp($app);
+        if ($res)
+            $this->setResponse($res);
+
+        if (!$this->controller)
+            $this->controller = new ApiController();
+
+        if (method_exists($this->controller, 'injectApp'))
+            $this->controller->injectApp($app);
 
         foreach ($this->parseSteps as $parseStep) {
             if (is_string($parseStep))
-                $parseStep = [$api, $parseStep];
+                $parseStep = [$this->controller, $parseStep];
 
             if ($parseStep($this) === false)
                 return false;
@@ -228,13 +266,13 @@ class ApiRoute
 
         $queryStep = $this->queryStep;
         if (is_string($queryStep))
-            $queryStep = [$api, $queryStep];
+            $queryStep = [$this->controller, $queryStep];
 
         $result = $queryStep($this);
 
         foreach ($this->transformSteps as $transformStep) {
             if (is_string($transformStep))
-                $transformStep = [$api, $transformStep];
+                $transformStep = [$this->controller, $transformStep];
 
             if ($transformStep($result, $this) === false)
                 return false;
