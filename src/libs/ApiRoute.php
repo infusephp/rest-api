@@ -253,7 +253,7 @@ class ApiRoute
         if (!$this->controller)
             $this->controller = new ApiController();
 
-        if (method_exists($this->controller, 'injectApp'))
+        if ($app && method_exists($this->controller, 'injectApp'))
             $this->controller->injectApp($app);
 
         foreach ($this->parseSteps as $parseStep) {

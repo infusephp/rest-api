@@ -31,7 +31,8 @@ class ApiController
                 'transformModelCreate',
                 'transformOutputJson'])
               ->setRequest($req)
-              ->setResponse($res);
+              ->setResponse($res)
+              ->setController($this);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200)
@@ -56,7 +57,8 @@ class ApiController
                 'transformPaginate',
                 'transformOutputJson'])
               ->setRequest($req)
-              ->setResponse($res);
+              ->setResponse($res)
+              ->setController($this);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200) {
@@ -92,7 +94,8 @@ class ApiController
                 'transformModelToArray',
                 'transformOutputJson'])
               ->setRequest($req)
-              ->setResponse($res);
+              ->setResponse($res)
+              ->setController($this);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200)
@@ -115,7 +118,8 @@ class ApiController
                 'transformModelEdit',
                 'transformOutputJson'])
               ->setRequest($req)
-              ->setResponse($res);
+              ->setResponse($res)
+              ->setController($this);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200)
@@ -138,7 +142,8 @@ class ApiController
                 'transformModelDelete',
                 'transformOutputJson'])
               ->setRequest($req)
-              ->setResponse($res);
+              ->setResponse($res)
+              ->setController($this);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200)

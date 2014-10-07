@@ -18,6 +18,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
+        $this->assertEquals($api, $route->getController());
     }
 
     public function testFindAllRoute()
@@ -30,6 +31,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
+        $this->assertEquals($api, $route->getController());
     }
 
     public function testFindOneRoute()
@@ -42,6 +44,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
+        $this->assertEquals($api, $route->getController());
     }
 
     public function testEditRoute()
@@ -54,6 +57,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
+        $this->assertEquals($api, $route->getController());
     }
 
     public function testDeleteRoute()
@@ -66,6 +70,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
+        $this->assertEquals($api, $route->getController());
     }
 
     public function testParseFetchModelFromParamsAlreadySet()
