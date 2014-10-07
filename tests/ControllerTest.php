@@ -1,22 +1,14 @@
 <?php
 
-/**
- * @package infuse\framework
- * @author Jared King <j@jaredtking.com>
- * @link http://jaredtking.com
- * @version 0.1.16
- * @copyright 2013 Jared King
- * @license MIT
- */
+use app\api\Controller;
 
-namespace app\api;
-
-use app\api\libs\ApiController;
-
-class Controller extends ApiController
+class ControllerTest extends \PHPUnit_Framework_TestCase
 {
-    public static $properties = [
-        'routes' => [
+    public function testController()
+    {
+        $controller = new Controller();
+
+        $expected = [
             'post /api/:module' => 'create',
             'post /api/:module/:model' => 'create',
             'get /api/:module' => 'findAll',
@@ -26,6 +18,7 @@ class Controller extends ApiController
             'put /api/:module/:model/:id' => 'edit',
             'delete /api/:module/:id' => 'delete',
             'delete /api/:module/:model/:id' => 'delete',
-        ]
-    ];
+        ];
+        $this->assertEquals($expected, $controller::$properties['routes']);
+    }
 }
