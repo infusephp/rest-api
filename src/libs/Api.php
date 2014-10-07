@@ -19,15 +19,19 @@ class Api
 
     public function parseFetchModelFromParams(ApiRoute $route)
     {
+        $query = $route->getQueryParams();
+        if (isset($query['module']) && isset($query['model']))
+            return true;
+
         $req = $route->getRequest();
 
-        $module = $req->params( 'module' );
-        $model = $req->params( 'model' );
+        $module = $req->params('module');
+        $model = $req->params('model');
 
         // instantiate the controller
         $controller = '\\app\\' . $module . '\\Controller';
-        if ( !class_exists( $controller ) ) {
-            $route->getResponse()->setCode( 404 );
+        if (!class_exists($controller)) {
+            $route->getResponse()->setCode(404);
 
             return false;
         }
@@ -39,25 +43,24 @@ class Api
         // TODO this is an inefficient function, needs refactor
 
         // fetch all available models from the controller
-        $modelsInfo = $this->models( $controllerObj );
+        $modelsInfo = $this->models($controllerObj);
 
         // look for a default model
         if (!$model) {
             // when there is only one choice, use it
-            if( count( $modelsInfo ) == 1 )
-                $model = array_keys( $modelsInfo )[ 0 ];
+            if (count($modelsInfo) == 1)
+                $model = array_keys($modelsInfo)[0];
             else
-                $model = U::array_value( $controller::$properties, 'defaultModel' );
+                $model = U::array_value($controller::$properties, 'defaultModel');
         }
 
         // convert the route name to the pluralized name
-        $modelName = Inflector::singularize( Inflector::camelize( $model ) );
+        $modelName = Inflector::singularize(Inflector::camelize($model));
 
         // attempt to fetch the model info
-        $modelInfo = U::array_value( $modelsInfo, $modelName );
+        $modelInfo = U::array_value($modelsInfo, $modelName);
 
-        if( !$modelInfo )
-
+        if (!$modelInfo)
             return false;
 
         $route->addQueryParams([

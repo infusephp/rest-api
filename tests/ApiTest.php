@@ -8,6 +8,35 @@ use app\api\libs\ApiRoute;
 
 class ApiTest extends \PHPUnit_Framework_TestCase
 {
+    public function testParseFetchModelFromParamsAlreadySet()
+    {
+        $route = new ApiRoute();
+        $route->addQueryParams([
+            'module' => 'test',
+            'model' => 'Test']);
+
+        $api = new Api();
+        $this->assertTrue($api->parseFetchModelFromParams($route));
+    }
+
+    public function testParseFetchModelFromParamsNoController()
+    {
+        $route = new ApiRoute();
+
+        $req = new Request();
+        $req->setParams([
+            'module' => 'test',
+            'model' => 'Test']);
+        $route->setRequest($req);
+
+        $res = new Response();
+        $route->setResponse($res);
+
+        $api = new Api();
+        $this->assertFalse($api->parseFetchModelFromParams($route));
+        $this->assertEquals(404, $res->getCode());
+    }
+
     public function testParseFetchModelFromParams()
     {
         $this->markTestIncomplete();
