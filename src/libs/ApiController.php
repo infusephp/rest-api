@@ -266,16 +266,13 @@ class ApiController
         if ($limit <= 0 || $limit > 1000)
             $limit = 100;
 
-        // extend where
-        $where = (array) $route->getQuery('where');
-
-        $route->addQueryParams([
+        $route->addQueryParams(array_replace([
             'start' => $start,
             'limit' => $limit,
             'sort' => $req->query('sort'),
             'search' => $req->query('search'),
-            'where' => array_replace($where, (array) $req->query('filter')),
-            'expand' => (array) $req->query('expand')]);
+            'where' => (array) $req->query('filter'),
+            'expand' => (array) $req->query('expand')], $route->getQuery()));
     }
 
     public function parseModelFindOneParameters(ApiRoute $route)
