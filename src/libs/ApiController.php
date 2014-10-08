@@ -166,7 +166,7 @@ class ApiController
 
     public function parseFetchModelFromParams(ApiRoute $route)
     {
-        $query = $route->getQueryParams();
+        $query = $route->getQuery();
         if (isset($query['model']))
             return true;
 
@@ -217,7 +217,7 @@ class ApiController
     public function parseRequireApiScaffolding(ApiRoute $route)
     {
         // check if api scaffolding is enabled on the model
-        if (!property_exists($route->getQueryParams('model'), 'scaffoldApi')) {
+        if (!property_exists($route->getQuery('model'), 'scaffoldApi')) {
             $route->getResponse()->setCode(404);
 
             return false;
@@ -267,7 +267,7 @@ class ApiController
             $limit = 100;
 
         // extend where
-        $where = (array) $route->getQueryParams('where');
+        $where = (array) $route->getQuery('where');
 
         $route->addQueryParams([
             'start' => $start,
@@ -308,9 +308,9 @@ class ApiController
 
     public function queryModelCreate(ApiRoute $route)
     {
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
         $model = new $modelClass();
-        if($model->create($route->getQueryParams('properties')))
+        if($model->create($route->getQuery('properties')))
 
             return $model;
 
@@ -319,32 +319,32 @@ class ApiController
 
     public function queryModelFindAll(ApiRoute $route)
     {
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
 
-        return $modelClass::find($route->getQueryParams());
+        return $modelClass::find($route->getQuery());
     }
 
     public function queryModelFindOne(ApiRoute $route)
     {
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
 
-        return new $modelClass($route->getQueryParams('model_id'));
+        return new $modelClass($route->getQuery('model_id'));
     }
 
     public function queryModelEdit(ApiRoute $route)
     {
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
 
-        $modelObj = new $modelClass($route->getQueryParams('model_id'));
+        $modelObj = new $modelClass($route->getQuery('model_id'));
 
-        return $modelObj->set($route->getQueryParams('properties'));
+        return $modelObj->set($route->getQuery('properties'));
     }
 
     public function queryModelDelete(ApiRoute $route)
     {
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
 
-        $modelObj = new $modelClass($route->getQueryParams('model_id'));
+        $modelObj = new $modelClass($route->getQuery('model_id'));
 
         return $modelObj->delete();
     }
@@ -358,10 +358,10 @@ class ApiController
         $response = new \stdClass();
 
         if ($result) {
-            $modelClass = $route->getQueryParams('model');
+            $modelClass = $route->getQuery('model');
             $modelInfo = $modelClass::metadata();
             $modelRouteName = $modelInfo['singular_key'];
-            $response->$modelRouteName = $result->toArray([], [], $route->getQueryParams('expand'));
+            $response->$modelRouteName = $result->toArray([], [], $route->getQuery('expand'));
             $response->success = true;
             $route->getResponse()->setCode(201);
         } else {
@@ -374,13 +374,13 @@ class ApiController
     public function transformModelFindAll(&$result, ApiRoute $route)
     {
         $response = new \stdClass();
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
         $modelInfo = $modelClass::metadata();
         $modelRouteName = $modelInfo['plural_key'];
         $response->$modelRouteName = [];
 
         foreach ($result['models'] as $m)
-            array_push($response->$modelRouteName, $m->toArray([], [], $route->getQueryParams('expand')));
+            array_push($response->$modelRouteName, $m->toArray([], [], $route->getQuery('expand')));
 
         $response->filtered_count = $result['count'];
 
@@ -389,7 +389,7 @@ class ApiController
 
     public function transformPaginate(&$result, ApiRoute $route)
     {
-        $query = $route->getQueryParams();
+        $query = $route->getQuery();
         $modelClass = $query['model'];
         $total = $modelClass::totalRecords($query['where']);
         $page = $query['start'] / $query['limit'] + 1;
@@ -402,7 +402,7 @@ class ApiController
 
         // links
         $modelInfo = $modelClass::metadata();
-        $base = $route->getQueryParams('route_base') . '/' . $modelInfo['plural_key'] . "?sort={$query['sort']}&limit={$query['limit']}";
+        $base = $route->getQuery('route_base') . '/' . $modelInfo['plural_key'] . "?sort={$query['sort']}&limit={$query['limit']}";
         $last = ($page_count-1) * $query['limit'];
         $result->links = [
             'self' => "$base&start={$query['start']}",
@@ -440,14 +440,14 @@ class ApiController
     {
         $modelObj = $result;
 
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
         if ($modelObj instanceof $modelClass) {
             $modelInfo = $modelObj::metadata();
             $result = [
                 $modelInfo['singular_key'] => $modelObj->toArray(
                     [], // exclude
-                    $route->getQueryParams('include'),
-                    $route->getQueryParams('expand'))];
+                    $route->getQuery('include'),
+                    $route->getQuery('expand'))];
         }
     }
 
@@ -531,7 +531,7 @@ class ApiController
      */
     private function require_permission($permission, ApiRoute $route)
     {
-        $modelClass = $route->getQueryParams('model');
+        $modelClass = $route->getQuery('model');
         $modelObj = new $modelClass();
 
         if (!$modelObj->can($permission, $this->app['user'])) {

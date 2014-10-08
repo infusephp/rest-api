@@ -83,7 +83,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $api = new ApiController();
         $this->assertNull($api->parseRouteBase($route));
-        $this->assertEquals('/api/users', $route->getQueryParams('route_base'));
+        $this->assertEquals('/api/users', $route->getQuery('route_base'));
     }
 
     public function testParseFetchModelFromParamsAlreadySet()
@@ -200,8 +200,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $api = new ApiController();
         $this->assertNull($api->parseModelCreateParameters($route));
 
-        $this->assertEquals($test, $route->getQueryParams('properties'));
-        $this->assertEquals(['invoice'], $route->getQueryParams('expand'));
+        $this->assertEquals($test, $route->getQuery('properties'));
+        $this->assertEquals(['invoice'], $route->getQuery('expand'));
     }
 
     public function testParseModelFindAllParameters()
@@ -239,7 +239,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
                 'customer.address',
                 'invoice'
             ] ];
-        $this->assertEquals($expected, $route->getQueryParams());
+        $this->assertEquals($expected, $route->getQuery());
     }
 
     public function testParseModelFindOneParameters()
@@ -257,7 +257,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'model_id' => 101,
             'expand' => [],
             'include' => []];
-        $this->assertEquals($expected, $route->getQueryParams());
+        $this->assertEquals($expected, $route->getQuery());
     }
 
     public function testParseModelEditParameters()
@@ -271,8 +271,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $api = new ApiController();
         $this->assertNull($api->parseModelEditParameters($route));
-        $this->assertEquals( 101, $route->getQueryParams('model_id'));
-        $this->assertEquals( $test, $route->getQueryParams('properties'));
+        $this->assertEquals( 101, $route->getQuery('model_id'));
+        $this->assertEquals( $test, $route->getQuery('properties'));
     }
 
     public function testParseModelDeleteParameters()
@@ -285,7 +285,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $api = new ApiController();
         $this->assertNull($api->parseModelDeleteParameters($route));
-        $this->assertEquals( 102, $route->getQueryParams('model_id'));
+        $this->assertEquals( 102, $route->getQuery('model_id'));
     }
 
     public function testQueryModelCreate()

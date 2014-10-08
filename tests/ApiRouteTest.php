@@ -14,8 +14,8 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $route->addQueryParams(['test' => true]));
         $this->assertEquals($route, $route->addQueryParams(['test2' => true]));
 
-        $this->assertEquals(['test'=>true, 'test2'=>true], $route->getQueryParams());
-        $this->assertTrue($route->getQueryParams('test'));
+        $this->assertEquals(['test'=>true, 'test2'=>true], $route->getQuery());
+        $this->assertTrue($route->getQuery('test'));
     }
 
     public function testRequest()

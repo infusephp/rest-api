@@ -164,9 +164,17 @@ class ApiRoute
      *
      * @return mixed
      */
-    public function getQueryParams($index = false)
+    public function getQuery($index = false)
     {
         return ($index) ? U::array_value($this->query, $index) : $this->query;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function getQueryParams($index = false)
+    {
+        return $this->getQuery($index);
     }
 
     /**
