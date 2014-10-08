@@ -73,6 +73,19 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($api, $route->getController());
     }
 
+    public function testParseRouteBase()
+    {
+        $route = new ApiRoute();
+        $req = Mockery::mock('\\infuse\\Request');
+        $req->shouldReceive('basePath')->andReturn('/api');
+        $req->shouldReceive('path')->andReturn('/users');
+        $route->setRequest($req);
+
+        $api = new ApiController();
+        $this->assertNull($api->parseRouteBase($route));
+        $this->assertEquals('/api/users', $route->getQueryParams('route_base'));
+    }
+
     public function testParseFetchModelFromParamsAlreadySet()
     {
         $route = new ApiRoute();
@@ -116,7 +129,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->addQueryParams(['model' => $model]);
 
         $api = new ApiController();
-        $this->assertTrue($api->parseRequireApiScaffolding($route));
+        $this->assertNull($api->parseRequireApiScaffolding($route));
     }
 
     public function testParseRequireApiScaffoldingFail()
@@ -139,7 +152,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertTrue($api->parseRequireJson($route));
+        $this->assertNull($api->parseRequireJson($route));
     }
 
     public function testParseRequireJsonFail()
@@ -185,7 +198,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertTrue($api->parseModelCreateParameters($route));
+        $this->assertNull($api->parseModelCreateParameters($route));
 
         $this->assertEquals($test, $route->getQueryParams('properties'));
         $this->assertEquals(['invoice'], $route->getQueryParams('expand'));
@@ -211,7 +224,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertTrue($api->parseModelFindAllParameters($route));
+        $this->assertNull($api->parseModelFindAllParameters($route));
 
         $expected = [
             'start' => 10,
@@ -238,7 +251,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertTrue($api->parseModelFindOneParameters($route));
+        $this->assertNull($api->parseModelFindOneParameters($route));
 
         $expected = [
             'model_id' => 101,
@@ -257,7 +270,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertTrue( $api->parseModelEditParameters($route));
+        $this->assertNull($api->parseModelEditParameters($route));
         $this->assertEquals( 101, $route->getQueryParams('model_id'));
         $this->assertEquals( $test, $route->getQueryParams('properties'));
     }
@@ -271,7 +284,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertTrue( $api->parseModelDeleteParameters($route));
+        $this->assertNull($api->parseModelDeleteParameters($route));
         $this->assertEquals( 102, $route->getQueryParams('model_id'));
     }
 

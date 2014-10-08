@@ -46,6 +46,7 @@ class ApiController
     {
         $route = new ApiRoute();
         $route->addParseSteps([
+                'parseRouteBase',
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
                 'parseRequireJson',
@@ -157,10 +158,16 @@ class ApiController
     // PARSE METHODS
     ///////////////////////////////
 
+    public function parseRouteBase(ApiRoute $route)
+    {
+        $req = $route->getRequest();
+        $route->addQueryParams(['route_base' => $req->basePath() . $req->path()]);
+    }
+
     public function parseFetchModelFromParams(ApiRoute $route)
     {
         $query = $route->getQueryParams();
-        if (isset($query['module']) && isset($query['model']))
+        if (isset($query['model']))
             return true;
 
         $req = $route->getRequest();
@@ -183,7 +190,7 @@ class ApiController
         // TODO this is an inefficient function, needs refactor
 
         // fetch all available models from the controller
-        $modelsInfo = $this->models($controllerObj);
+        $modelsInfo = $this->models($controllerObj, $module);
 
         // look for a default model
         if (!$model) {
@@ -204,10 +211,7 @@ class ApiController
             return false;
 
         $route->addQueryParams([
-            'model' => $modelInfo['class_name'],
-            'module' => $module]);
-
-        return true;
+            'model' => $modelInfo['class_name']]);
     }
 
     public function parseRequireApiScaffolding(ApiRoute $route)
@@ -218,8 +222,6 @@ class ApiController
 
             return false;
         }
-
-        return true;
     }
 
     public function parseRequireJson(ApiRoute $route)
@@ -229,8 +231,6 @@ class ApiController
 
             return false;
         }
-
-        return true;
     }
 
     public function parseRequireFindPermission(ApiRoute $route)
@@ -250,8 +250,6 @@ class ApiController
         $route->addQueryParams([
             'properties' => $req->request(),
             'expand' => (array) $req->query('expand')]);
-
-        return true;
     }
 
     public function parseModelFindAllParameters(ApiRoute $route)
@@ -268,15 +266,16 @@ class ApiController
         if ($limit <= 0 || $limit > 1000)
             $limit = 100;
 
+        // extend where
+        $where = (array) $route->getQueryParams('where');
+
         $route->addQueryParams([
             'start' => $start,
             'limit' => $limit,
             'sort' => $req->query('sort'),
             'search' => $req->query('search'),
-            'where' => (array) $req->query('filter'),
+            'where' => array_replace($where, (array) $req->query('filter')),
             'expand' => (array) $req->query('expand')]);
-
-        return true;
     }
 
     public function parseModelFindOneParameters(ApiRoute $route)
@@ -287,8 +286,6 @@ class ApiController
             'model_id' => $req->params('id'),
             'expand' => (array) $req->query('expand'),
             'include' => (array) $req->query('include')]);
-
-        return true;
     }
 
     public function parseModelEditParameters(ApiRoute $route)
@@ -298,15 +295,11 @@ class ApiController
         $route->addQueryParams([
             'model_id' => $req->params('id'),
             'properties' => $req->request()]);
-
-        return true;
     }
 
     public function parseModelDeleteParameters(ApiRoute $route)
     {
         $route->addQueryParams(['model_id' => $route->getRequest()->params('id')]);
-
-        return true;
     }
 
     ///////////////////////////////
@@ -409,8 +402,7 @@ class ApiController
 
         // links
         $modelInfo = $modelClass::metadata();
-        $routeBase = '/' . $query['module'] . '/' . $modelInfo['plural_key'];
-        $base = $routeBase . "?sort={$query['sort']}&limit={$query['limit']}";
+        $base = $route->getQueryParams('route_base') . '/' . $modelInfo['plural_key'] . "?sort={$query['sort']}&limit={$query['limit']}";
         $last = ($page_count-1) * $query['limit'];
         $result->links = [
             'self' => "$base&start={$query['start']}",
@@ -507,16 +499,16 @@ class ApiController
     ///////////////////////////////
 
     /**
-	 * Fetches the models for a given controller
-	 *
-	 * @param object $controller
-	 *
-	 * @return array
-	 */
-    private function models($controller)
+     * Fetches the models for a given controller
+     *
+     * @param object $controller module controller
+     * @param string $module     module name
+     *
+     * @return array
+     */
+    private function models($controller, $module)
     {
         $properties = $controller::$properties;
-        $module = $this->name($controller);
 
         $models = [];
 
@@ -527,21 +519,6 @@ class ApiController
         }
 
         return $models;
-    }
-
-    /**
-	 * Computes the name for a given controller
-	 *
-	 * @param object $controller
-	 *
-	 * @return string
-	 */
-    private function name($controller)
-    {
-        // compute module name
-        $parts = explode('\\', get_class($controller));
-
-        return $parts[1];
     }
 
     /**
