@@ -266,12 +266,23 @@ class ApiController
         if ($limit <= 0 || $limit > 1000)
             $limit = 100;
 
+        $filter = [];
+        foreach ((array) $req->query('filter') as $key => $value) {
+            if (is_numeric($key) || !preg_match('/^[A-Za-z0-9_]*$/', $key))
+                continue;
+
+            if (is_array($value) || is_object($value))
+                continue;
+
+            $filter[$key] = $value;
+        }
+
         $route->addQueryParams(array_replace([
             'start' => $start,
             'limit' => $limit,
             'sort' => $req->query('sort'),
             'search' => $req->query('search'),
-            'where' => (array) $req->query('filter'),
+            'where' => $filter,
             'expand' => (array) $req->query('expand')], $route->getQuery()));
     }
 

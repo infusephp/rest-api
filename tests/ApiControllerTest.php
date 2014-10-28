@@ -215,7 +215,11 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'search' => 'test',
             'filter' => [
                 'name' => 'john',
-                'year' => 2012
+                'year' => 2012,
+                'test',
+                'OR1=1' => 'whatever',
+                'test' => ['test'],
+                'test2' => new stdClass()
             ],
             'expand' => [
                 'customer.address',
