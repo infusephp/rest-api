@@ -208,7 +208,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
     {
         $route = new ApiRoute();
 
-        $req = new Request( [
+        $req = new Request([
             'start' => 10,
             'limit' => 90,
             'sort' => 'name ASC',
@@ -216,15 +216,14 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'filter' => [
                 'name' => 'john',
                 'year' => 2012,
+                // the elements below are invalid and should be removed
                 'test',
                 'OR1=1' => 'whatever',
                 'test' => ['test'],
-                'test2' => new stdClass()
-            ],
+                'test2' => new stdClass() ],
             'expand' => [
                 'customer.address',
-                'invoice'
-            ] ] );
+                'invoice' ]]);
         $route->setRequest($req);
 
         $api = new ApiController();
@@ -237,12 +236,10 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'search' => 'test',
             'where' => [
                 'name' => 'john',
-                'year' => 2012
-            ],
+                'year' => 2012 ],
             'expand' => [
                 'customer.address',
-                'invoice'
-            ] ];
+                'invoice' ]];
         $this->assertEquals($expected, $route->getQuery());
     }
 
