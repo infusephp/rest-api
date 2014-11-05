@@ -2,7 +2,7 @@
 
 namespace app\api\libs;
 
-use infuse\Inflector;
+use ICanBoogie\Inflector;
 use infuse\Request;
 use infuse\Response;
 use infuse\Utility as U;
@@ -202,7 +202,8 @@ class ApiController
         }
 
         // convert the route name to the pluralized name
-        $modelName = Inflector::singularize(Inflector::camelize($model));
+        $inflector = Inflector::get();
+        $modelName = $inflector->singularize($inflector->camelize($model));
 
         // attempt to fetch the model info
         $modelInfo = U::array_value($modelsInfo, $modelName);
