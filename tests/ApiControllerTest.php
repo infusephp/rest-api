@@ -221,6 +221,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
                 'OR1=1' => 'whatever',
                 'test' => ['test'],
                 'test2' => new stdClass() ],
+            'include' => ['customer'],
+            'exclude' => ['password'],
             'expand' => [
                 'customer.address',
                 'invoice' ]]);
@@ -237,6 +239,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'where' => [
                 'name' => 'john',
                 'year' => 2012 ],
+            'include' => ['customer'],
+            'exclude' => ['password'],
             'expand' => [
                 'customer.address',
                 'invoice' ]];
@@ -256,8 +260,9 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $expected = [
             'model_id' => 101,
-            'expand' => [],
-            'include' => []];
+            'exclude' => [],
+            'include' => [],
+            'expand' => []];
         $this->assertEquals($expected, $route->getQuery());
     }
 

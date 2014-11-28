@@ -250,7 +250,9 @@ class ApiController
 
         $route->addQueryParams([
             'properties' => $req->request(),
-            'expand' => (array) $req->query('expand')]);
+            'expand' => (array) $req->query('expand'),
+            'exclude' => (array) $req->query('exclude'),
+            'include' => (array) $req->query('include')]);
     }
 
     public function parseModelFindAllParameters(ApiRoute $route)
@@ -284,7 +286,9 @@ class ApiController
             'sort' => $req->query('sort'),
             'search' => $req->query('search'),
             'where' => $filter,
-            'expand' => (array) $req->query('expand')], $route->getQuery()));
+            'expand' => (array) $req->query('expand'),
+            'exclude' => (array) $req->query('exclude'),
+            'include' => (array) $req->query('include')], $route->getQuery()));
     }
 
     public function parseModelFindOneParameters(ApiRoute $route)
@@ -294,6 +298,7 @@ class ApiController
         $route->addQueryParams([
             'model_id' => $req->params('id'),
             'expand' => (array) $req->query('expand'),
+            'exclude' => (array) $req->query('exclude'),
             'include' => (array) $req->query('include')]);
     }
 
@@ -454,7 +459,7 @@ class ApiController
             $modelInfo = $modelObj::metadata();
             $result = [
                 $modelInfo['singular_key'] => $modelObj->toArray(
-                    [], // exclude
+                    $route->getQuery('exclude'),
                     $route->getQuery('include'),
                     $route->getQuery('expand'))];
         }
