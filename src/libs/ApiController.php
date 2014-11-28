@@ -437,7 +437,7 @@ class ApiController
         }
 
         // can the model be viewed?
-        if (!$modelObj->can('view', $this->app['user'])) {
+        if (!$modelObj->can('view', $this->app['requester'])) {
             $result = ['error' => 'no_permission'];
             $route->getResponse()->setCode(403);
 
@@ -543,7 +543,7 @@ class ApiController
         $modelClass = $route->getQuery('model');
         $modelObj = new $modelClass();
 
-        if (!$modelObj->can($permission, $this->app['user'])) {
+        if (!$modelObj->can($permission, $this->app['requester'])) {
             $route->getResponse()->json(['error' => 'no_permission'])
                 ->setCode(403);
 
