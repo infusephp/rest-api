@@ -375,7 +375,10 @@ class ApiController
             $modelClass = $route->getQuery('model');
             $modelInfo = $modelClass::metadata();
             $modelRouteName = $modelInfo['singular_key'];
-            $response->$modelRouteName = $result->toArray([], [], $route->getQuery('expand'));
+            $response->$modelRouteName = $result->toArray(
+                $route->getQuery('exclude'),
+                $route->getQuery('include'),
+                $route->getQuery('expand'));
             $response->success = true;
             $route->getResponse()->setCode(201);
         } else {
@@ -394,7 +397,10 @@ class ApiController
         $response->$modelRouteName = [];
 
         foreach ($result['models'] as $m)
-            array_push($response->$modelRouteName, $m->toArray([], [], $route->getQuery('expand')));
+            array_push($response->$modelRouteName, $m->toArray(
+                $route->getQuery('exclude'),
+                $route->getQuery('include'),
+                $route->getQuery('expand')));
 
         $response->filtered_count = $result['count'];
 
