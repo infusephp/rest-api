@@ -476,8 +476,7 @@ class ApiController
         // compute links
         $modelClass = $query['model'];
         $modelInfo = $modelClass::metadata();
-        $base = $route->getQuery('route_base').'/'.$modelInfo['plural_key'].
-            "?limit=$limit&".http_build_query($route->getRequest()->query());
+        $base = $route->getQuery('route_base')."?limit=$limit&".http_build_query($route->getRequest()->query());
 
         // self/first links
         $links = [
