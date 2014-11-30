@@ -22,7 +22,6 @@ class ApiController
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
-                'parseRequireJson',
                 'parseRequireCreatePermission',
                 'parseModelCreateParameters', ])
               ->addQueryStep('queryModelCreate')
@@ -49,7 +48,6 @@ class ApiController
                 'parseRouteBase',
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
-                'parseRequireJson',
                 'parseRequireFindPermission',
                 'parseModelFindAllParameters', ])
               ->addQueryStep('queryModelFindAll')
@@ -87,7 +85,6 @@ class ApiController
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
-                'parseRequireJson',
                 'parseModelFindOneParameters', ])
               ->addQueryStep('queryModelFindOne')
               ->addTransformSteps([
@@ -113,7 +110,6 @@ class ApiController
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
-                'parseRequireJson',
                 'parseModelEditParameters', ])
               ->addQueryStep('queryModelEdit')
               ->addTransformSteps([
@@ -138,7 +134,6 @@ class ApiController
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
-                'parseRequireJson',
                 'parseModelDeleteParameters', ])
               ->addQueryStep('queryModelDelete')
               ->addTransformSteps([
