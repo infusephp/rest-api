@@ -416,32 +416,55 @@ class ApiController
 
     public function transformPaginate(&$result, ApiRoute $route)
     {
+        $res = $route->getResponse();
+
+        // total count
+        $res->setHeader('X-Total-Count', $result->filtered_count);
+
         $query = $route->getQuery();
+        $start = $query['start'];
+        $limit = $query['limit'];
+        $page = $start / $limit + 1;
+        $page_count = max(1, ceil($result->filtered_count / $limit));
+        $last = ($page_count-1) * $limit;
+
+        // compute links
         $modelClass = $query['model'];
-        $total = $modelClass::totalRecords($query['where']);
-        $page = $query['start'] / $query['limit'] + 1;
-        $page_count = max(1, ceil($result->filtered_count / $query['limit']));
-
-        $result->page = $page;
-        $result->per_page = $query['limit'];
-        $result->page_count = $page_count;
-        $result->total_count = $total;
-
-        // links
         $modelInfo = $modelClass::metadata();
-        $base = $route->getQuery('route_base').'/'.$modelInfo['plural_key']."?sort={$query['sort']}&limit={$query['limit']}";
-        $last = ($page_count-1) * $query['limit'];
-        $result->links = [
-            'self' => "$base&start={$query['start']}",
+        $base = $route->getQuery('route_base').'/'.$modelInfo['plural_key']."?sort={$query['sort']}&limit=$limit";
+
+        // self/first links
+        $links = [
+            'self' => "$base&start=$start",
             'first' => "$base&start=0",
-            'last' => "$base&start=$last",
         ];
+
+        // previous/next links
         if ($page > 1) {
-            $result->links['previous'] = "$base&start=".($page-2) * $query['limit'];
+            $links['previous'] = "$base&start=".max(0, ($page-2) * $limit);
         }
+
         if ($page < $page_count) {
-            $result->links['next'] = "$base&start=".($page) * $query['limit'];
+            $links['next'] = "$base&start=".($page) * $limit;
         }
+
+        // last link
+        $links['last'] = "$base&start=$last";
+
+        // add links to Link header
+        $linkStr = implode(',', array_map(function ($link, $rel) {
+            return "<$link>; rel=\"$rel\"";
+        }, $links, array_keys($links)));
+
+        $res->setHeader('Link', $linkStr);
+
+        // add pagination metadata to response body
+        // TODO deprecated
+        $result->page = $page;
+        $result->per_page = $limit;
+        $result->page_count = $page_count;
+        $result->total_count = $modelClass::totalRecords($query['where']);
+        $result->links = $links;
     }
 
     public function transformModelFindOne(&$result, ApiRoute $route)

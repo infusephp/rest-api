@@ -330,7 +330,33 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testTransformPaginate()
     {
-        $this->markTestIncomplete();
+        $model = Mockery::mock('alias:ModelClass');
+        $model->shouldReceive('metadata')->andReturn([
+            'plural_key' => 'models', ]);
+        // TODO deprecated
+        $model->shouldReceive('totalRecords')->andreturn(500);
+
+        $route = new ApiRoute();
+        $res = new Response();
+        $route->setResponse($res)
+              ->addQueryParams([
+                    'model' => 'ModelClass',
+                    'start' => 50,
+                    'limit' => 50,
+                    'route_base' => '/api',
+                    'sort' => 'name ASC',
+                    // TODO deprecated
+                    'where' => [], ]);
+
+        $result = new stdClass();
+        $result->filtered_count = 200;
+
+        $api = new ApiController();
+        $api->transformPaginate($result, $route);
+
+        $res = $route->getResponse();
+        $this->assertEquals('200', $res->headers('X-Total-Count'));
+        $this->assertEquals('</api/models?sort=name ASC&limit=50&start=50>; rel="self",</api/models?sort=name ASC&limit=50&start=0>; rel="first",</api/models?sort=name ASC&limit=50&start=0>; rel="previous",</api/models?sort=name ASC&limit=50&start=100>; rel="next",</api/models?sort=name ASC&limit=50&start=150>; rel="last"', $res->headers('Link'));
     }
 
     public function testTransformModelFindOne()
