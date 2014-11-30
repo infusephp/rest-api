@@ -5,7 +5,6 @@ namespace app\api\libs;
 use infuse\Request;
 use infuse\Response;
 use infuse\Utility as U;
-
 use App;
 
 /*
@@ -252,38 +251,47 @@ class ApiRoute
      */
     public function execute(Request $req = null, Response $res = null, App $app = null)
     {
-        if ($req)
+        if ($req) {
             $this->setRequest($req);
+        }
 
-        if ($res)
+        if ($res) {
             $this->setResponse($res);
+        }
 
-        if (!$this->controller)
+        if (!$this->controller) {
             $this->controller = new ApiController();
+        }
 
-        if ($app && method_exists($this->controller, 'injectApp'))
+        if ($app && method_exists($this->controller, 'injectApp')) {
             $this->controller->injectApp($app);
+        }
 
         foreach ($this->parseSteps as $parseStep) {
-            if (is_string($parseStep))
+            if (is_string($parseStep)) {
                 $parseStep = [$this->controller, $parseStep];
+            }
 
-            if ($parseStep($this) === false)
+            if ($parseStep($this) === false) {
                 return false;
+            }
         }
 
         $queryStep = $this->queryStep;
-        if (is_string($queryStep))
+        if (is_string($queryStep)) {
             $queryStep = [$this->controller, $queryStep];
+        }
 
         $result = $queryStep($this);
 
         foreach ($this->transformSteps as $transformStep) {
-            if (is_string($transformStep))
+            if (is_string($transformStep)) {
                 $transformStep = [$this->controller, $transformStep];
+            }
 
-            if ($transformStep($result, $this) === false)
+            if ($transformStep($result, $this) === false) {
                 return false;
+            }
         }
 
         return true;

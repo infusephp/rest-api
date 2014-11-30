@@ -2,8 +2,6 @@
 
 use infuse\Request;
 use infuse\Response;
-
-use app\api\libs\Api;
 use app\api\libs\ApiRoute;
 
 class ApiRouteTest extends \PHPUnit_Framework_TestCase
@@ -14,7 +12,7 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $route->addQueryParams(['test' => true]));
         $this->assertEquals($route, $route->addQueryParams(['test2' => true]));
 
-        $this->assertEquals(['test'=>true, 'test2'=>true], $route->getQuery());
+        $this->assertEquals(['test' => true, 'test2' => true], $route->getQuery());
         $this->assertTrue($route->getQuery('test'));
     }
 
@@ -40,7 +38,7 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $route->addParseSteps(['step1', 'step2']));
         $this->assertEquals($route, $route->addParseSteps(['step3']));
 
-        $this->assertEquals(['step1','step2','step3'], $route->getParseSteps());
+        $this->assertEquals(['step1', 'step2', 'step3'], $route->getParseSteps());
     }
 
     public function testQueryStep()
@@ -58,7 +56,7 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $route->addTransformSteps(['step1', 'step2']));
         $this->assertEquals($route, $route->addTransformSteps(['step3']));
 
-        $this->assertEquals(['step1','step2','step3'], $route->getTransformSteps());
+        $this->assertEquals(['step1', 'step2', 'step3'], $route->getTransformSteps());
     }
 
     public function testExecute()

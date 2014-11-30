@@ -2,7 +2,6 @@
 
 use infuse\Request;
 use infuse\Response;
-
 use app\api\libs\ApiController;
 use app\api\libs\ApiRoute;
 
@@ -91,7 +90,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route = new ApiRoute();
         $route->addQueryParams([
             'module' => 'test',
-            'model' => 'Test']);
+            'model' => 'Test', ]);
 
         $api = new ApiController();
         $this->assertTrue($api->parseFetchModelFromParams($route));
@@ -104,7 +103,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $req = new Request();
         $req->setParams([
             'module' => 'test',
-            'model' => 'Test']);
+            'model' => 'Test', ]);
         $route->setRequest($req);
 
         $res = new Response();
@@ -220,12 +219,12 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
                 'test',
                 'OR1=1' => 'whatever',
                 'test' => ['test'],
-                'test2' => new stdClass() ],
+                'test2' => new stdClass(), ],
             'include' => ['customer'],
             'exclude' => ['password'],
             'expand' => [
                 'customer.address',
-                'invoice' ]]);
+                'invoice', ], ]);
         $route->setRequest($req);
 
         $api = new ApiController();
@@ -238,12 +237,12 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'search' => 'test',
             'where' => [
                 'name' => 'john',
-                'year' => 2012 ],
+                'year' => 2012, ],
             'include' => ['customer'],
             'exclude' => ['password'],
             'expand' => [
                 'customer.address',
-                'invoice' ]];
+                'invoice', ], ];
         $this->assertEquals($expected, $route->getQuery());
     }
 
@@ -262,7 +261,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'model_id' => 101,
             'exclude' => [],
             'include' => [],
-            'expand' => []];
+            'expand' => [], ];
         $this->assertEquals($expected, $route->getQuery());
     }
 
@@ -271,14 +270,14 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $test = [ 'test' => 'hello' ];
-        $req = new Request( null, $test );
-        $req->setParams( [ 'id' => 101 ] );
+        $req = new Request(null, $test);
+        $req->setParams([ 'id' => 101 ]);
         $route->setRequest($req);
 
         $api = new ApiController();
         $this->assertNull($api->parseModelEditParameters($route));
-        $this->assertEquals( 101, $route->getQuery('model_id'));
-        $this->assertEquals( $test, $route->getQuery('properties'));
+        $this->assertEquals(101, $route->getQuery('model_id'));
+        $this->assertEquals($test, $route->getQuery('properties'));
     }
 
     public function testParseModelDeleteParameters()
@@ -286,12 +285,12 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $req = new Request();
-        $req->setParams( [ 'id' => 102 ] );
+        $req->setParams([ 'id' => 102 ]);
         $route->setRequest($req);
 
         $api = new ApiController();
         $this->assertNull($api->parseModelDeleteParameters($route));
-        $this->assertEquals( 102, $route->getQuery('model_id'));
+        $this->assertEquals(102, $route->getQuery('model_id'));
     }
 
     public function testQueryModelCreate()
@@ -367,8 +366,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $app = new App();
         $errors = Mockery::mock();
-        $errors->shouldReceive('messages')->andReturn(['error_message_1','error_message_2']);
-        $errors->shouldReceive('errors')->andReturn([['error'=>'no_permission']]);
+        $errors->shouldReceive('messages')->andReturn(['error_message_1', 'error_message_2']);
+        $errors->shouldReceive('errors')->andReturn([['error' => 'no_permission']]);
         $app['errors'] = $errors;
         $api->injectApp($app);
 
@@ -377,7 +376,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $expected = new stdClass();
         $expected->error = ['error_message_1','error_message_2'];
 
-        $this->assertEquals( $expected, $result );
+        $this->assertEquals($expected, $result);
     }
 
     public function testTransformModelDelete()
@@ -392,7 +391,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $expected = new stdClass();
         $expected->success = true;
 
-        $this->assertEquals( $expected, $result );
+        $this->assertEquals($expected, $result);
     }
 
     public function testTransformModelDeleteFail()
@@ -408,8 +407,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $app = new App();
         $errors = Mockery::mock();
-        $errors->shouldReceive('messages')->andReturn(['error_message_1','error_message_2']);
-        $errors->shouldReceive('errors')->andReturn([['error'=>'no_permission']]);
+        $errors->shouldReceive('messages')->andReturn(['error_message_1', 'error_message_2']);
+        $errors->shouldReceive('errors')->andReturn([['error' => 'no_permission']]);
         $app['errors'] = $errors;
         $api->injectApp($app);
 
@@ -418,7 +417,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $expected = new stdClass();
         $expected->error = ['error_message_1','error_message_2'];
 
-        $this->assertEquals( $expected, $result );
+        $this->assertEquals($expected, $result);
     }
 
     public function testTansformOutputJson()

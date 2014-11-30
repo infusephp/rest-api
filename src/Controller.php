@@ -26,6 +26,6 @@ class Controller extends ApiController
             'put /api/:module/:model/:id' => 'edit',
             'delete /api/:module/:id' => 'delete',
             'delete /api/:module/:model/:id' => 'delete',
-        ]
+        ],
     ];
 }
