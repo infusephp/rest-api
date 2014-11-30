@@ -76,13 +76,13 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
     {
         $route = new ApiRoute();
         $req = Mockery::mock('\\infuse\\Request');
-        $req->shouldReceive('basePath')->andReturn('/api');
-        $req->shouldReceive('path')->andReturn('/users');
+        $req->shouldReceive('basePath')->andReturn('/base');
+        $req->shouldReceive('path')->andReturn('/api/users');
         $route->setRequest($req);
 
         $api = new ApiController();
         $this->assertNull($api->parseRouteBase($route));
-        $this->assertEquals('/api/users', $route->getQuery('route_base'));
+        $this->assertEquals('/base/api/users', $route->getQuery('route_base'));
     }
 
     public function testParseFetchModelFromParamsAlreadySet()
@@ -344,9 +344,11 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
                     'start' => 50,
                     'limit' => 50,
                     'route_base' => '/api',
-                    'sort' => 'name ASC',
                     // TODO deprecated
                     'where' => [], ]);
+
+        $req = new Request(['sort' => 'name ASC']);
+        $route->setRequest($req);
 
         $result = new stdClass();
         $result->filtered_count = 200;
@@ -356,7 +358,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $res = $route->getResponse();
         $this->assertEquals('200', $res->headers('X-Total-Count'));
-        $this->assertEquals('</api/models?sort=name ASC&limit=50&start=50>; rel="self",</api/models?sort=name ASC&limit=50&start=0>; rel="first",</api/models?sort=name ASC&limit=50&start=0>; rel="previous",</api/models?sort=name ASC&limit=50&start=100>; rel="next",</api/models?sort=name ASC&limit=50&start=150>; rel="last"', $res->headers('Link'));
+        $this->assertEquals('</api/models?limit=50&sort=name+ASC&start=50>; rel="self",</api/models?limit=50&sort=name+ASC&start=0>; rel="first",</api/models?limit=50&sort=name+ASC&start=0>; rel="previous",</api/models?limit=50&sort=name+ASC&start=100>; rel="next",</api/models?limit=50&sort=name+ASC&start=150>; rel="last"', $res->headers('Link'));
     }
 
     public function testTransformModelFindOne()
@@ -453,12 +455,30 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $res = new Response();
         $route->setResponse($res);
 
+        $req = new Request();
+        $route->setRequest($req);
+
         $result = new stdClass();
         $result->answer = 42;
+        $result->nested = new stdClass();
+        $result->nested->id = 10;
+        $result->nested->name = 'John Appleseed';
 
         $api = new ApiController();
         $api->transformOutputJson($result, $route);
 
-        $this->assertEquals('{"answer":42}', $res->getBody());
+        $this->assertEquals('{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}', $res->getBody());
+
+        $route->addQueryParams(['pretty' => true]);
+        $api->transformOutputJson($result, $route);
+
+        $expected = '{
+    "answer": 42,
+    "nested": {
+        "id": 10,
+        "name": "John Appleseed"
+    }
+}';
+        $this->assertEquals($expected, $res->getBody());
     }
 }

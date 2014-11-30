@@ -159,7 +159,7 @@ class ApiController
     public function parseRouteBase(ApiRoute $route)
     {
         $req = $route->getRequest();
-        $route->addQueryParams(['route_base' => $req->basePath().$req->path()]);
+        $route->addQueryParams(['route_base' => str_replace('//', '/', $req->basePath().$req->path())]);
     }
 
     public function parseFetchModelFromParams(ApiRoute $route)
@@ -431,7 +431,8 @@ class ApiController
         // compute links
         $modelClass = $query['model'];
         $modelInfo = $modelClass::metadata();
-        $base = $route->getQuery('route_base').'/'.$modelInfo['plural_key']."?sort={$query['sort']}&limit=$limit";
+        $base = $route->getQuery('route_base').'/'.$modelInfo['plural_key'].
+            "?limit=$limit&".http_build_query($route->getRequest()->query());
 
         // self/first links
         $links = [
@@ -545,7 +546,13 @@ class ApiController
 
     public function transformOutputJson(&$result, ApiRoute $route)
     {
-        $route->getResponse()->json($result);
+        $params = 0;
+        if ($route->getQuery('pretty') || $route->getRequest()->query('pretty')) {
+            $params = JSON_PRETTY_PRINT;
+        }
+
+        $route->getResponse()->setContentType('application/json')
+            ->setBody(json_encode($result, $params));
     }
 
     ///////////////////////////////
