@@ -250,11 +250,26 @@ class ApiController
     {
         $req = $route->getRequest();
 
+        $exclude = $req->query('exclude');
+        if (!is_array($exclude)) {
+            $exclude = explode(',', $req->query('exclude'));
+        }
+
+        $include = $req->query('include');
+        if (!is_array($include)) {
+            $include = explode(',', $req->query('include'));
+        }
+
+        $expand = $req->query('expand');
+        if (!is_array($expand)) {
+            $expand = explode(',', $req->query('expand'));
+        }
+
         $route->addQueryParams([
             'properties' => $req->request(),
-            'expand' => (array) $req->query('expand'),
-            'exclude' => (array) $req->query('exclude'),
-            'include' => (array) $req->query('include'), ]);
+            'exclude' => array_filter($exclude),
+            'include' => array_filter($include),
+            'expand' => array_filter($expand), ]);
     }
 
     public function parseModelFindAllParameters(ApiRoute $route)
@@ -286,26 +301,56 @@ class ApiController
             $filter[$key] = $value;
         }
 
+        $exclude = $req->query('exclude');
+        if (!is_array($exclude)) {
+            $exclude = explode(',', $req->query('exclude'));
+        }
+
+        $include = $req->query('include');
+        if (!is_array($include)) {
+            $include = explode(',', $req->query('include'));
+        }
+
+        $expand = $req->query('expand');
+        if (!is_array($expand)) {
+            $expand = explode(',', $req->query('expand'));
+        }
+
         $route->addQueryParams(array_replace([
             'start' => $start,
             'limit' => $limit,
             'sort' => $req->query('sort'),
             'search' => $req->query('search'),
             'where' => $filter,
-            'expand' => (array) $req->query('expand'),
-            'exclude' => (array) $req->query('exclude'),
-            'include' => (array) $req->query('include'), ], $route->getQuery()));
+            'exclude' => array_filter($exclude),
+            'include' => array_filter($include),
+            'expand' => array_filter($expand), ], $route->getQuery()));
     }
 
     public function parseModelFindOneParameters(ApiRoute $route)
     {
         $req = $route->getRequest();
 
+        $exclude = $req->query('exclude');
+        if (!is_array($exclude)) {
+            $exclude = explode(',', $req->query('exclude'));
+        }
+
+        $include = $req->query('include');
+        if (!is_array($include)) {
+            $include = explode(',', $req->query('include'));
+        }
+
+        $expand = $req->query('expand');
+        if (!is_array($expand)) {
+            $expand = explode(',', $req->query('expand'));
+        }
+
         $route->addQueryParams([
             'model_id' => $req->params('id'),
-            'expand' => (array) $req->query('expand'),
-            'exclude' => (array) $req->query('exclude'),
-            'include' => (array) $req->query('include'), ]);
+            'exclude' => array_filter($exclude),
+            'include' => array_filter($include),
+            'expand' => array_filter($expand), ]);
     }
 
     public function parseModelEditParameters(ApiRoute $route)

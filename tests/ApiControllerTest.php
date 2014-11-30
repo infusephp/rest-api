@@ -193,14 +193,14 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $test = ['test' => 'hello'];
-        $req = new Request(['expand' => 'invoice'], $test);
+        $req = new Request(['expand' => 'invoice,customer'], $test);
         $route->setRequest($req);
 
         $api = new ApiController();
         $this->assertNull($api->parseModelCreateParameters($route));
 
         $this->assertEquals($test, $route->getQuery('properties'));
-        $this->assertEquals(['invoice'], $route->getQuery('expand'));
+        $this->assertEquals(['invoice', 'customer'], $route->getQuery('expand'));
     }
 
     public function testParseModelFindAllParameters()
