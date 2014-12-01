@@ -16,6 +16,8 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
             'get /api/:module/:model/:id' => 'findOne',
             'put /api/:module/:id' => 'edit',
             'put /api/:module/:model/:id' => 'edit',
+            'patch /api/:module/:id' => 'edit',
+            'patch /api/:module/:model/:id' => 'edit',
             'delete /api/:module/:id' => 'delete',
             'delete /api/:module/:model/:id' => 'delete',
         ];

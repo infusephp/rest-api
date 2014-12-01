@@ -137,8 +137,7 @@ class ApiController
                 'parseModelDeleteParameters', ])
               ->addQueryStep('queryModelDelete')
               ->addTransformSteps([
-                'transformModelDelete',
-                'transformOutputJson', ])
+                'transformModelDelete', ])
               ->setRequest($req)
               ->setResponse($res)
               ->setController($this);
@@ -570,26 +569,30 @@ class ApiController
 
     public function transformModelDelete(&$result, ApiRoute $route)
     {
-        $response = new \stdClass();
+        $res = $route->getResponse();
 
         if ($result) {
-            $response->success = true;
+            $res->setCode(204);
         } else {
             $errorStack = $this->app['errors'];
-            $response->error = $errorStack->messages();
+
+            $result = new \stdClass();
+            $result->error = $errorStack->messages();
 
             foreach ($errorStack->errors() as $error) {
                 if ($error['error'] == 'no_permission') {
-                    $route->getResponse()->setCode(403);
+                    $res->setCode(403);
                 }
             }
         }
-
-        $result = $response;
     }
 
     public function transformOutputJson(&$result, ApiRoute $route)
     {
+        if (!is_object($result) && !is_array($result)) {
+            return;
+        }
+
         $params = 0;
         if ($route->getQuery('pretty') || $route->getRequest()->query('pretty')) {
             $params = JSON_PRETTY_PRINT;

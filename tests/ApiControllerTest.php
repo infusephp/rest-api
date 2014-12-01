@@ -410,16 +410,17 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
     public function testTransformModelDelete()
     {
         $route = new ApiRoute();
+        $res = new Response();
+        $route->setResponse($res);
 
         $result = true;
 
         $api = new ApiController();
         $api->transformModelDelete($result, $route);
 
-        $expected = new stdClass();
-        $expected->success = true;
+        $this->assertEquals(204, $res->getCode());
 
-        $this->assertEquals($expected, $result);
+        // TODO test delete failure
     }
 
     public function testTransformModelDeleteFail()
