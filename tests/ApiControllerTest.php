@@ -343,7 +343,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
                     'model' => 'ModelClass',
                     'start' => 50,
                     'limit' => 50,
-                    'route_base' => '/api',
+                    'route_base' => '/api/models',
                     // TODO deprecated
                     'where' => [], ]);
 
