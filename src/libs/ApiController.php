@@ -576,6 +576,10 @@ class ApiController
         } else {
             $errorStack = $this->app['errors'];
 
+            if (count($errorStack->errors()) == 0) {
+                $errorStack->push(['error' => 'could_not_delete']);
+            }
+
             $result = new \stdClass();
             $result->error = $errorStack->messages();
 

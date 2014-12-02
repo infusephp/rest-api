@@ -22,6 +22,7 @@ class Controller extends ApiController
             'get /api/:module' => 'findAll',
             'get /api/:module/:model' => 'findAll',
             'get /api/:module/:model/:id' => 'findOne',
+            // WARNING put will be deprecated in the future
             'put /api/:module/:id' => 'edit',
             'put /api/:module/:model/:id' => 'edit',
             'patch /api/:module/:id' => 'edit',
