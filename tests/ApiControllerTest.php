@@ -208,8 +208,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $req = new Request([
-            'start' => 10,
-            'limit' => 90,
+            'page' => 2,
+            'per_page' => 100,
             'sort' => 'name ASC',
             'search' => 'test',
             'filter' => [
@@ -231,8 +231,10 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($api->parseModelFindAllParameters($route));
 
         $expected = [
-            'start' => 10,
-            'limit' => 90,
+            'page' => 2,
+            'per_page' => 100,
+            'start' => 100,
+            'limit' => 100,
             'sort' => 'name ASC',
             'search' => 'test',
             'where' => [
@@ -243,6 +245,30 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
             'expand' => [
                 'customer.address',
                 'invoice', ], ];
+        $this->assertEquals($expected, $route->getQuery());
+
+        // deprecated pagination
+        $route = new ApiRoute();
+
+        $req = new Request([
+            'start' => 90,
+            'limit' => 90, ]);
+        $route->setRequest($req);
+
+        $api = new ApiController();
+        $this->assertNull($api->parseModelFindAllParameters($route));
+
+        $expected = [
+            'page' => 2,
+            'per_page' => 90,
+            'start' => 90,
+            'limit' => 90,
+            'sort' => '',
+            'search' => '',
+            'where' => [],
+            'include' => [],
+            'exclude' => [],
+            'expand' => [], ];
         $this->assertEquals($expected, $route->getQuery());
     }
 
@@ -341,8 +367,8 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setResponse($res)
               ->addQueryParams([
                     'model' => 'ModelClass',
-                    'start' => 50,
-                    'limit' => 50,
+                    'page' => 2,
+                    'per_page' => 50,
                     'route_base' => '/api/models',
                     // TODO deprecated
                     'where' => [], ]);
@@ -358,7 +384,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
         $res = $route->getResponse();
         $this->assertEquals('200', $res->headers('X-Total-Count'));
-        $this->assertEquals('</api/models?limit=50&sort=name+ASC&start=50>; rel="self",</api/models?limit=50&sort=name+ASC&start=0>; rel="first",</api/models?limit=50&sort=name+ASC&start=0>; rel="previous",</api/models?limit=50&sort=name+ASC&start=100>; rel="next",</api/models?limit=50&sort=name+ASC&start=150>; rel="last"', $res->headers('Link'));
+        $this->assertEquals('</api/models?sort=name+ASC&per_page=50&page=2>; rel="self", </api/models?sort=name+ASC&per_page=50&page=1>; rel="first", </api/models?sort=name+ASC&per_page=50&page=1>; rel="previous", </api/models?sort=name+ASC&per_page=50&page=3>; rel="next", </api/models?sort=name+ASC&per_page=50&page=4>; rel="last"', $res->headers('Link'));
     }
 
     public function testTransformModelFindOne()

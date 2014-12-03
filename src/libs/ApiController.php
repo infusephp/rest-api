@@ -12,6 +12,8 @@ class ApiController
 {
     use \InjectApp;
 
+    protected static $pageLimit = 100;
+
     ///////////////////////////////
     // ROUTES
     ///////////////////////////////
@@ -275,17 +277,32 @@ class ApiController
     {
         $req = $route->getRequest();
 
-        // start
-        $start = $req->query('start');
-        if ($start < 0 || !is_numeric($start)) {
-            $start = 0;
+        // calculate limit
+        $perPage = static::$pageLimit;
+
+        // WARNING the `limit` parameter is deprecated
+        if ($req->query('per_page')) {
+            $perPage = $req->query('per_page');
+        } elseif ($req->query('limit')) {
+            $perPage = $req->query('limit');
         }
 
-        // limit
-        $limit = $req->query('limit');
-        if ($limit <= 0 || $limit > 1000) {
-            $limit = 100;
+        $perPage = max(0, min(1000, $perPage));
+
+        // calculate offset
+        $offset = 0;
+        $page = 1;
+
+        // WARNING the `start` parameter is deprecated
+        if ($req->query('page')) {
+            $page = $req->query('page');
+            $offset = ($page - 1) * $perPage;
+        } elseif ($req->query('start')) {
+            $offset = $req->query('start');
+            $page = floor($offset / $perPage) + 1;
         }
+
+        $offset = max(0, $offset);
 
         $filter = [];
         foreach ((array) $req->query('filter') as $key => $value) {
@@ -316,8 +333,10 @@ class ApiController
         }
 
         $route->addQueryParams(array_replace([
-            'start' => $start,
-            'limit' => $limit,
+            'page' => $page,
+            'per_page' => $perPage,
+            'start' => $offset,
+            'limit' => $perPage,
             'sort' => $req->query('sort'),
             'search' => $req->query('search'),
             'where' => $filter,
@@ -466,37 +485,45 @@ class ApiController
         $res->setHeader('X-Total-Count', $result->filtered_count);
 
         $query = $route->getQuery();
-        $start = $query['start'];
-        $limit = $query['limit'];
-        $page = $start / $limit + 1;
-        $page_count = max(1, ceil($result->filtered_count / $limit));
-        $last = ($page_count-1) * $limit;
+
+        $page = $query['page'];
+        $perPage = $query['per_page'];
+        $pageCount = max(1, ceil($result->filtered_count / $perPage));
 
         // compute links
-        $modelClass = $query['model'];
-        $modelInfo = $modelClass::metadata();
-        $base = $route->getQuery('route_base')."?limit=$limit&".http_build_query($route->getRequest()->query());
+        $base = $route->getQuery('route_base');
+
+        $baseQuery = $route->getRequest()->query();
+        if (isset($baseQuery['page'])) {
+            unset($baseQuery['page']);
+        }
+
+        if ($query['per_page'] == self::$pageLimit && isset($baseQuery['per_page'])) {
+            unset($baseQuery['per_page']);
+        } else {
+            $baseQuery['per_page'] = $perPage;
+        }
 
         // self/first links
         $links = [
-            'self' => "$base&start=$start",
-            'first' => "$base&start=0",
+            'self' => $this->link($base, array_replace($baseQuery, ['page' => $page])),
+            'first' => $this->link($base, array_replace($baseQuery, ['page' => 1])),
         ];
 
         // previous/next links
         if ($page > 1) {
-            $links['previous'] = "$base&start=".max(0, ($page-2) * $limit);
+            $links['previous'] = $this->link($base, array_replace($baseQuery, ['page' => $page-1]));
         }
 
-        if ($page < $page_count) {
-            $links['next'] = "$base&start=".($page) * $limit;
+        if ($page < $pageCount) {
+            $links['next'] = $this->link($base, array_replace($baseQuery, ['page' => $page+1]));
         }
 
         // last link
-        $links['last'] = "$base&start=$last";
+        $links['last'] = $this->link($base, array_replace($baseQuery, ['page' => $pageCount]));
 
         // add links to Link header
-        $linkStr = implode(',', array_map(function ($link, $rel) {
+        $linkStr = implode(', ', array_map(function ($link, $rel) {
             return "<$link>; rel=\"$rel\"";
         }, $links, array_keys($links)));
 
@@ -504,11 +531,18 @@ class ApiController
 
         // add pagination metadata to response body
         // TODO deprecated
+        $modelClass = $query['model'];
+
         $result->page = $page;
-        $result->per_page = $limit;
-        $result->page_count = $page_count;
+        $result->per_page = $perPage;
+        $result->page_count = $pageCount;
         $result->total_count = $modelClass::totalRecords($query['where']);
         $result->links = $links;
+    }
+
+    private function link($url, array $query)
+    {
+        return $url.((count($query) > 0) ? '?'.http_build_query($query) : '');
     }
 
     public function transformModelFindOne(&$result, ApiRoute $route)
