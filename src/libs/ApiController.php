@@ -513,10 +513,10 @@ class ApiController
             unset($baseQuery['page']);
         }
 
-        if ($query['per_page'] == self::$pageLimit && isset($baseQuery['per_page'])) {
-            unset($baseQuery['per_page']);
-        } else {
+        if ($query['per_page'] != self::$pageLimit) {
             $baseQuery['per_page'] = $perPage;
+        } elseif (isset($baseQuery['per_page'])) {
+            unset($baseQuery['per_page']);
         }
 
         // self/first links
