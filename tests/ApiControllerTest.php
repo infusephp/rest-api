@@ -74,15 +74,23 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testParseRouteBase()
     {
+        $app = TestBootstrap::app();
+        $app['base_url'] = 'https://example.com/';
+
         $route = new ApiRoute();
         $req = Mockery::mock('\\infuse\\Request');
-        $req->shouldReceive('basePath')->andReturn('/base');
-        $req->shouldReceive('path')->andReturn('/api/users');
+        $req->shouldReceive('path')->andReturn('/api/users/');
         $route->setRequest($req);
 
         $api = new ApiController();
+        $api->injectApp($app);
+
         $this->assertNull($api->parseRouteBase($route));
-        $this->assertEquals('/base/api/users', $route->getQuery('route_base'));
+        $this->assertEquals('https://example.com/api/users', $route->getQuery('endpoint_url'));
+
+        $app['config']->set('api.url', 'https://api.example.com');
+        $this->assertNull($api->parseRouteBase($route));
+        $this->assertEquals('https://api.example.com/users', $route->getQuery('endpoint_url'));
     }
 
     public function testParseFetchModelFromParamsAlreadySet()
@@ -369,7 +377,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
                     'model' => 'ModelClass',
                     'page' => 2,
                     'per_page' => 50,
-                    'route_base' => '/api/models',
+                    'endpoint_url' => '/api/models',
                     // TODO deprecated
                     'where' => [], ]);
 

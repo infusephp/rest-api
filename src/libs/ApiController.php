@@ -12,6 +12,7 @@ class ApiController
 {
     use \InjectApp;
 
+    protected static $apiBase = '/api';
     protected static $pageLimit = 100;
 
     ///////////////////////////////
@@ -160,7 +161,21 @@ class ApiController
     public function parseRouteBase(ApiRoute $route)
     {
         $req = $route->getRequest();
-        $route->addQueryParams(['route_base' => str_replace('//', '/', $req->basePath().$req->path())]);
+
+        $url = $this->app['config']->get('api.url');
+        if (!$url) {
+            $url = $this->app['base_url'].substr(static::$apiBase, 1);
+        }
+
+        // replace the default API base with a full URL
+        $path = $req->path();
+        if (substr($path, -1) == '/') {
+            $path = substr($path, 0, -1);
+        }
+
+        $url =  str_replace(static::$apiBase, $url, $path);
+
+        $route->addQueryParams(['endpoint_url' => $url]);
     }
 
     public function parseFetchModelFromParams(ApiRoute $route)
@@ -280,9 +295,9 @@ class ApiController
         // calculate limit
         $perPage = static::$pageLimit;
 
-        // WARNING the `limit` parameter is deprecated
         if ($req->query('per_page')) {
             $perPage = $req->query('per_page');
+        // WARNING the `limit` parameter is deprecated
         } elseif ($req->query('limit')) {
             $perPage = $req->query('limit');
         }
@@ -293,10 +308,10 @@ class ApiController
         $offset = 0;
         $page = 1;
 
-        // WARNING the `start` parameter is deprecated
         if ($req->query('page')) {
             $page = $req->query('page');
             $offset = ($page - 1) * $perPage;
+        // WARNING the `start` parameter is deprecated
         } elseif ($req->query('start')) {
             $offset = $req->query('start');
             $page = floor($offset / $perPage) + 1;
@@ -491,7 +506,7 @@ class ApiController
         $pageCount = max(1, ceil($result->filtered_count / $perPage));
 
         // compute links
-        $base = $route->getQuery('route_base');
+        $base = $route->getQuery('endpoint_url');
 
         $baseQuery = $route->getRequest()->query();
         if (isset($baseQuery['page'])) {
