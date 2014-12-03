@@ -302,7 +302,7 @@ class ApiController
             $perPage = $req->query('limit');
         }
 
-        $perPage = max(0, min(1000, $perPage));
+        $perPage = max(0, min(1000, (int) $perPage));
 
         // calculate offset
         $offset = 0;
