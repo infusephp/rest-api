@@ -281,11 +281,11 @@ class ApiController
             $expand = explode(',', $req->query('expand'));
         }
 
-        $route->addQueryParams([
+        $route->addQueryParams(array_replace([
             'properties' => $req->request(),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
-            'expand' => array_filter($expand), ]);
+            'expand' => array_filter($expand), ]), $route->getQuery());
     }
 
     public function parseModelFindAllParameters(ApiRoute $route)
@@ -379,11 +379,11 @@ class ApiController
             $expand = explode(',', $req->query('expand'));
         }
 
-        $route->addQueryParams([
+        $route->addQueryParams(array_replace([
             'model_id' => $req->params('id'),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
-            'expand' => array_filter($expand), ]);
+            'expand' => array_filter($expand), ], $route->getQuery()));
     }
 
     public function parseModelEditParameters(ApiRoute $route)
