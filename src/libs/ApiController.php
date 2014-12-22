@@ -285,7 +285,7 @@ class ApiController
             'properties' => $req->request(),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
-            'expand' => array_filter($expand), ]), $route->getQuery());
+            'expand' => array_filter($expand), ], $route->getQuery()));
     }
 
     public function parseModelFindAllParameters(ApiRoute $route)
