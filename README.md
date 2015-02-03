@@ -11,7 +11,7 @@ API scaffolding module for Infuse Framework
 
 ## Installation
 
-Install the package with [composer](http://getcomposer.org):
+1. Install the package with [composer](http://getcomposer.org):
 
 ```
 composer require infuse/rest-api
