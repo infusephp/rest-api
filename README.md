@@ -1,11 +1,13 @@
-framework-rest-api [![Build Status](https://travis-ci.org/idealistsoft/framework-rest-api.png?branch=master)](https://travis-ci.org/idealistsoft/framework-rest-api)
+rest-api
 =============
 
-[![Coverage Status](https://coveralls.io/repos/idealistsoft/framework-rest-api/badge.png)](https://coveralls.io/r/idealistsoft/framework-rest-api)
-[![Latest Stable Version](https://poser.pugx.org/idealistsoft/framework-rest-api/v/stable.png)](https://packagist.org/packages/idealistsoft/framework-rest-api)
-[![Total Downloads](https://poser.pugx.org/idealistsoft/framework-rest-api/downloads.png)](https://packagist.org/packages/idealistsoft/framework-rest-api)
+[![Build Status](https://travis-ci.org/infusephp/rest-api.png?branch=master)](https://travis-ci.org/infusephp/rest-api)
+[![Coverage Status](https://coveralls.io/repos/infusephp/rest-api/badge.png)](https://coveralls.io/r/infusephp/rest-api)
+[![Latest Stable Version](https://poser.pugx.org/infuse/rest-api/v/stable.png)](https://packagist.org/packages/infuse/rest-api)
+[![Total Downloads](https://poser.pugx.org/infuse/rest-api/downloads.png)](https://packagist.org/packages/infuse/rest-api)
+[![HHVM Status](http://hhvm.h4cc.de/badge/infuse/rest-api.svg)](http://hhvm.h4cc.de/package/infuse/rest-api)
 
-API scaffolding module for Idealist Framework
+API scaffolding module for Infuse Framework
 
 ## Installation
 
