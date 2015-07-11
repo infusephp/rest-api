@@ -647,13 +647,14 @@ class ApiController
             return;
         }
 
-        $params = 0;
-        if ($route->getQuery('pretty') || $route->getRequest()->query('pretty')) {
-            $params = JSON_PRETTY_PRINT;
+        $params = JSON_PRETTY_PRINT;
+        if ($route->getQuery('compact') || $route->getRequest()->query('compact')) {
+            $params = 0;
         }
 
-        $route->getResponse()->setContentType('application/json')
-            ->setBody(json_encode($result, $params));
+        $route->getResponse()
+              ->setContentType('application/json')
+              ->setBody(json_encode($result, $params));
 
         if (json_last_error()) {
             $this->app['logger']->error(json_last_error_msg());

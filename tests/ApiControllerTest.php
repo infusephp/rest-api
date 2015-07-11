@@ -500,11 +500,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $api = new ApiController();
         $api->transformOutputJson($result, $route);
 
-        $this->assertEquals('{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}', $res->getBody());
-
-        $route->addQueryParams(['pretty' => true]);
-        $api->transformOutputJson($result, $route);
-
+        // JSON should be pretty-printed by default
         $expected = '{
     "answer": 42,
     "nested": {
@@ -512,6 +508,13 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         "name": "John Appleseed"
     }
 }';
+        $this->assertEquals($expected, $res->getBody());
+
+        // JSON should be compacted with ?compact=true
+        $route->addQueryParams(['compact' => true]);
+        $api->transformOutputJson($result, $route);
+
+        $expected = '{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}';
         $this->assertEquals($expected, $res->getBody());
     }
 }
