@@ -118,8 +118,35 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route->setResponse($res);
 
         $api = new ApiController();
+
+        try {
+            $api->parseFetchModelFromParams($route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals(404, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
+    }
+
+    public function testParseFetchModelFromParamsNotFound()
+    {
+        $route = new ApiRoute();
+
+        $req = new Request();
+        $req->setParams([
+            'module' => 'test',
+            'model' => 'TestModelNotFound', ]);
+        $route->setRequest($req);
+
+        $res = new Response();
+        $route->setResponse($res);
+
+        $testController = Mockery::mock('alias:app\\test\\Controller');
+
+        $api = new ApiController();
         $this->assertFalse($api->parseFetchModelFromParams($route));
-        $this->assertEquals(404, $res->getCode());
     }
 
     public function testParseFetchModelFromParams()
@@ -168,8 +195,16 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->setExpectedException('app\\api\\libs\\Error\\InvalidRequest');
-        $api->parseRequireApiScaffolding($route);
+
+        try {
+            $api->parseRequireApiScaffolding($route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals(404, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
     }
 
     public function testParseRequireFindPermission()

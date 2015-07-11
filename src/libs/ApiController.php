@@ -200,21 +200,18 @@ class ApiController
 
     public function parseFetchModelFromParams(ApiRoute $route)
     {
-        $query = $route->getQuery();
-        if (isset($query['model'])) {
+        // skip this method if a model class has already been supplied
+        if ($route->getQuery('model')) {
             return true;
         }
 
         $req = $route->getRequest();
-
         $module = $req->params('module');
 
         // instantiate the controller
         $controller = 'app\\'.$module.'\\Controller';
         if (!class_exists($controller)) {
-            $route->getResponse()->setCode(404);
-
-            return false;
+            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$route->getQuery('endpoint_url'), 404);
         }
 
         // pick a default model if one isn't provided
@@ -240,7 +237,7 @@ class ApiController
         // check if api scaffolding is enabled on the model
         if (!property_exists($route->getQuery('model'), 'scaffoldApi')) {
             $req = $route->getRequest();
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
+            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$route->getQuery('endpoint_url'), 404);
         }
     }
 
