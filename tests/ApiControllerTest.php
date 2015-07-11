@@ -365,8 +365,6 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
     public function testTransformPaginate()
     {
         $model = Mockery::mock('alias:ModelClass');
-        $model->shouldReceive('metadata')->andReturn([
-            'plural_key' => 'models', ]);
         // TODO deprecated
         $model->shouldReceive('totalRecords')->andreturn(500);
 

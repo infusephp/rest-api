@@ -5,7 +5,6 @@ namespace app\api\libs;
 use ICanBoogie\Inflector;
 use infuse\Request;
 use infuse\Response;
-use infuse\Utility as U;
 use App;
 
 if (!function_exists('json_last_error_msg')) {
@@ -215,39 +214,27 @@ class ApiController
             return false;
         }
 
+        // inject app into the controller
         $controllerObj = new $controller();
         if (method_exists($controllerObj, 'injectApp')) {
             $controllerObj->injectApp($this->app);
         }
 
-        // TODO this is an inefficient function, needs refactor
-
-        // fetch all available models from the controller
-        $modelsInfo = $this->models($controllerObj, $module);
-
-        // look for a default model
-        if (!$model) {
-            // when there is only one choice, use it
-            if (count($modelsInfo) == 1) {
-                $model = array_keys($modelsInfo)[0];
-            } else {
-                $model = U::array_value($controller::$properties, 'defaultModel');
-            }
+        // pick a default model if one isn't provided
+        if (!$model && isset($controller::$properties['models']) && count($controller::$properties['models']) > 0) {
+            $model = $controller::$properties['models'][0];
         }
 
-        // convert the route name to the pluralized name
+        // convert the route name (pluralized underscore) to the class name
         $inflector = Inflector::get();
-        $modelName = $inflector->singularize($inflector->camelize($model));
+        $modelClassName = $inflector->singularize($inflector->camelize($model));
+        $modelClassName = '\\app\\'.$module.'\\models\\'.$modelClassName;
 
-        // attempt to fetch the model info
-        $modelInfo = U::array_value($modelsInfo, $modelName);
-
-        if (!$modelInfo) {
+        if (!class_exists($modelClassName)) {
             return false;
         }
 
-        $route->addQueryParams([
-            'model' => $modelInfo['class_name'], ]);
+        $route->addQueryParams(['model' => $modelClassName]);
     }
 
     public function parseRequireApiScaffolding(ApiRoute $route)
@@ -473,9 +460,7 @@ class ApiController
         $response = new \stdClass();
 
         if ($result) {
-            $modelClass = $route->getQuery('model');
-            $modelInfo = $modelClass::metadata();
-            $modelRouteName = $modelInfo['singular_key'];
+            $modelRouteName = $this->singularClassName($route->getQuery('model'));
             $response->$modelRouteName = $result->toArray(
                 $route->getQuery('exclude'),
                 $route->getQuery('include'),
@@ -492,9 +477,7 @@ class ApiController
     public function transformModelFindAll(&$result, ApiRoute $route)
     {
         $response = new \stdClass();
-        $modelClass = $route->getQuery('model');
-        $modelInfo = $modelClass::metadata();
-        $modelRouteName = $modelInfo['plural_key'];
+        $modelRouteName = $this->pluralClassName($route->getQuery('model'));
         $response->$modelRouteName = [];
 
         foreach ($result['models'] as $m) {
@@ -603,13 +586,14 @@ class ApiController
         $modelObj = $result;
 
         $modelClass = $route->getQuery('model');
-        if ($modelObj instanceof $modelClass) {
-            $modelInfo = $modelObj::metadata();
+        if (is_object($modelObj) && method_exists($modelClass, 'toArray')) {
+            $modelRouteName = $this->singularClassName($modelClass);
             $result = [
-                $modelInfo['singular_key'] => $modelObj->toArray(
+                $modelRouteName => $modelObj->toArray(
                     $route->getQuery('exclude'),
                     $route->getQuery('include'),
-                    $route->getQuery('expand')), ];
+                    $route->getQuery('expand')),
+            ];
         }
     }
 
@@ -681,30 +665,7 @@ class ApiController
     ///////////////////////////////
 
     /**
-     * Fetches the models for a given controller
-     *
-     * @param object $controller module controller
-     * @param string $module     module name
-     *
-     * @return array
-     */
-    private function models($controller, $module)
-    {
-        $properties = $controller::$properties;
-
-        $models = [];
-
-        foreach ((array) U::array_value($properties, 'models') as $model) {
-            $modelClassName = '\\app\\'.$module.'\\models\\'.$model;
-
-            $models[$model] = $modelClassName::metadata();
-        }
-
-        return $models;
-    }
-
-    /**
-     * Checks for the specified permission on a model. Returns 403 if it fails
+     * Checks for the specified permission on a model. Returns 403 if it fails.
      *
      * @param string   $permission
      * @param ApiRoute $route
@@ -724,5 +685,80 @@ class ApiController
         }
 
         return true;
+    }
+
+    /**
+     * Generates the human name for a class
+     * i.e. LineItem -> Line Item.
+     *
+     * @param string|object $class
+     *
+     * @return string
+     */
+    private function humanClassName($class)
+    {
+        // get the class name if an object is given
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+
+        // split the class name up by namespaces
+        $namespace = explode('\\', $class);
+        $className = end($namespace);
+
+        // convert the class name into the humanized version
+        $inflector = Inflector::get();
+
+        return $inflector->humanize($className);
+    }
+
+    /**
+     * Generates the singular key from a class
+     * i.e. LineItem -> line_item.
+     *
+     * @param string|object $class
+     *
+     * @return string
+     */
+    private function singularClassName($class)
+    {
+        // get the class name if an object is given
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+
+        // split the class name up by namespaces
+        $namespace = explode('\\', $class);
+        $className = end($namespace);
+
+        // convert the class name into the underscore version
+        $inflector = Inflector::get();
+
+        return $inflector->underscore($className);
+    }
+
+    /**
+     * Generates the plural key from a class
+     * i.e. LineItem -> line_items.
+     *
+     * @param string|object $class
+     *
+     * @return string
+     */
+    private function pluralClassName($class)
+    {
+        // get the class name if an object is given
+        if (is_object($class)) {
+            $class = get_class($class);
+        }
+
+        // split the class name up by namespaces
+        $namespace = explode('\\', $class);
+        $className = end($namespace);
+
+        // convert the class name into the pluralized underscore version
+        $inflector = Inflector::get();
+
+        return $inflector->pluralize($inflector->underscore($className));
     }
 }
