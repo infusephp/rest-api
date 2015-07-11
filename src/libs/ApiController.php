@@ -455,7 +455,15 @@ class ApiController
 
             $route->getResponse()->setCode(201);
         } else {
-            $response->error = $this->app['errors']->messages();
+            // get the first error
+            if ($error = $this->getFirstError()) {
+                $code = ($error['error'] == 'no_permission') ? 403 : 400;
+                $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
+                throw new Error\InvalidRequest($error['message'], $code, $param);
+            // no specific errors available, throw a server error
+            } else {
+                throw new Error\Api('There was an error creating the '.$this->humanClassName($route->getQuery('model')).'.');
+            }
         }
 
         $result = $response;
@@ -560,6 +568,27 @@ class ApiController
         $this->requirePermission('view', $route, $modelObj);
     }
 
+    public function transformModelEdit(&$result, ApiRoute $route)
+    {
+        $response = new \stdClass();
+
+        if ($result) {
+            $response->success = true;
+        } else {
+            // get the first error
+            if ($error = $this->getFirstError()) {
+                $code = ($error['error'] == 'no_permission') ? 403 : 400;
+                $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
+                throw new Error\InvalidRequest($error['message'], $code, $param);
+            // no specific errors available, throw a generic one
+            } else {
+                throw new Error\InvalidRequest('There was an error performing the update.');
+            }
+        }
+
+        $result = $response;
+    }
+
     public function transformModelToArray(&$result, ApiRoute $route)
     {
         $modelObj = $result;
@@ -576,26 +605,6 @@ class ApiController
         }
     }
 
-    public function transformModelEdit(&$result, ApiRoute $route)
-    {
-        $response = new \stdClass();
-
-        if ($result) {
-            $response->success = true;
-        } else {
-            // get the first error
-            if ($error = $this->getFirstError()) {
-                $code = ($error['error'] == 'no_permission') ? 403 : 400;
-                $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
-                throw new Error\InvalidRequest($error['message'], $code, $param);
-            } else {
-                throw new Error\InvalidRequest('There was an error performing the update.');
-            }
-        }
-
-        $result = $response;
-    }
-
     public function transformModelDelete(&$result, ApiRoute $route)
     {
         $res = $route->getResponse();
@@ -603,19 +612,14 @@ class ApiController
         if ($result) {
             $res->setCode(204);
         } else {
-            $errorStack = $this->app['errors'];
-
-            if (count($errorStack->errors()) == 0) {
-                $errorStack->push(['error' => 'could_not_delete']);
-            }
-
-            $result = new \stdClass();
-            $result->error = $errorStack->messages();
-
-            foreach ($errorStack->errors() as $error) {
-                if ($error['error'] == 'no_permission') {
-                    $res->setCode(403);
-                }
+            // get the first error
+            if ($error = $this->getFirstError()) {
+                $code = ($error['error'] == 'no_permission') ? 403 : 400;
+                $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
+                throw new Error\InvalidRequest($error['message'], $code, $param);
+            // no specific errors available, throw a server error
+            } else {
+                throw new Error\Api('There was an error performing the delete.');
             }
         }
     }

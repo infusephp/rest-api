@@ -573,7 +573,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         // TODO test delete failure
     }
 
-    public function testTransformModelDeleteFail()
+    public function testTransformModelDeleteNoPermission()
     {
         $route = new ApiRoute();
         $res = Mockery::mock('\\infuse\\Response');
@@ -584,17 +584,25 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $app = new App();
         $errors = Mockery::mock();
-        $errors->shouldReceive('messages')->andReturn(['error_message_1', 'error_message_2']);
-        $errors->shouldReceive('errors')->andReturn([['error' => 'no_permission']]);
+        $error = [
+            'error' => 'no_permission',
+            'message' => 'No Permission',
+        ];
+        $errors->shouldReceive('errors')
+               ->andReturn([$error]);
         $app['errors'] = $errors;
         self::$api->injectApp($app);
 
-        self::$api->transformModelDelete($result, $route);
+        try {
+            self::$api->transformModelDelete($result, $route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals('No Permission', $ex->getMessage());
+            $this->assertEquals(403, $ex->getHttpStatus());
 
-        $expected = new stdClass();
-        $expected->error = ['error_message_1','error_message_2'];
+            return;
+        }
 
-        $this->assertEquals($expected, $result);
+        $this->fail('An exception was not raised.');
     }
 
     public function testTansformOutputJson()
