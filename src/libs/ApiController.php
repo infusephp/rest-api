@@ -5,7 +5,6 @@ namespace app\api\libs;
 use ICanBoogie\Inflector;
 use infuse\Request;
 use infuse\Response;
-use App;
 
 if (!function_exists('json_last_error_msg')) {
     function json_last_error_msg()

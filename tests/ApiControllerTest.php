@@ -5,7 +5,7 @@ use infuse\Response;
 use app\api\libs\ApiController;
 use app\api\libs\ApiRoute;
 
-class ApiControllerTest extends \PHPUnit_Framework_TestCase
+class ApiControllerTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateRoute()
     {
@@ -74,8 +74,7 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
 
     public function testParseRouteBase()
     {
-        $app = TestBootstrap::app();
-        $app['base_url'] = 'https://example.com/';
+        Test::$app['base_url'] = 'https://example.com/';
 
         $route = new ApiRoute();
         $req = Mockery::mock('\\infuse\\Request');
@@ -83,12 +82,12 @@ class ApiControllerTest extends \PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $api = new ApiController();
-        $api->injectApp($app);
+        $api->injectApp(Test::$app);
 
         $this->assertNull($api->parseRouteBase($route));
         $this->assertEquals('https://example.com/api/users', $route->getQuery('endpoint_url'));
 
-        $app['config']->set('api.url', 'https://api.example.com');
+        Test::$app['config']->set('api.url', 'https://api.example.com');
         $this->assertNull($api->parseRouteBase($route));
         $this->assertEquals('https://api.example.com/users', $route->getQuery('endpoint_url'));
     }

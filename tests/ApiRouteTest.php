@@ -4,7 +4,7 @@ use infuse\Request;
 use infuse\Response;
 use app\api\libs\ApiRoute;
 
-class ApiRouteTest extends \PHPUnit_Framework_TestCase
+class ApiRouteTest extends PHPUnit_Framework_TestCase
 {
     public function testQueryParams()
     {
@@ -70,7 +70,6 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = new ApiRoute();
 
-        $app = TestBootstrap::app();
         $req = new Request();
         $res = new Response();
 
@@ -83,7 +82,7 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
               ->addQueryStep([$mock, 'query'])
               ->addTransformSteps([[$mock, 'transform']]);
 
-        $this->assertTrue($route->execute($req, $res, $app));
+        $this->assertTrue($route->execute($req, $res, Test::$app));
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());

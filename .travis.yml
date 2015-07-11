@@ -16,3 +16,5 @@ script:
 
 after_script:
     - vendor/bin/coveralls
+
+sudo: false
