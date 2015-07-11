@@ -208,23 +208,17 @@ class ApiController
         $req = $route->getRequest();
 
         $module = $req->params('module');
-        $model = $req->params('model');
 
         // instantiate the controller
-        $controller = '\\app\\'.$module.'\\Controller';
+        $controller = 'app\\'.$module.'\\Controller';
         if (!class_exists($controller)) {
             $route->getResponse()->setCode(404);
 
             return false;
         }
 
-        // inject app into the controller
-        $controllerObj = new $controller();
-        if (method_exists($controllerObj, 'injectApp')) {
-            $controllerObj->injectApp($this->app);
-        }
-
         // pick a default model if one isn't provided
+        $model = $req->params('model');
         if (!$model && isset($controller::$properties['models']) && count($controller::$properties['models']) > 0) {
             $model = $controller::$properties['models'][0];
         }
@@ -232,7 +226,7 @@ class ApiController
         // convert the route name (pluralized underscore) to the class name
         $inflector = Inflector::get();
         $modelClassName = $inflector->singularize($inflector->camelize($model));
-        $modelClassName = '\\app\\'.$module.'\\models\\'.$modelClassName;
+        $modelClassName = 'app\\'.$module.'\\models\\'.$modelClassName;
 
         if (!class_exists($modelClassName)) {
             return false;
@@ -245,18 +239,8 @@ class ApiController
     {
         // check if api scaffolding is enabled on the model
         if (!property_exists($route->getQuery('model'), 'scaffoldApi')) {
-            $route->getResponse()->setCode(404);
-
-            return false;
-        }
-    }
-
-    public function parseRequireJson(ApiRoute $route)
-    {
-        if (!$route->getRequest()->isJson()) {
-            $route->getResponse()->setCode(415);
-
-            return false;
+            $req = $route->getRequest();
+            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
         }
     }
 
@@ -669,16 +653,18 @@ class ApiController
      */
     public function handleError(Error\Base $ex, ApiRoute $route)
     {
-        $result = [
+        // build response body
+        $body = [
             'type' => $this->singularClassName($ex),
             'message' => $ex->getMessage(),
             'param' => null,
         ];
 
+        // set HTTP status code
         $route->getResponse()
               ->setCode($ex->getHttpStatus());
 
-        $this->transformOutputJson($result, $route);
+        $this->transformOutputJson($body, $route);
     }
 
     ///////////////////////////////

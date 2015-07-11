@@ -4,6 +4,7 @@ use infuse\Request;
 use infuse\Response;
 use app\api\libs\ApiController;
 use app\api\libs\ApiRoute;
+use app\api\libs\Error;
 
 class ApiControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -123,7 +124,25 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testParseFetchModelFromParams()
     {
-        $this->markTestIncomplete();
+        $route = new ApiRoute();
+
+        $req = new Request();
+        $req->setParams([
+            'module' => 'test',
+            'model' => 'TestModel', ]);
+        $route->setRequest($req);
+
+        $res = new Response();
+        $route->setResponse($res);
+
+        $testController = Mockery::mock('alias:app\\test\\Controller');
+
+        $testModel = Mockery::mock('alias:app\\test\\models\\TestModel');
+
+        $api = new ApiController();
+        $this->assertNull($api->parseFetchModelFromParams($route));
+
+        $this->assertEquals('app\\test\\models\\TestModel', $route->getQuery('model'));
     }
 
     public function testParseRequireApiScaffolding()
@@ -140,39 +159,17 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testParseRequireApiScaffoldingFail()
     {
+        $req = Mockery::mock('infuse\\Request');
+        $req->shouldReceive('method')->andReturn('GET');
+        $req->shouldReceive('path')->andReturn('/users');
+
         $route = new ApiRoute();
         $route->addQueryParams(['model' => new \stdClass()]);
-        $res = Mockery::mock('\\infuse\\Response');
-        $res->shouldReceive('setCode')->withArgs([404])->once();
-        $route->setResponse($res);
-
-        $api = new ApiController();
-        $this->assertFalse($api->parseRequireApiScaffolding($route));
-    }
-
-    public function testParseRequireJson()
-    {
-        $route = new ApiRoute();
-        $req = Mockery::mock('\\infuse\\Request');
-        $req->shouldReceive('isJson')->andReturn(true);
         $route->setRequest($req);
 
         $api = new ApiController();
-        $this->assertNull($api->parseRequireJson($route));
-    }
-
-    public function testParseRequireJsonFail()
-    {
-        $route = new ApiRoute();
-        $req = Mockery::mock('\\infuse\\Request');
-        $req->shouldReceive('isJson')->andReturn(false);
-        $route->setRequest($req);
-        $res = Mockery::mock('\\infuse\\Response');
-        $res->shouldReceive('setCode')->withArgs([415])->once();
-        $route->setResponse($res);
-
-        $api = new ApiController();
-        $this->assertFalse($api->parseRequireJson($route));
+        $this->setExpectedException('app\\api\\libs\\Error\\InvalidRequest');
+        $api->parseRequireApiScaffolding($route);
     }
 
     public function testParseRequireFindPermission()
@@ -515,5 +512,32 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $expected = '{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}';
         $this->assertEquals($expected, $res->getBody());
+    }
+
+    public function testHandleError()
+    {
+        $ex = new Error\InvalidRequest('Test', 404);
+
+        $req = new Request();
+
+        $expectedJSON = '{
+    "type": "invalid_request",
+    "message": "Test",
+    "param": null
+}';
+        $res = Mockery::mock('infuse\\Response');
+        $res->shouldReceive('setCode')
+            ->withArgs([404])
+            ->once();
+        $res->shouldReceive('setContentType->setBody')
+            ->withArgs([$expectedJSON])
+            ->once();
+
+        $route = new ApiRoute();
+        $route->setResponse($res);
+        $route->setRequest($req);
+
+        $api = new ApiController();
+        $api->handleError($ex, $route);
     }
 }
