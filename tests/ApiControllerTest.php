@@ -8,69 +8,74 @@ use app\api\libs\Error;
 
 class ApiControllerTest extends PHPUnit_Framework_TestCase
 {
+    public static $api;
+
+    public static function setUpBeforeClass()
+    {
+        Test::$app['requester'] = Mockery::mock();
+
+        self::$api = new ApiController();
+        self::$api->injectApp(Test::$app);
+    }
+
     public function testCreateRoute()
     {
-        $api = new ApiController();
         $req = new Request();
         $res = new Response();
 
-        $route = $api->create($req, $res, false);
+        $route = self::$api->create($req, $res, false);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals($api, $route->getController());
+        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testFindAllRoute()
     {
-        $api = new ApiController();
         $req = new Request();
         $res = new Response();
 
-        $route = $api->findAll($req, $res, false);
+        $route = self::$api->findAll($req, $res, false);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals($api, $route->getController());
+        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testFindOneRoute()
     {
-        $api = new ApiController();
         $req = new Request();
         $res = new Response();
 
-        $route = $api->findOne($req, $res, false);
+        $route = self::$api->findOne($req, $res, false);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals($api, $route->getController());
+        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testEditRoute()
     {
-        $api = new ApiController();
         $req = new Request();
         $res = new Response();
 
-        $route = $api->edit($req, $res, false);
+        $route = self::$api->edit($req, $res, false);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals($api, $route->getController());
+        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testDeleteRoute()
     {
-        $api = new ApiController();
         $req = new Request();
         $res = new Response();
 
-        $route = $api->delete($req, $res, false);
+        $route = self::$api->delete($req, $res, false);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals($api, $route->getController());
+        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testParseRouteBase()
@@ -82,14 +87,13 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $req->shouldReceive('path')->andReturn('/api/users/');
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $api->injectApp(Test::$app);
+        self::$api->injectApp(Test::$app);
 
-        $this->assertNull($api->parseRouteBase($route));
+        $this->assertNull(self::$api->parseRouteBase($route));
         $this->assertEquals('https://example.com/api/users', $route->getQuery('endpoint_url'));
 
         Test::$app['config']->set('api.url', 'https://api.example.com');
-        $this->assertNull($api->parseRouteBase($route));
+        $this->assertNull(self::$api->parseRouteBase($route));
         $this->assertEquals('https://api.example.com/users', $route->getQuery('endpoint_url'));
     }
 
@@ -100,8 +104,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'module' => 'test',
             'model' => 'Test', ]);
 
-        $api = new ApiController();
-        $this->assertTrue($api->parseFetchModelFromParams($route));
+        $this->assertTrue(self::$api->parseFetchModelFromParams($route));
     }
 
     public function testParseFetchModelFromParamsNoController()
@@ -117,10 +120,8 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
         $route->setResponse($res);
 
-        $api = new ApiController();
-
         try {
-            $api->parseFetchModelFromParams($route);
+            self::$api->parseFetchModelFromParams($route);
         } catch (Error\InvalidRequest $ex) {
             $this->assertEquals(404, $ex->getHttpStatus());
 
@@ -145,8 +146,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $testController = Mockery::mock('alias:app\\test\\Controller');
 
-        $api = new ApiController();
-        $this->assertFalse($api->parseFetchModelFromParams($route));
+        $this->assertFalse(self::$api->parseFetchModelFromParams($route));
     }
 
     public function testParseFetchModelFromParams()
@@ -166,8 +166,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $testModel = Mockery::mock('alias:app\\test\\models\\TestModel');
 
-        $api = new ApiController();
-        $this->assertNull($api->parseFetchModelFromParams($route));
+        $this->assertNull(self::$api->parseFetchModelFromParams($route));
 
         $this->assertEquals('app\\test\\models\\TestModel', $route->getQuery('model'));
     }
@@ -180,8 +179,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route = new ApiRoute();
         $route->addQueryParams(['model' => $model]);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseRequireApiScaffolding($route));
+        $this->assertNull(self::$api->parseRequireApiScaffolding($route));
     }
 
     public function testParseRequireApiScaffoldingFail()
@@ -194,10 +192,8 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route->addQueryParams(['model' => new \stdClass()]);
         $route->setRequest($req);
 
-        $api = new ApiController();
-
         try {
-            $api->parseRequireApiScaffolding($route);
+            self::$api->parseRequireApiScaffolding($route);
         } catch (Error\InvalidRequest $ex) {
             $this->assertEquals(404, $ex->getHttpStatus());
 
@@ -209,22 +205,30 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testParseRequireFindPermission()
     {
-        $this->markTestIncomplete();
-
-        $model = Mockery::mock();
+        $testModel = Mockery::mock();
+        $testModel->shouldReceive('can')
+                  ->withArgs(['find', Test::$app['requester']])
+                  ->andReturn(true)
+                  ->once();
 
         $route = new ApiRoute();
-        $route->addQueryParams(['model' => $model]);
-    }
+        $route->addQueryParams(['model' => $testModel]);
 
-    public function testParseRequireViewPermission()
-    {
-        $this->markTestIncomplete();
+        self::$api->parseRequireFindPermission($route);
     }
 
     public function testParseRequireCreatePermission()
     {
-        $this->markTestIncomplete();
+        $testModel = Mockery::mock();
+        $testModel->shouldReceive('can')
+                  ->withArgs(['create', Test::$app['requester']])
+                  ->andReturn(true)
+                  ->once();
+
+        $route = new ApiRoute();
+        $route->addQueryParams(['model' => $testModel]);
+
+        self::$api->parseRequireCreatePermission($route);
     }
 
     public function testParseModelCreateParameters()
@@ -235,8 +239,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $req = new Request(['expand' => 'invoice,customer'], $test);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseModelCreateParameters($route));
+        $this->assertNull(self::$api->parseModelCreateParameters($route));
 
         $this->assertEquals($test, $route->getQuery('properties'));
         $this->assertEquals(['invoice', 'customer'], $route->getQuery('expand'));
@@ -266,8 +269,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
                 'invoice', ], ]);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseModelFindAllParameters($route));
+        $this->assertNull(self::$api->parseModelFindAllParameters($route));
 
         $expected = [
             'page' => 2,
@@ -294,8 +296,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'limit' => 90, ]);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseModelFindAllParameters($route));
+        $this->assertNull(self::$api->parseModelFindAllParameters($route));
 
         $expected = [
             'page' => 2,
@@ -319,8 +320,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $req->setParams(['id' => 101]);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseModelFindOneParameters($route));
+        $this->assertNull(self::$api->parseModelFindOneParameters($route));
 
         $expected = [
             'model_id' => 101,
@@ -339,8 +339,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $req->setParams([ 'id' => 101 ]);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseModelEditParameters($route));
+        $this->assertNull(self::$api->parseModelEditParameters($route));
         $this->assertEquals(101, $route->getQuery('model_id'));
         $this->assertEquals($test, $route->getQuery('properties'));
     }
@@ -353,8 +352,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $req->setParams([ 'id' => 102 ]);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $this->assertNull($api->parseModelDeleteParameters($route));
+        $this->assertNull(self::$api->parseModelDeleteParameters($route));
         $this->assertEquals(102, $route->getQuery('model_id'));
     }
 
@@ -416,8 +414,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = new stdClass();
         $result->filtered_count = 200;
 
-        $api = new ApiController();
-        $api->transformPaginate($result, $route);
+        self::$api->transformPaginate($result, $route);
 
         $res = $route->getResponse();
         $this->assertEquals('200', $res->headers('X-Total-Count'));
@@ -426,7 +423,61 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testTransformModelFindOne()
     {
-        $this->markTestIncomplete();
+        $route = new ApiRoute();
+
+        $result = Mockery::mock();
+        $result->shouldReceive('exists')
+               ->andReturn(true)
+               ->once();
+        $result->shouldReceive('can')
+               ->withArgs(['view', Test::$app['requester']])
+               ->andReturn(true)
+               ->once();
+
+        self::$api->transformModelFindOne($result, $route);
+    }
+
+    public function testTransformModelFindOneNotExists()
+    {
+        $route = new ApiRoute();
+
+        $result = Mockery::mock('TestModel');
+        $result->shouldReceive('exists')
+               ->andReturn(false);
+
+        try {
+            self::$api->transformModelFindOne($result, $route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals(404, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
+    }
+
+    public function testTransformModelFindOneNoPermission()
+    {
+        $route = new ApiRoute();
+
+        $result = Mockery::mock();
+        $result->shouldReceive('exists')
+               ->andReturn(true)
+               ->once();
+        $result->shouldReceive('can')
+               ->withArgs(['view', Test::$app['requester']])
+               ->andReturn(false)
+               ->once();
+
+        try {
+            self::$api->transformModelFindOne($result, $route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals(403, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
     }
 
     public function testTransformModelEdit()
@@ -435,8 +486,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = true;
 
-        $api = new ApiController();
-        $api->transformModelEdit($result, $route);
+        self::$api->transformModelEdit($result, $route);
 
         $expected = new stdClass();
         $expected->success = true;
@@ -444,7 +494,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function testTransformModelEditFail()
+    public function testTransformModelEditNoPermission()
     {
         $route = new ApiRoute();
         $res = Mockery::mock('\\infuse\\Response');
@@ -453,21 +503,59 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $app = new App();
+        $error = [
+            'error' => 'no_permission',
+            'message' => 'No Permission',
+        ];
+        $errors = Mockery::mock();
+        $errors->shouldReceive('errors')
+               ->andReturn([$error]);
+        $app['errors'] = $errors;
+        self::$api->injectApp($app);
+
+        try {
+            self::$api->transformModelEdit($result, $route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals('No Permission', $ex->getMessage());
+            $this->assertEquals(403, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
+    }
+
+    public function testTransformModelEditFail()
+    {
+        $route = new ApiRoute();
+        $res = Mockery::mock('\\infuse\\Response');
+        $route->setResponse($res);
+
+        $result = false;
 
         $app = new App();
+        $error = [
+            'error' => 'invalid_parameter',
+            'message' => 'Invalid',
+            'params' => ['field' => 'number'],
+        ];
         $errors = Mockery::mock();
-        $errors->shouldReceive('messages')->andReturn(['error_message_1', 'error_message_2']);
-        $errors->shouldReceive('errors')->andReturn([['error' => 'no_permission']]);
+        $errors->shouldReceive('errors')
+               ->andReturn([$error]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        self::$api->injectApp($app);
 
-        $api->transformModelEdit($result, $route);
+        try {
+            self::$api->transformModelEdit($result, $route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals('Invalid', $ex->getMessage());
+            $this->assertEquals(400, $ex->getHttpStatus());
 
-        $expected = new stdClass();
-        $expected->error = ['error_message_1','error_message_2'];
+            return;
+        }
 
-        $this->assertEquals($expected, $result);
+        $this->fail('An exception was not raised.');
     }
 
     public function testTransformModelDelete()
@@ -478,8 +566,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = true;
 
-        $api = new ApiController();
-        $api->transformModelDelete($result, $route);
+        self::$api->transformModelDelete($result, $route);
 
         $this->assertEquals(204, $res->getCode());
 
@@ -495,16 +582,14 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
-
         $app = new App();
         $errors = Mockery::mock();
         $errors->shouldReceive('messages')->andReturn(['error_message_1', 'error_message_2']);
         $errors->shouldReceive('errors')->andReturn([['error' => 'no_permission']]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        self::$api->injectApp($app);
 
-        $api->transformModelDelete($result, $route);
+        self::$api->transformModelDelete($result, $route);
 
         $expected = new stdClass();
         $expected->error = ['error_message_1','error_message_2'];
@@ -528,8 +613,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result->nested->id = 10;
         $result->nested->name = 'John Appleseed';
 
-        $api = new ApiController();
-        $api->transformOutputJson($result, $route);
+        self::$api->transformOutputJson($result, $route);
 
         // JSON should be pretty-printed by default
         $expected = '{
@@ -543,7 +627,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         // JSON should be compacted with ?compact=true
         $route->addQueryParams(['compact' => true]);
-        $api->transformOutputJson($result, $route);
+        self::$api->transformOutputJson($result, $route);
 
         $expected = '{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}';
         $this->assertEquals($expected, $res->getBody());
@@ -551,14 +635,14 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testHandleError()
     {
-        $ex = new Error\InvalidRequest('Test', 404);
+        $ex = new Error\InvalidRequest('Test', 404, 'param');
 
         $req = new Request();
 
         $expectedJSON = '{
     "type": "invalid_request",
     "message": "Test",
-    "param": null
+    "param": "param"
 }';
         $res = Mockery::mock('infuse\\Response');
         $res->shouldReceive('setCode')
@@ -572,7 +656,6 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route->setResponse($res);
         $route->setRequest($req);
 
-        $api = new ApiController();
-        $api->handleError($ex, $route);
+        self::$api->handleError($ex, $route);
     }
 }

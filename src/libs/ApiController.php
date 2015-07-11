@@ -211,7 +211,7 @@ class ApiController
         // instantiate the controller
         $controller = 'app\\'.$module.'\\Controller';
         if (!class_exists($controller)) {
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$route->getQuery('endpoint_url'), 404);
+            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
         }
 
         // pick a default model if one isn't provided
@@ -237,7 +237,7 @@ class ApiController
         // check if api scaffolding is enabled on the model
         if (!property_exists($route->getQuery('model'), 'scaffoldApi')) {
             $req = $route->getRequest();
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$route->getQuery('endpoint_url'), 404);
+            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
         }
     }
 
@@ -446,11 +446,13 @@ class ApiController
 
         if ($result) {
             $modelRouteName = $this->singularClassName($route->getQuery('model'));
+
             $response->$modelRouteName = $result->toArray(
                 $route->getQuery('exclude'),
                 $route->getQuery('include'),
                 $route->getQuery('expand'));
             $response->success = true;
+
             $route->getResponse()->setCode(201);
         } else {
             $response->error = $this->app['errors']->messages();
@@ -581,13 +583,13 @@ class ApiController
         if ($result) {
             $response->success = true;
         } else {
-            $errorStack = $this->app['errors'];
-            $response->error = $errorStack->messages();
-
-            foreach ($errorStack->errors() as $error) {
-                if ($error['error'] == 'no_permission') {
-                    $route->getResponse()->setCode(403);
-                }
+            // get the first error
+            if ($error = $this->getFirstError()) {
+                $code = ($error['error'] == 'no_permission') ? 403 : 400;
+                $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
+                throw new Error\InvalidRequest($error['message'], $code, $param);
+            } else {
+                throw new Error\InvalidRequest('There was an error performing the update.');
             }
         }
 
@@ -639,7 +641,7 @@ class ApiController
     }
 
     ///////////////////////////////
-    // ERROR HANDLER
+    // ERROR HANDLING
     ///////////////////////////////
 
     /**
@@ -654,8 +656,11 @@ class ApiController
         $body = [
             'type' => $this->singularClassName($ex),
             'message' => $ex->getMessage(),
-            'param' => null,
         ];
+
+        if ($ex instanceof Error\InvalidRequest && $param = $ex->getParam()) {
+            $body['param'] = $param;
+        }
 
         // set HTTP status code
         $route->getResponse()
@@ -681,15 +686,15 @@ class ApiController
     {
         if (!$modelObj) {
             $modelClass = $route->getQuery('model');
-            $modelObj = new $modelClass();
+            if (is_object($modelClass)) {
+                $modelObj = $modelClass;
+            } else {
+                $modelObj = new $modelClass();
+            }
         }
 
         if (!$modelObj->can($permission, $this->app['requester'])) {
-            $route->getResponse()
-                  ->json(['error' => 'no_permission'])
-                  ->setCode(403);
-
-            return false;
+            throw new Error\InvalidRequest('You do not have permission to do that', 403);
         }
 
         return true;
@@ -768,5 +773,17 @@ class ApiController
         $inflector = Inflector::get();
 
         return $inflector->pluralize($inflector->underscore($className));
+    }
+
+    /**
+     * Gets the first error off the error stack.
+     *
+     * @return array|false
+     */
+    private function getFirstError()
+    {
+        $errors = $this->app['errors']->errors();
+
+        return (count($errors) > 0) ? $errors[0] : false;
     }
 }
