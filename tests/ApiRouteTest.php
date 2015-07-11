@@ -59,6 +59,13 @@ class ApiRouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['step1', 'step2', 'step3'], $route->getTransformSteps());
     }
 
+    public function testErrorHandler()
+    {
+        $route = new ApiRoute();
+        $this->assertEquals($route, $route->setErrorHandler('handleError'));
+        $this->assertEquals('handleError', $route->getErrorHandler());
+    }
+
     public function testExecute()
     {
         $route = new ApiRoute();

@@ -47,6 +47,7 @@ class ApiController
               ->addTransformSteps([
                 'transformModelCreate',
                 'transformOutputJson', ])
+              ->setErrorHandler('handleError')
               ->setRequest($req)
               ->setResponse($res)
               ->setController($this);
@@ -74,6 +75,7 @@ class ApiController
                 'transformModelFindAll',
                 'transformPaginate',
                 'transformOutputJson', ])
+              ->setErrorHandler('handleError')
               ->setRequest($req)
               ->setResponse($res)
               ->setController($this);
@@ -82,7 +84,7 @@ class ApiController
             if (!$route->execute() && $res->getCode() == 200) {
                 // if the model could not be determined, then it might
                 // be the case that the model is actually a model id for
-                // a module with only 1 model or a defaultModel set
+                // a module with only 1 model
                 if ($req->params('model')) {
                     $req->setParams([
                         'model' => false,
@@ -110,6 +112,7 @@ class ApiController
                 'transformModelFindOne',
                 'transformModelToArray',
                 'transformOutputJson', ])
+              ->setErrorHandler('handleError')
               ->setRequest($req)
               ->setResponse($res)
               ->setController($this);
@@ -134,6 +137,7 @@ class ApiController
               ->addTransformSteps([
                 'transformModelEdit',
                 'transformOutputJson', ])
+              ->setErrorHandler('handleError')
               ->setRequest($req)
               ->setResponse($res)
               ->setController($this);
@@ -157,6 +161,7 @@ class ApiController
               ->addQueryStep('queryModelDelete')
               ->addTransformSteps([
                 'transformModelDelete', ])
+              ->setErrorHandler('handleError')
               ->setRequest($req)
               ->setResponse($res)
               ->setController($this);
@@ -258,12 +263,12 @@ class ApiController
 
     public function parseRequireFindPermission(ApiRoute $route)
     {
-        return $this->require_permission('find', $route);
+        return $this->requirePermission('find', $route);
     }
 
     public function parseRequireCreatePermission(ApiRoute $route)
     {
-        return $this->require_permission('create', $route);
+        return $this->requirePermission('create', $route);
     }
 
     public function parseModelCreateParameters(ApiRoute $route)
@@ -564,21 +569,13 @@ class ApiController
     {
         $modelObj = $result;
 
-        // does the model exist?
+        // check if the model exists
         if (!$modelObj->exists()) {
-            $result = [ 'error' => 'not_found' ];
-            $route->getResponse()->setCode(404);
-
-            return;
+            throw new Error\InvalidRequest($this->humanClassName($modelObj).' was not found: '.$route->getQuery('model_id'), 404);
         }
 
-        // can the model be viewed?
-        if (!$modelObj->can('view', $this->app['requester'])) {
-            $result = ['error' => 'no_permission'];
-            $route->getResponse()->setCode(403);
-
-            return;
-        }
+        // verify the requester has `view` permission on the model
+        $this->requirePermission('view', $route, $modelObj);
     }
 
     public function transformModelToArray(&$result, ApiRoute $route)
@@ -662,6 +659,30 @@ class ApiController
     }
 
     ///////////////////////////////
+    // ERROR HANDLER
+    ///////////////////////////////
+
+    /**
+     * Handles exceptions thrown in API routes.
+     *
+     * @param Error\Base $ex
+     * @param ApiRoute   $route
+     */
+    public function handleError(Error\Base $ex, ApiRoute $route)
+    {
+        $result = [
+            'type' => $this->singularClassName($ex),
+            'message' => $ex->getMessage(),
+            'param' => null,
+        ];
+
+        $route->getResponse()
+              ->setCode($ex->getHttpStatus());
+
+        $this->transformOutputJson($result, $route);
+    }
+
+    ///////////////////////////////
     // PRIVATE METHODS
     ///////////////////////////////
 
@@ -670,17 +691,21 @@ class ApiController
      *
      * @param string   $permission
      * @param ApiRoute $route
+     * @param object   $modelObj   optional model Object
      *
      * @return boolean
      */
-    private function require_permission($permission, ApiRoute $route)
+    private function requirePermission($permission, ApiRoute $route, $modelObj = false)
     {
-        $modelClass = $route->getQuery('model');
-        $modelObj = new $modelClass();
+        if (!$modelObj) {
+            $modelClass = $route->getQuery('model');
+            $modelObj = new $modelClass();
+        }
 
         if (!$modelObj->can($permission, $this->app['requester'])) {
-            $route->getResponse()->json(['error' => 'no_permission'])
-                ->setCode(403);
+            $route->getResponse()
+                  ->json(['error' => 'no_permission'])
+                  ->setCode(403);
 
             return false;
         }
