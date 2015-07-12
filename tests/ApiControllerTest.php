@@ -497,12 +497,8 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = true;
 
+        // shouldn't throw any exceptions
         self::$api->transformModelEdit($result, $route);
-
-        $expected = new stdClass();
-        // TODO should return model as an array
-
-        $this->assertEquals($expected, $result);
     }
 
     public function testTransformModelEditNoPermission()

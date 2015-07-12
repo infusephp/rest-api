@@ -64,6 +64,7 @@ class ApiController
               ->addQueryStep('queryModelCreate')
               ->addTransformSteps([
                 'transformModelCreate',
+                'transformModelToArray',
                 'transformOutputJson', ]);
 
         if ($execute) {
@@ -142,6 +143,7 @@ class ApiController
               ->addQueryStep('queryModelEdit')
               ->addTransformSteps([
                 'transformModelEdit',
+                'transformModelToArray',
                 'transformOutputJson', ]);
 
         if ($execute) {
@@ -377,9 +379,27 @@ class ApiController
     {
         $req = $route->getRequest();
 
-        $route->addQueryParams([
+        $exclude = $req->query('exclude');
+        if (!is_array($exclude)) {
+            $exclude = explode(',', $req->query('exclude'));
+        }
+
+        $include = $req->query('include');
+        if (!is_array($include)) {
+            $include = explode(',', $req->query('include'));
+        }
+
+        $expand = $req->query('expand');
+        if (!is_array($expand)) {
+            $expand = explode(',', $req->query('expand'));
+        }
+
+        $route->addQueryParams(array_replace([
             'model_id' => $req->params('id'),
-            'properties' => $req->request(), ]);
+            'properties' => $req->request(),
+            'exclude' => array_filter($exclude),
+            'include' => array_filter($include),
+            'expand' => array_filter($expand), ], $route->getQuery()));
     }
 
     public function parseModelDeleteParameters(ApiRoute $route)
@@ -425,7 +445,11 @@ class ApiController
 
         $modelObj = new $modelClass($route->getQuery('model_id'));
 
-        return $modelObj->set($route->getQuery('properties'));
+        if ($modelObj->set($route->getQuery('properties'))) {
+            return $modelObj;
+        } else {
+            return false;
+        }
     }
 
     public function queryModelDelete(ApiRoute $route)
@@ -443,16 +467,7 @@ class ApiController
 
     public function transformModelCreate(&$result, ApiRoute $route)
     {
-        $response = new \stdClass();
-
         if ($result) {
-            $modelRouteName = $this->singularClassName($route->getQuery('model'));
-
-            $response->$modelRouteName = $result->toArray(
-                $route->getQuery('exclude'),
-                $route->getQuery('include'),
-                $route->getQuery('expand'));
-
             $route->getResponse()->setCode(201);
         } else {
             // get the first error
@@ -465,8 +480,6 @@ class ApiController
                 throw new Error\Api('There was an error creating the '.$this->humanClassName($route->getQuery('model')).'.');
             }
         }
-
-        $result = $response;
     }
 
     public function transformPaginate(&$result, ApiRoute $route)
@@ -537,11 +550,7 @@ class ApiController
 
     public function transformModelEdit(&$result, ApiRoute $route)
     {
-        $response = new \stdClass();
-
-        if ($result) {
-            // TODO should return model as an array
-        } else {
+        if (!$result) {
             // get the first error
             if ($error = $this->getFirstError()) {
                 $code = ($error['error'] == 'no_permission') ? 403 : 400;
@@ -552,8 +561,6 @@ class ApiController
                 throw new Error\InvalidRequest('There was an error performing the update.');
             }
         }
-
-        $result = $response;
     }
 
     public function transformModelToArray(&$result, ApiRoute $route, $envelope = true)
