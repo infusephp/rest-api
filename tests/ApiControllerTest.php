@@ -396,17 +396,17 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
     }
 
-    public function testTransformFindAll()
+    public function testTransformModelFindAll()
     {
         $this->markTestIncomplete();
+
+        // should set X-Total-Count header
+        $res = $route->getResponse();
+        $this->assertEquals('200', $res->headers('X-Total-Count'));
     }
 
     public function testTransformPaginate()
     {
-        $model = Mockery::mock('alias:ModelClass');
-        // TODO deprecated
-        $model->shouldReceive('totalRecords')->andreturn(500);
-
         $route = new ApiRoute();
         $res = new Response();
         $route->setResponse($res)
@@ -414,20 +414,17 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
                     'model' => 'ModelClass',
                     'page' => 2,
                     'per_page' => 50,
-                    'endpoint_url' => '/api/models',
-                    // TODO deprecated
-                    'where' => [], ]);
+                    'endpoint_url' => '/api/models', ]);
 
         $req = new Request(['sort' => 'name ASC']);
         $route->setRequest($req);
 
         $result = new stdClass();
-        $result->filtered_count = 200;
+        $result->total_count = 200;
 
         self::$api->transformPaginate($result, $route);
 
         $res = $route->getResponse();
-        $this->assertEquals('200', $res->headers('X-Total-Count'));
         $this->assertEquals('</api/models?sort=name+ASC&per_page=50&page=2>; rel="self", </api/models?sort=name+ASC&per_page=50&page=1>; rel="first", </api/models?sort=name+ASC&per_page=50&page=1>; rel="previous", </api/models?sort=name+ASC&per_page=50&page=3>; rel="next", </api/models?sort=name+ASC&per_page=50&page=4>; rel="last"', $res->headers('Link'));
     }
 
@@ -499,7 +496,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         self::$api->transformModelEdit($result, $route);
 
         $expected = new stdClass();
-        // TODO
+        // TODO should return model as an array
 
         $this->assertEquals($expected, $result);
     }
@@ -584,8 +581,6 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         self::$api->transformModelDelete($result, $route);
 
         $this->assertEquals(204, $res->getCode());
-
-        // TODO test delete failure
     }
 
     public function testTransformModelDeleteNoPermission()

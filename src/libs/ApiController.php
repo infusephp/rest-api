@@ -481,7 +481,7 @@ class ApiController
                 $route->getQuery('expand')));
         }
 
-        $response->filtered_count = $result['count'];
+        $response->total_count = $result['count'];
 
         $result = $response;
     }
@@ -491,45 +491,47 @@ class ApiController
         $res = $route->getResponse();
 
         // total count
-        $res->setHeader('X-Total-Count', $result->filtered_count);
+        $totalCount = $result->total_count;
+        unset($result->total_count);
+        $res->setHeader('X-Total-Count', $totalCount);
 
         $query = $route->getQuery();
 
         $page = $query['page'];
         $perPage = $query['per_page'];
-        $pageCount = max(1, ceil($result->filtered_count / $perPage));
+        $pageCount = max(1, ceil($totalCount / $perPage));
 
         // compute links
         $base = $route->getQuery('endpoint_url');
 
-        $baseQuery = $route->getRequest()->query();
-        if (isset($baseQuery['page'])) {
-            unset($baseQuery['page']);
+        $requestQuery = $route->getRequest()->query();
+        if (isset($requestQuery['page'])) {
+            unset($requestQuery['page']);
         }
 
         if ($query['per_page'] != self::$pageLimit) {
-            $baseQuery['per_page'] = $perPage;
-        } elseif (isset($baseQuery['per_page'])) {
-            unset($baseQuery['per_page']);
+            $requestQuery['per_page'] = $perPage;
+        } elseif (isset($requestQuery['per_page'])) {
+            unset($requestQuery['per_page']);
         }
 
         // self/first links
         $links = [
-            'self' => $this->link($base, array_replace($baseQuery, ['page' => $page])),
-            'first' => $this->link($base, array_replace($baseQuery, ['page' => 1])),
+            'self' => $this->link($base, array_replace($requestQuery, ['page' => $page])),
+            'first' => $this->link($base, array_replace($requestQuery, ['page' => 1])),
         ];
 
         // previous/next links
         if ($page > 1) {
-            $links['previous'] = $this->link($base, array_replace($baseQuery, ['page' => $page-1]));
+            $links['previous'] = $this->link($base, array_replace($requestQuery, ['page' => $page-1]));
         }
 
         if ($page < $pageCount) {
-            $links['next'] = $this->link($base, array_replace($baseQuery, ['page' => $page+1]));
+            $links['next'] = $this->link($base, array_replace($requestQuery, ['page' => $page+1]));
         }
 
         // last link
-        $links['last'] = $this->link($base, array_replace($baseQuery, ['page' => $pageCount]));
+        $links['last'] = $this->link($base, array_replace($requestQuery, ['page' => $pageCount]));
 
         // add links to Link header
         $linkStr = implode(', ', array_map(function ($link, $rel) {
@@ -537,16 +539,6 @@ class ApiController
         }, $links, array_keys($links)));
 
         $res->setHeader('Link', $linkStr);
-
-        // add pagination metadata to response body
-        // TODO deprecated
-        $modelClass = $query['model'];
-
-        $result->page = $page;
-        $result->per_page = $perPage;
-        $result->page_count = $pageCount;
-        $result->total_count = $modelClass::totalRecords($query['where']);
-        $result->links = $links;
     }
 
     public function transformModelFindOne(&$result, ApiRoute $route)
@@ -567,7 +559,7 @@ class ApiController
         $response = new \stdClass();
 
         if ($result) {
-            // TODO
+            // TODO should return model as an array
         } else {
             // get the first error
             if ($error = $this->getFirstError()) {
