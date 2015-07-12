@@ -34,9 +34,28 @@ class ApiController
     // ROUTES
     ///////////////////////////////
 
-    public function create($req, $res, $execute = true)
+    /**
+     * Creates a new API route using this controller.
+     *
+     * @param Request  $req
+     * @param Response $res
+     *
+     * @return ApiRoute
+     */
+    public function newApiRoute($req, $res)
     {
         $route = new ApiRoute();
+        $route->setRequest($req)
+              ->setResponse($res)
+              ->setController($this)
+              ->setErrorHandler('handleError');
+
+        return $route;
+    }
+
+    public function create($req, $res, $execute = true)
+    {
+        $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
@@ -45,11 +64,7 @@ class ApiController
               ->addQueryStep('queryModelCreate')
               ->addTransformSteps([
                 'transformModelCreate',
-                'transformOutputJson', ])
-              ->setErrorHandler('handleError')
-              ->setRequest($req)
-              ->setResponse($res)
-              ->setController($this);
+                'transformOutputJson', ]);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200) {
@@ -62,7 +77,7 @@ class ApiController
 
     public function findAll($req, $res, $execute = true)
     {
-        $route = new ApiRoute();
+        $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseRouteBase',
                 'parseFetchModelFromParams',
@@ -73,11 +88,7 @@ class ApiController
               ->addTransformSteps([
                 'transformModelFindAll',
                 'transformPaginate',
-                'transformOutputJson', ])
-              ->setErrorHandler('handleError')
-              ->setRequest($req)
-              ->setResponse($res)
-              ->setController($this);
+                'transformOutputJson', ]);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200) {
@@ -101,7 +112,7 @@ class ApiController
 
     public function findOne($req, $res, $execute = true)
     {
-        $route = new ApiRoute();
+        $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
@@ -110,11 +121,7 @@ class ApiController
               ->addTransformSteps([
                 'transformModelFindOne',
                 'transformModelToArray',
-                'transformOutputJson', ])
-              ->setErrorHandler('handleError')
-              ->setRequest($req)
-              ->setResponse($res)
-              ->setController($this);
+                'transformOutputJson', ]);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200) {
@@ -127,7 +134,7 @@ class ApiController
 
     public function edit($req, $res, $execute = true)
     {
-        $route = new ApiRoute();
+        $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
@@ -135,11 +142,7 @@ class ApiController
               ->addQueryStep('queryModelEdit')
               ->addTransformSteps([
                 'transformModelEdit',
-                'transformOutputJson', ])
-              ->setErrorHandler('handleError')
-              ->setRequest($req)
-              ->setResponse($res)
-              ->setController($this);
+                'transformOutputJson', ]);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200) {
@@ -152,18 +155,13 @@ class ApiController
 
     public function delete($req, $res, $execute = true)
     {
-        $route = new ApiRoute();
+        $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
                 'parseRequireApiScaffolding',
                 'parseModelDeleteParameters', ])
               ->addQueryStep('queryModelDelete')
-              ->addTransformSteps([
-                'transformModelDelete', ])
-              ->setErrorHandler('handleError')
-              ->setRequest($req)
-              ->setResponse($res)
-              ->setController($this);
+              ->addTransformSteps(['transformModelDelete']);
 
         if ($execute) {
             if (!$route->execute() && $res->getCode() == 200) {

@@ -18,6 +18,20 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         self::$api->injectApp(Test::$app);
     }
 
+    public function testNewApiRoute()
+    {
+        $req = new Request();
+        $res = new Response();
+
+        $route = self::$api->newApiRoute($req, $res);
+        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
+
+        $this->assertEquals($req, $route->getRequest());
+        $this->assertEquals($res, $route->getResponse());
+        $this->assertEquals('handleError', $route->getErrorHandler());
+        $this->assertEquals(self::$api, $route->getController());
+    }
+
     public function testCreateRoute()
     {
         $req = new Request();
