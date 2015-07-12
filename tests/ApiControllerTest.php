@@ -410,15 +410,6 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
     }
 
-    public function testTransformModelFindAll()
-    {
-        $this->markTestIncomplete();
-
-        // should set X-Total-Count header
-        $res = $route->getResponse();
-        $this->assertEquals('200', $res->headers('X-Total-Count'));
-    }
-
     public function testTransformPaginate()
     {
         $route = new ApiRoute();
@@ -428,14 +419,13 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
                     'model' => 'ModelClass',
                     'page' => 2,
                     'per_page' => 50,
-                    'endpoint_url' => '/api/models', ]);
+                    'endpoint_url' => '/api/models',
+                    'total_count' => 200, ]);
 
         $req = new Request(['sort' => 'name ASC']);
         $route->setRequest($req);
 
         $result = new stdClass();
-        $result->total_count = 200;
-
         self::$api->transformPaginate($result, $route);
 
         $res = $route->getResponse();

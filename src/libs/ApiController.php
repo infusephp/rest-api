@@ -86,7 +86,7 @@ class ApiController
                 'parseModelFindAllParameters', ])
               ->addQueryStep('queryModelFindAll')
               ->addTransformSteps([
-                'transformModelFindAll',
+                'transformModelToArray',
                 'transformPaginate',
                 'transformOutputJson', ]);
 
@@ -406,7 +406,10 @@ class ApiController
     {
         $modelClass = $route->getQuery('model');
 
-        return $modelClass::find($route->getQuery());
+        $result = $modelClass::find($route->getQuery());
+        $route->addQueryParams(['total_count' => $result['count']]);
+
+        return $result['models'];
     }
 
     public function queryModelFindOne(ApiRoute $route)
@@ -466,34 +469,14 @@ class ApiController
         $result = $response;
     }
 
-    public function transformModelFindAll(&$result, ApiRoute $route)
-    {
-        $response = new \stdClass();
-        $modelRouteName = $this->pluralClassName($route->getQuery('model'));
-        $response->$modelRouteName = [];
-
-        foreach ($result['models'] as $m) {
-            array_push($response->$modelRouteName, $m->toArray(
-                $route->getQuery('exclude'),
-                $route->getQuery('include'),
-                $route->getQuery('expand')));
-        }
-
-        $response->total_count = $result['count'];
-
-        $result = $response;
-    }
-
     public function transformPaginate(&$result, ApiRoute $route)
     {
         $res = $route->getResponse();
+        $query = $route->getQuery();
 
         // total count
-        $totalCount = $result->total_count;
-        unset($result->total_count);
+        $totalCount = $query['total_count'];
         $res->setHeader('X-Total-Count', $totalCount);
-
-        $query = $route->getQuery();
 
         $page = $query['page'];
         $perPage = $query['per_page'];
@@ -573,19 +556,37 @@ class ApiController
         $result = $response;
     }
 
-    public function transformModelToArray(&$result, ApiRoute $route)
+    public function transformModelToArray(&$result, ApiRoute $route, $envelope = true)
     {
-        $modelObj = $result;
-
-        $modelClass = $route->getQuery('model');
-        if (is_object($modelObj) && method_exists($modelClass, 'toArray')) {
-            $modelRouteName = $this->singularClassName($modelClass);
-            $result = [
-                $modelRouteName => $modelObj->toArray(
+        if (is_object($result) && method_exists($result, 'toArray')) {
+            $_model = $result->toArray(
                     $route->getQuery('exclude'),
                     $route->getQuery('include'),
-                    $route->getQuery('expand')),
-            ];
+                    $route->getQuery('expand'));
+
+            // envelope the response (will be deprecated in the future)
+            if ($envelope) {
+                $modelRouteName = $this->singularClassName($route->getQuery('model'));
+                $result = [$modelRouteName => $_model];
+            } else {
+                $result = $_model;
+            }
+        } elseif (is_array($result)) {
+            $models = $result;
+            $result = [];
+
+            foreach ($models as $model) {
+                $this->transformModelToArray($model, $route, false);
+                $result[] = $model;
+            }
+
+            // envelope the response (will be deprecated in the future)
+            if ($envelope) {
+                $response = new \stdClass();
+                $modelRouteName = $this->pluralClassName($route->getQuery('model'));
+                $response->$modelRouteName = $result;
+                $result = $response;
+            }
         }
     }
 
