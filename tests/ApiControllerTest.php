@@ -386,6 +386,16 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
     }
 
+    public function testTransformModelCreateNoPermission()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testTransformModelCreateFail()
+    {
+        $this->markTestIncomplete();
+    }
+
     public function testTransformFindAll()
     {
         $this->markTestIncomplete();
@@ -489,7 +499,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         self::$api->transformModelEdit($result, $route);
 
         $expected = new stdClass();
-        $expected->success = true;
+        // TODO
 
         $this->assertEquals($expected, $result);
     }
@@ -526,7 +536,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $this->fail('An exception was not raised.');
     }
 
-    public function testTransformModelEditFail()
+    public function testTransformModelEditInvalid()
     {
         $route = new ApiRoute();
         $res = Mockery::mock('\\infuse\\Response');
@@ -556,6 +566,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         }
 
         $this->fail('An exception was not raised.');
+    }
+
+    public function testTransformModelEditFail()
+    {
+        $this->markTestIncomplete();
     }
 
     public function testTransformModelDelete()
@@ -603,6 +618,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         }
 
         $this->fail('An exception was not raised.');
+    }
+
+    public function testTransformModelDeleteFail()
+    {
+        $this->markTestIncomplete();
     }
 
     public function testTansformOutputJson()

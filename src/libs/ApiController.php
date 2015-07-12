@@ -451,7 +451,6 @@ class ApiController
                 $route->getQuery('exclude'),
                 $route->getQuery('include'),
                 $route->getQuery('expand'));
-            $response->success = true;
 
             $route->getResponse()->setCode(201);
         } else {
@@ -550,11 +549,6 @@ class ApiController
         $result->links = $links;
     }
 
-    private function link($url, array $query)
-    {
-        return $url.((count($query) > 0) ? '?'.http_build_query($query) : '');
-    }
-
     public function transformModelFindOne(&$result, ApiRoute $route)
     {
         $modelObj = $result;
@@ -573,7 +567,7 @@ class ApiController
         $response = new \stdClass();
 
         if ($result) {
-            $response->success = true;
+            // TODO
         } else {
             // get the first error
             if ($error = $this->getFirstError()) {
@@ -777,6 +771,11 @@ class ApiController
         $inflector = Inflector::get();
 
         return $inflector->pluralize($inflector->underscore($className));
+    }
+
+    private function link($url, array $query)
+    {
+        return $url.((count($query) > 0) ? '?'.http_build_query($query) : '');
     }
 
     /**
