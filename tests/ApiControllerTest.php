@@ -397,17 +397,81 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testTransformModelCreate()
     {
-        $this->markTestIncomplete();
+        $res = new Response();
+        $route = new ApiRoute();
+        $route->setResponse($res);
+
+        $result = true;
+
+        // shouldn't throw any exceptions
+        self::$api->transformModelCreate($result, $route);
+
+        // should return 201 code
+        $this->assertEquals(201, $res->getCode());
     }
 
     public function testTransformModelCreateNoPermission()
     {
-        $this->markTestIncomplete();
+        $route = new ApiRoute();
+        $res = Mockery::mock('\\infuse\\Response');
+        $res->shouldReceive('setCode')->withArgs([403])->once();
+        $route->setResponse($res);
+
+        $result = false;
+
+        $api = new ApiController();
+        $app = new App();
+        $error = [
+            'error' => 'no_permission',
+            'message' => 'No Permission',
+        ];
+        $errors = Mockery::mock();
+        $errors->shouldReceive('errors')
+               ->andReturn([$error]);
+        $app['errors'] = $errors;
+        $api->injectApp($app);
+
+        try {
+            $api->transformModelCreate($result, $route);
+        } catch (Error\InvalidRequest $ex) {
+            $this->assertEquals('No Permission', $ex->getMessage());
+            $this->assertEquals(403, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
     }
 
     public function testTransformModelCreateFail()
     {
-        $this->markTestIncomplete();
+        $route = new ApiRoute();
+        $route->addQueryParams([
+            'model' => 'user', ]);
+
+        $res = Mockery::mock('\\infuse\\Response');
+        $route->setResponse($res);
+
+        $result = false;
+
+        $api = new ApiController();
+        $app = new App();
+        $errors = Mockery::mock();
+        $errors->shouldReceive('errors')
+               ->andReturn([]);
+        $app['errors'] = $errors;
+        $api->injectApp($app);
+
+        try {
+            $api->transformModelCreate($result, $route);
+        } catch (Error\Api $ex) {
+            $this->assertEquals('There was an error creating the User.', $ex->getMessage());
+            $this->assertEquals(500, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
     }
 
     public function testTransformPaginate()
@@ -567,7 +631,121 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testTransformModelEditFail()
     {
-        $this->markTestIncomplete();
+        $route = new ApiRoute();
+        $res = Mockery::mock('\\infuse\\Response');
+        $route->setResponse($res);
+
+        $result = false;
+
+        $app = new App();
+        $errors = Mockery::mock();
+        $errors->shouldReceive('errors')
+               ->andReturn([]);
+        $app['errors'] = $errors;
+        self::$api->injectApp($app);
+
+        try {
+            self::$api->transformModelEdit($result, $route);
+        } catch (Error\Api $ex) {
+            $this->assertEquals('There was an error performing the update.', $ex->getMessage());
+            $this->assertEquals(500, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
+    }
+
+    public function testTransformModelToArray()
+    {
+        $route = new ApiRoute();
+        $route->addQueryParams([
+            'model' => 'TestModel',
+            'exclude' => ['exclude'],
+            'include' => ['include'],
+            'expand' => ['expand'], ]);
+
+        $result = Mockery::mock('TestModel');
+        $result->shouldReceive('toArray')
+               ->withArgs([['exclude'], ['include'], ['expand']])
+               ->andReturn('model')
+               ->once();
+
+        self::$api->transformModelToArray($result, $route);
+
+        // result should be replaced with the output from toArray()
+        $this->assertEquals(['test_model' => 'model'], $result);
+    }
+
+    public function testTransformModelToArrayNoEnvelope()
+    {
+        $route = new ApiRoute();
+        $route->addQueryParams([
+            'model' => 'TestModel',
+            'exclude' => ['exclude'],
+            'include' => ['include'],
+            'expand' => ['expand'], ]);
+
+        $result = Mockery::mock('TestModel');
+        $result->shouldReceive('toArray')
+               ->withArgs([['exclude'], ['include'], ['expand']])
+               ->andReturn('model')
+               ->once();
+
+        self::$api->transformModelToArray($result, $route, false);
+
+        // result should be replaced with the output from toArray()
+        $this->assertEquals('model', $result);
+    }
+
+    public function testTransformModelToArrayMultipleNoEnvelope()
+    {
+        $route = new ApiRoute();
+        $route->addQueryParams([
+            'model' => 'TestModel',
+            'exclude' => ['exclude'],
+            'include' => ['include'],
+            'expand' => ['expand'], ]);
+
+        $result = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $obj = Mockery::mock('TestModel');
+            $obj->shouldReceive('toArray')
+                ->withArgs([['exclude'], ['include'], ['expand']])
+                ->andReturn($i)
+                ->once();
+            $result[] = $obj;
+        }
+
+        self::$api->transformModelToArray($result, $route, false);
+
+        // result should be replaced with the output from toArray()
+        $this->assertEquals([1, 2, 3, 4, 5], $result);
+    }
+
+    public function testTransformModelToArrayMultipleEnvelope()
+    {
+        $route = new ApiRoute();
+        $route->addQueryParams([
+            'model' => 'TestModel',
+            'exclude' => ['exclude'],
+            'include' => ['include'],
+            'expand' => ['expand'], ]);
+
+        $result = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $obj = Mockery::mock('TestModel');
+            $obj->shouldReceive('toArray')
+                ->withArgs([['exclude'], ['include'], ['expand']])
+                ->andReturn($i)
+                ->once();
+            $result[] = $obj;
+        }
+
+        self::$api->transformModelToArray($result, $route);
+
+        // result should be replaced with the output from toArray()
+        $this->assertEquals(['test_models' => [1, 2, 3, 4, 5]], $result);
     }
 
     public function testTransformModelDelete()
@@ -617,12 +795,38 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testTransformModelDeleteFail()
     {
-        $this->markTestIncomplete();
+        $route = new ApiRoute();
+        $res = Mockery::mock('\\infuse\\Response');
+        $route->setResponse($res);
+
+        $result = false;
+
+        $app = new App();
+        $errors = Mockery::mock();
+        $errors->shouldReceive('errors')
+               ->andReturn([]);
+        $app['errors'] = $errors;
+        self::$api->injectApp($app);
+
+        try {
+            self::$api->transformModelDelete($result, $route);
+        } catch (Error\Api $ex) {
+            $this->assertEquals('There was an error performing the delete.', $ex->getMessage());
+            $this->assertEquals(500, $ex->getHttpStatus());
+
+            return;
+        }
+
+        $this->fail('An exception was not raised.');
     }
 
     public function testTansformOutputJson()
     {
         $route = new ApiRoute();
+
+        $result = 'blah';
+        self::$api->transformOutputJson($result, $route);
+        $this->assertEquals('blah', $result);
 
         $res = new Response();
         $route->setResponse($res);

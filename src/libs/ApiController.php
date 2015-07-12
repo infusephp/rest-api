@@ -558,18 +558,18 @@ class ApiController
                 throw new Error\InvalidRequest($error['message'], $code, $param);
             // no specific errors available, throw a generic one
             } else {
-                throw new Error\InvalidRequest('There was an error performing the update.');
+                throw new Error\Api('There was an error performing the update.');
             }
         }
     }
 
     public function transformModelToArray(&$result, ApiRoute $route, $envelope = true)
     {
-        if (is_object($result) && method_exists($result, 'toArray')) {
+        if (is_object($result)) {
             $_model = $result->toArray(
-                    $route->getQuery('exclude'),
-                    $route->getQuery('include'),
-                    $route->getQuery('expand'));
+                $route->getQuery('exclude'),
+                $route->getQuery('include'),
+                $route->getQuery('expand'));
 
             // envelope the response (will be deprecated in the future)
             if ($envelope) {
@@ -589,10 +589,10 @@ class ApiController
 
             // envelope the response (will be deprecated in the future)
             if ($envelope) {
-                $response = new \stdClass();
                 $modelRouteName = $this->pluralClassName($route->getQuery('model'));
-                $response->$modelRouteName = $result;
-                $result = $response;
+                $result = [
+                    $modelRouteName => $result,
+                ];
             }
         }
     }
