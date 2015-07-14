@@ -202,7 +202,7 @@ class ApiController
     {
         // skip this method if a model class has already been supplied
         if ($route->getQuery('model')) {
-            return true;
+            return;
         }
 
         $req = $route->getRequest();
@@ -243,12 +243,12 @@ class ApiController
 
     public function parseRequireFindPermission(ApiRoute $route)
     {
-        return $this->requirePermission('find', $route);
+        $this->requirePermission('find', $route);
     }
 
     public function parseRequireCreatePermission(ApiRoute $route)
     {
-        return $this->requirePermission('create', $route);
+        $this->requirePermission('create', $route);
     }
 
     public function parseModelCreateParameters(ApiRoute $route)
@@ -692,8 +692,6 @@ class ApiController
         if (!$modelObj->can($permission, $this->app['requester'])) {
             throw new Error\InvalidRequest('You do not have permission to do that', 403);
         }
-
-        return true;
     }
 
     /**

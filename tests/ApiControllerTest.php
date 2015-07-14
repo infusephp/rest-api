@@ -118,7 +118,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'module' => 'test',
             'model' => 'Test', ]);
 
-        $this->assertTrue(self::$api->parseFetchModelFromParams($route));
+        $this->assertNull(self::$api->parseFetchModelFromParams($route));
     }
 
     public function testParseFetchModelFromParamsNoController()
