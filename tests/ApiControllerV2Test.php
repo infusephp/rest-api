@@ -2,11 +2,11 @@
 
 use infuse\Request;
 use infuse\Response;
-use app\api\libs\ApiController;
+use app\api\libs\ApiControllerV2;
 use app\api\libs\ApiRoute;
 use app\api\libs\Error;
 
-class ApiControllerTest extends PHPUnit_Framework_TestCase
+class ApiControllerV2Test extends PHPUnit_Framework_TestCase
 {
     public static $api;
 
@@ -14,21 +14,8 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     {
         Test::$app['requester'] = Mockery::mock();
 
-        self::$api = new ApiController();
+        self::$api = new ApiControllerV2();
         self::$api->injectApp(Test::$app);
-    }
-
-    public function testNewApiRoute()
-    {
-        $req = new Request();
-        $res = new Response();
-
-        $route = self::$api->newApiRoute($req, $res);
-        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
-
-        $this->assertEquals($req, $route->getRequest());
-        $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testCreateRoute()
@@ -37,10 +24,10 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->create($req, $res, false);
+        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals(self::$api, $route->getController());
     }
 
     public function testFindAllRoute()
@@ -49,10 +36,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->findAll($req, $res, false);
+        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals(self::$api, $route->getController());
+        $this->assertEquals([self::$api, '_findAll'], $route->getAction());
     }
 
     public function testFindOneRoute()
@@ -61,10 +49,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->findOne($req, $res, false);
+        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals(self::$api, $route->getController());
+        $this->assertEquals([self::$api, '_findOne'], $route->getAction());
     }
 
     public function testEditRoute()
@@ -73,10 +62,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->edit($req, $res, false);
+        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals(self::$api, $route->getController());
+        $this->assertEquals([self::$api, '_edit'], $route->getAction());
     }
 
     public function testDeleteRoute()
@@ -85,15 +75,17 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->delete($req, $res, false);
+        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
-        $this->assertEquals(self::$api, $route->getController());
+        $this->assertEquals([self::$api, '_delete'], $route->getAction());
     }
 
     public function testParseRouteBase()
     {
         Test::$app['base_url'] = 'https://example.com/';
+        Test::$app['config']->set('api.url', null);
 
         $route = new ApiRoute();
         $req = Mockery::mock('\\infuse\\Request');
@@ -124,7 +116,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $req = new Request();
         $req->setParams([
-            'module' => 'test',
+            'module' => 'test2',
             'model' => 'Test', ]);
         $route->setRequest($req);
 
@@ -416,7 +408,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $error = [
             'error' => 'no_permission',
@@ -451,7 +443,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
@@ -571,7 +563,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $error = [
             'error' => 'no_permission',
@@ -603,7 +595,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $error = [
             'error' => 'invalid_parameter',
@@ -636,7 +628,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
@@ -668,37 +660,16 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = Mockery::mock('TestModel');
         $result->shouldReceive('toArray')
                ->withArgs([['exclude'], ['include'], ['expand']])
-               ->andReturn('model')
+               ->andReturn(['property' => 'test'])
                ->once();
 
         self::$api->transformModelToArray($result, $route);
 
         // result should be replaced with the output from toArray()
-        $this->assertEquals(['test_model' => 'model'], $result);
+        $this->assertEquals(['property' => 'test'], $result);
     }
 
-    public function testTransformModelToArrayNoEnvelope()
-    {
-        $route = new ApiRoute();
-        $route->addQueryParams([
-            'model' => 'TestModel',
-            'exclude' => ['exclude'],
-            'include' => ['include'],
-            'expand' => ['expand'], ]);
-
-        $result = Mockery::mock('TestModel');
-        $result->shouldReceive('toArray')
-               ->withArgs([['exclude'], ['include'], ['expand']])
-               ->andReturn('model')
-               ->once();
-
-        self::$api->transformModelToArray($result, $route, false);
-
-        // result should be replaced with the output from toArray()
-        $this->assertEquals('model', $result);
-    }
-
-    public function testTransformModelToArrayMultipleNoEnvelope()
+    public function testTransformModelToArraySet()
     {
         $route = new ApiRoute();
         $route->addQueryParams([
@@ -717,35 +688,10 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             $result[] = $obj;
         }
 
-        self::$api->transformModelToArray($result, $route, false);
+        self::$api->transformModelToArray($result, $route);
 
         // result should be replaced with the output from toArray()
         $this->assertEquals([1, 2, 3, 4, 5], $result);
-    }
-
-    public function testTransformModelToArrayMultipleEnvelope()
-    {
-        $route = new ApiRoute();
-        $route->addQueryParams([
-            'model' => 'TestModel',
-            'exclude' => ['exclude'],
-            'include' => ['include'],
-            'expand' => ['expand'], ]);
-
-        $result = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $obj = Mockery::mock('TestModel');
-            $obj->shouldReceive('toArray')
-                ->withArgs([['exclude'], ['include'], ['expand']])
-                ->andReturn($i)
-                ->once();
-            $result[] = $obj;
-        }
-
-        self::$api->transformModelToArray($result, $route);
-
-        // result should be replaced with the output from toArray()
-        $this->assertEquals(['test_models' => [1, 2, 3, 4, 5]], $result);
     }
 
     public function testTransformModelDelete()
@@ -770,7 +716,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $errors = Mockery::mock();
         $error = [
@@ -802,7 +748,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $result = false;
 
-        $api = new ApiController();
+        $api = new ApiControllerV2();
         $app = new App();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')

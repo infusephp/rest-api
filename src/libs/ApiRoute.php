@@ -5,7 +5,6 @@ namespace app\api\libs;
 use infuse\Request;
 use infuse\Response;
 use infuse\Utility as U;
-use App;
 
 /*
     An API request can be broken into 3 steps:
@@ -26,11 +25,11 @@ use App;
 
 class ApiRoute
 {
-    private $query;
-    private $parseSteps;
+    private $action;
+    private $query = [];
+    private $parseSteps = [];
     private $queryStep;
-    private $transformSteps;
-    private $errorHandler;
+    private $transformSteps = [];
     private $req;
     private $res;
     private $controller;
@@ -43,12 +42,9 @@ class ApiRoute
      * @param array           $transformSteps collection of ordered callables for transformation
      * @param array           $queryParams    query parameters
      */
-    public function __construct(array $parseSteps = [], $queryStep = false, array $transformSteps = [], array $queryParams = [])
+    public function __construct($action = false)
     {
-        $this->query = $queryParams;
-        $this->parseSteps = $parseSteps;
-        $this->queryStep = $queryStep;
-        $this->transformSteps = $transformSteps;
+        $this->action = $action;
     }
 
     ////////////////////////
@@ -112,21 +108,6 @@ class ApiRoute
     }
 
     /**
-     * Sets error handler that will catch any Error\Base Exceptions
-     * thrown in the API Route.
-     *
-     * @param callable|string $handler
-     *
-     * @return self
-     */
-    public function setErrorHandler($handler)
-    {
-        $this->errorHandler = $handler;
-
-        return $this;
-    }
-
-    /**
      * Sets the request object.
      *
      * @param Response $res
@@ -171,6 +152,16 @@ class ApiRoute
     ////////////////////////
     // GETTERS
     ////////////////////////
+
+    /**
+     * Gets the action method.
+     *
+     * @return callable action
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
 
     /**
      * Gets one or all query parameters.
@@ -252,16 +243,6 @@ class ApiRoute
         return $this->transformSteps;
     }
 
-    /**
-     * Gets the error handler.
-     *
-     * @return string|callable
-     */
-    public function getErrorHandler()
-    {
-        return $this->errorHandler;
-    }
-
     ////////////////////////
     // EXECUTION
     ////////////////////////
@@ -270,68 +251,47 @@ class ApiRoute
      * Executes the steps in this API route in this order:
      * Parse, Query, Transform.
      *
-     * @param Request  $req request object
-     * @param Response $res response object
      *
      * @return boolean true when completed, false when failed at some step
      */
-    public function execute(Request $req = null, Response $res = null, App $app = null)
+    public function execute()
     {
         try {
-            if ($req) {
-                $this->setRequest($req);
-            }
+            if ($action = $this->action) {
+                return $action($this);
+            } else {
+                foreach ($this->parseSteps as $parseStep) {
+                    if (is_string($parseStep)) {
+                        $parseStep = [$this->controller, $parseStep];
+                    }
 
-            if ($res) {
-                $this->setResponse($res);
-            }
-
-            if (!$this->controller) {
-                $this->controller = new ApiController();
-            }
-
-            if ($app && method_exists($this->controller, 'injectApp')) {
-                $this->controller->injectApp($app);
-            }
-
-            foreach ($this->parseSteps as $parseStep) {
-                if (is_string($parseStep)) {
-                    $parseStep = [$this->controller, $parseStep];
+                    if ($parseStep($this) === false) {
+                        return false;
+                    }
                 }
 
-                if ($parseStep($this) === false) {
-                    return false;
-                }
-            }
-
-            $queryStep = $this->queryStep;
-            if (is_string($queryStep)) {
-                $queryStep = [$this->controller, $queryStep];
-            }
-
-            $result = $queryStep($this);
-
-            foreach ($this->transformSteps as $transformStep) {
-                if (is_string($transformStep)) {
-                    $transformStep = [$this->controller, $transformStep];
+                $queryStep = $this->queryStep;
+                if (is_string($queryStep)) {
+                    $queryStep = [$this->controller, $queryStep];
                 }
 
-                if ($transformStep($result, $this) === false) {
-                    return false;
+                $result = $queryStep($this);
+
+                foreach ($this->transformSteps as $transformStep) {
+                    if (is_string($transformStep)) {
+                        $transformStep = [$this->controller, $transformStep];
+                    }
+
+                    if ($transformStep($result, $this) === false) {
+                        return false;
+                    }
                 }
             }
         // handle API exceptions
         } catch (Error\Base $ex) {
-            $errorHandler = $this->errorHandler;
-            if (!$errorHandler) {
-                return true;
+            if (method_exists($this->controller, 'handleError')) {
+                $this->controller->handleError($ex, $this);
             }
-
-            if (is_string($errorHandler)) {
-                $errorHandler = [$this->controller, $errorHandler];
-            }
-
-            $errorHandler($ex, $this);
         }
 
         return true;

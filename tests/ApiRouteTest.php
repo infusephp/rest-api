@@ -6,6 +6,12 @@ use app\api\libs\ApiRoute;
 
 class ApiRouteTest extends PHPUnit_Framework_TestCase
 {
+    public function testGetAction()
+    {
+        $route = new ApiRoute('action');
+        $this->assertEquals('action', $route->getAction());
+    }
+
     public function testQueryParams()
     {
         $route = new ApiRoute();
@@ -59,13 +65,6 @@ class ApiRouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(['step1', 'step2', 'step3'], $route->getTransformSteps());
     }
 
-    public function testErrorHandler()
-    {
-        $route = new ApiRoute();
-        $this->assertEquals($route, $route->setErrorHandler('handleError'));
-        $this->assertEquals('handleError', $route->getErrorHandler());
-    }
-
     public function testExecute()
     {
         $route = new ApiRoute();
@@ -82,9 +81,6 @@ class ApiRouteTest extends PHPUnit_Framework_TestCase
               ->addQueryStep([$mock, 'query'])
               ->addTransformSteps([[$mock, 'transform']]);
 
-        $this->assertTrue($route->execute($req, $res, Test::$app));
-
-        $this->assertEquals($req, $route->getRequest());
-        $this->assertEquals($res, $route->getResponse());
+        $this->assertTrue($route->execute());
     }
 }

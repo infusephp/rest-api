@@ -23,7 +23,7 @@ if (!function_exists('json_last_error_msg')) {
     }
 }
 
-class ApiController
+class ApiControllerV2
 {
     use \InjectApp;
 
@@ -34,143 +34,121 @@ class ApiController
     // ROUTES
     ///////////////////////////////
 
-    /**
-     * Creates a new API route using this controller.
-     *
-     * @param Request  $req
-     * @param Response $res
-     *
-     * @return ApiRoute
-     */
-    public function newApiRoute($req, $res)
-    {
-        $route = new ApiRoute();
-        $route->setRequest($req)
-              ->setResponse($res)
-              ->setController($this);
-
-        return $route;
-    }
-
     public function create($req, $res, $execute = true)
     {
-        $route = $this->newApiRoute($req, $res);
-        $route->addParseSteps([
-                'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
-                'parseRequireCreatePermission',
-                'parseModelCreateParameters', ])
-              ->addQueryStep('queryModelCreate')
-              ->addTransformSteps([
-                'transformModelCreate',
-                'transformModelToArray',
-                'transformOutputJson', ]);
+        return $this->newRoute($req, $res, '_create', $execute);
+    }
 
-        if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
-        } else {
-            return $route;
+    public function _create($route)
+    {
+        if ($this->parseFetchModelFromParams($route) === false) {
+            return SKIP_ROUTE;
         }
+
+        $this->parseRequireApiScaffolding($route);
+        $this->parseRequireCreatePermission($route);
+        $this->parseModelCreateParameters($route);
+
+        $result = $this->queryModelCreate($route);
+
+        $this->transformModelCreate($result, $route);
+        $this->transformModelToArray($result, $route);
+        $this->transformOutputJson($result, $route);
     }
 
     public function findAll($req, $res, $execute = true)
     {
-        $route = $this->newApiRoute($req, $res);
-        $route->addParseSteps([
-                'parseRouteBase',
-                'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
-                'parseRequireFindPermission',
-                'parseModelFindAllParameters', ])
-              ->addQueryStep('queryModelFindAll')
-              ->addTransformSteps([
-                'transformModelToArray',
-                'transformPaginate',
-                'transformOutputJson', ]);
+        return $this->newRoute($req, $res, '_findAll', $execute);
+    }
 
-        if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                // if the model could not be determined, then it might
-                // be the case that the model is actually a model id for
-                // a module with only 1 model
-                if ($req->params('model')) {
-                    $req->setParams([
-                        'model' => false,
-                        'id' => $req->params('model'), ]);
+    public function _findAll($route)
+    {
+        // if the model could not be determined, then it might
+        // be the case that the model is actually a model id for
+        // a module with only 1 model
+        if ($this->parseFetchModelFromParams($route) === false) {
+            if ($req->params('model')) {
+                $req->setParams([
+                    'model' => false,
+                    'id' => $req->params('model'), ]);
 
-                    return $this->findOne($req, $res);
-                }
-
-                return SKIP_ROUTE;
+                return $this->findOne($req, $res);
             }
-        } else {
-            return $route;
+
+            return SKIP_ROUTE;
         }
+
+        $this->parseRouteBase($route);
+        $this->parseRequireApiScaffolding($route);
+        $this->parseRequireFindPermission($route);
+        $this->parseModelFindAllParameters($route);
+
+        $result = $this->queryModelFindAll($route);
+
+        $this->transformModelToArray($result, $route);
+        $this->transformPaginate($result, $route);
+        $this->transformOutputJson($result, $route);
     }
 
     public function findOne($req, $res, $execute = true)
     {
-        $route = $this->newApiRoute($req, $res);
-        $route->addParseSteps([
-                'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
-                'parseModelFindOneParameters', ])
-              ->addQueryStep('queryModelFindOne')
-              ->addTransformSteps([
-                'transformModelFindOne',
-                'transformModelToArray',
-                'transformOutputJson', ]);
+        return $this->newRoute($req, $res, '_findOne', $execute);
+    }
 
-        if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
-        } else {
-            return $route;
+    public function _findOne($route)
+    {
+        if ($this->parseFetchModelFromParams($route) === false) {
+            return SKIP_ROUTE;
         }
+
+        $this->parseRequireApiScaffolding($route);
+        $this->parseModelFindOneParameters($route);
+
+        $result = $this->queryModelFindOne($route);
+
+        $this->transformModelFindOne($result, $route);
+        $this->transformModelToArray($result, $route);
+        $this->transformOutputJson($result, $route);
     }
 
     public function edit($req, $res, $execute = true)
     {
-        $route = $this->newApiRoute($req, $res);
-        $route->addParseSteps([
-                'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
-                'parseModelEditParameters', ])
-              ->addQueryStep('queryModelEdit')
-              ->addTransformSteps([
-                'transformModelEdit',
-                'transformModelToArray',
-                'transformOutputJson', ]);
+        return $this->newRoute($req, $res, '_edit', $execute);
+    }
 
-        if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
-        } else {
-            return $route;
+    public function _edit($route)
+    {
+        if ($this->parseFetchModelFromParams($route) === false) {
+            return SKIP_ROUTE;
         }
+
+        $this->parseRequireApiScaffolding($route);
+        $this->parseModelEditParameters($route);
+
+        $result = $this->queryModelEdit($route);
+
+        $this->transformModelEdit($result, $route);
+        $this->transformModelToArray($result, $route);
+        $this->transformOutputJson($result, $route);
     }
 
     public function delete($req, $res, $execute = true)
     {
-        $route = $this->newApiRoute($req, $res);
-        $route->addParseSteps([
-                'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
-                'parseModelDeleteParameters', ])
-              ->addQueryStep('queryModelDelete')
-              ->addTransformSteps(['transformModelDelete']);
+        return $this->newRoute($req, $res, '_delete', $execute);
+    }
 
-        if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
-        } else {
-            return $route;
+    public function _delete($route)
+    {
+        if ($this->parseFetchModelFromParams($route) === false) {
+            return SKIP_ROUTE;
         }
+
+        $this->parseRequireApiScaffolding($route);
+        $this->parseModelDeleteParameters($route);
+
+        $result = $this->queryModelDelete($route);
+
+        $this->transformModelDelete($result, $route);
     }
 
     ///////////////////////////////
@@ -562,7 +540,7 @@ class ApiController
         }
     }
 
-    public function transformModelToArray(&$result, ApiRoute $route, $envelope = true)
+    public function transformModelToArray(&$result, ApiRoute $route)
     {
         if (is_object($result)) {
             $_model = $result->toArray(
@@ -570,13 +548,7 @@ class ApiController
                 $route->getQuery('include'),
                 $route->getQuery('expand'));
 
-            // envelope the response (will be deprecated in the future)
-            if ($envelope) {
-                $modelRouteName = $this->singularClassName($route->getQuery('model'));
-                $result = [$modelRouteName => $_model];
-            } else {
-                $result = $_model;
-            }
+            $result = $_model;
         } elseif (is_array($result)) {
             $models = $result;
             $result = [];
@@ -584,14 +556,6 @@ class ApiController
             foreach ($models as $model) {
                 $this->transformModelToArray($model, $route, false);
                 $result[] = $model;
-            }
-
-            // envelope the response (will be deprecated in the future)
-            if ($envelope) {
-                $modelRouteName = $this->pluralClassName($route->getQuery('model'));
-                $result = [
-                    $modelRouteName => $result,
-                ];
             }
         }
     }
@@ -668,6 +632,15 @@ class ApiController
     // PRIVATE METHODS
     ///////////////////////////////
 
+    private function newRoute($req, $res, $action, $execute)
+    {
+        $route = new ApiRoute([$this, $action]);
+        $route->setRequest($req)
+              ->setResponse($res);
+
+        return ($execute) ? $route->execute() : $route;
+    }
+
     /**
      * Checks for the specified permission on a model. Returns 403 if it fails.
      *
@@ -741,31 +714,6 @@ class ApiController
         $inflector = Inflector::get();
 
         return $inflector->underscore($className);
-    }
-
-    /**
-     * Generates the plural key from a class
-     * i.e. LineItem -> line_items.
-     *
-     * @param string|object $class
-     *
-     * @return string
-     */
-    private function pluralClassName($class)
-    {
-        // get the class name if an object is given
-        if (is_object($class)) {
-            $class = get_class($class);
-        }
-
-        // split the class name up by namespaces
-        $namespace = explode('\\', $class);
-        $className = end($namespace);
-
-        // convert the class name into the pluralized underscore version
-        $inflector = Inflector::get();
-
-        return $inflector->pluralize($inflector->underscore($className));
     }
 
     private function link($url, array $query)
