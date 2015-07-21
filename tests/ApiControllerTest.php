@@ -565,8 +565,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelEditNoPermission()
     {
         $route = new ApiRoute();
+
         $res = Mockery::mock('\\infuse\\Response');
-        $res->shouldReceive('setCode')->withArgs([403])->once();
+        $res->shouldReceive('setCode')
+            ->withArgs([403])
+            ->once();
         $route->setResponse($res);
 
         $result = false;
@@ -665,6 +668,9 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'include' => ['include'],
             'expand' => ['expand'], ]);
 
+        $req = new Request();
+        $route->setRequest($req);
+
         $result = Mockery::mock('TestModel');
         $result->shouldReceive('toArray')
                ->withArgs([['exclude'], ['include'], ['expand']])
@@ -686,13 +692,16 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'include' => ['include'],
             'expand' => ['expand'], ]);
 
+        $req = new Request(['envelope' => 0]);
+        $route->setRequest($req);
+
         $result = Mockery::mock('TestModel');
         $result->shouldReceive('toArray')
                ->withArgs([['exclude'], ['include'], ['expand']])
                ->andReturn('model')
                ->once();
 
-        self::$api->transformModelToArray($result, $route, false);
+        self::$api->transformModelToArray($result, $route);
 
         // result should be replaced with the output from toArray()
         $this->assertEquals('model', $result);
@@ -707,6 +716,9 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'include' => ['include'],
             'expand' => ['expand'], ]);
 
+        $req = new Request(['envelope' => 0]);
+        $route->setRequest($req);
+
         $result = [];
         for ($i = 1; $i <= 5; $i++) {
             $obj = Mockery::mock('TestModel');
@@ -717,7 +729,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             $result[] = $obj;
         }
 
-        self::$api->transformModelToArray($result, $route, false);
+        self::$api->transformModelToArray($result, $route);
 
         // result should be replaced with the output from toArray()
         $this->assertEquals([1, 2, 3, 4, 5], $result);
@@ -731,6 +743,9 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'exclude' => ['exclude'],
             'include' => ['include'],
             'expand' => ['expand'], ]);
+
+        $req = new Request(['envelope' => 1]);
+        $route->setRequest($req);
 
         $result = [];
         for ($i = 1; $i <= 5; $i++) {

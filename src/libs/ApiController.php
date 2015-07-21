@@ -562,8 +562,18 @@ class ApiController
         }
     }
 
-    public function transformModelToArray(&$result, ApiRoute $route, $envelope = true)
+    public function transformModelToArray(&$result, ApiRoute $route, $envelope = null)
     {
+        // passing in ?envelope=0 will turn off enveloping
+        if ($envelope === null) {
+            $_envelope = $route->getRequest()->query('envelope');
+            if ($_envelope !== null && !$_envelope) {
+                $envelope = false;
+            } else {
+                $envelope = true;
+            }
+        }
+
         if (is_object($result)) {
             $_model = $result->toArray(
                 $route->getQuery('exclude'),
