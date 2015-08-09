@@ -621,6 +621,8 @@ class ApiControllerV2
         $route->setRequest($req)
               ->setResponse($res);
 
+        $route->addQueryParams($req->params());
+
         return ($execute) ? $route->execute() : $route;
     }
 

@@ -21,6 +21,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testNewApiRoute()
     {
         $req = new Request();
+        $req->setParams(['test' => true]);
         $res = new Response();
 
         $route = self::$api->newApiRoute($req, $res);
@@ -29,6 +30,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
         $this->assertEquals(self::$api, $route->getController());
+        $this->assertEquals(['test' => true], $route->getQueryParams());
     }
 
     public function testCreateRoute()

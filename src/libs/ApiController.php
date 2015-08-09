@@ -32,6 +32,8 @@ class ApiController
               ->setResponse($res)
               ->setController($this);
 
+        $route->addQueryParams($req->params());
+
         return $route;
     }
 
