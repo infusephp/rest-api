@@ -1,34 +1,26 @@
 <?php
 
-/**
- * @package infuse\framework
- * @author Jared King <j@jaredtking.com>
- * @link http://jaredtking.com
- * @version 0.1.16
- * @copyright 2013 Jared King
- * @license MIT
- */
-
 namespace app\api;
 
 use app\api\libs\ApiController;
 
 class Controller extends ApiController
 {
-    public static $properties = [
-        'routes' => [
-            'post /api/:module' => 'create',
-            'post /api/:module/:model' => 'create',
-            'get /api/:module' => 'findAll',
-            'get /api/:module/:model' => 'findAll',
-            'get /api/:module/:model/:id' => 'findOne',
-            // WARNING put will be deprecated in the future
-            'put /api/:module/:id' => 'edit',
-            'put /api/:module/:model/:id' => 'edit',
-            'patch /api/:module/:id' => 'edit',
-            'patch /api/:module/:model/:id' => 'edit',
-            'delete /api/:module/:id' => 'delete',
-            'delete /api/:module/:model/:id' => 'delete',
-        ],
-    ];
+    public function middleware($req, $res)
+    {
+        // add in the default api routes
+        $controller = 'api\\Controller';
+        $this->app->post('/api/:module', [$controller, 'create'])
+                  ->post('/api/:module/:model', [$controller, 'create'])
+                  ->get('/api/:module', [$controller, 'findAll'])
+                  ->get('/api/:module/:model', [$controller, 'findAll'])
+                  ->get('/api/:module/:model/:id', [$controller, 'findOne'])
+                  ->patch('/api/:module/:id', [$controller, 'edit'])
+                  ->patch('/api/:module/:model/:id', [$controller, 'edit'])
+                  ->delete('/api/:module/:id', [$controller, 'delete'])
+                  ->delete('/api/:module/:model/:id', [$controller, 'delete'])
+                  // WARNING put will be deprecated in the future
+                  ->put('/api/:module/:id', [$controller, 'edit'])
+                  ->put('/api/:module/:model/:id', [$controller, 'edit']);
+    }
 }

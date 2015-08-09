@@ -1,26 +1,36 @@
 <?php
 
 use app\api\Controller;
+use infuse\Request;
+use infuse\Response;
 
 class ControllerTest extends PHPUnit_Framework_TestCase
 {
-    public function testController()
+    public function testDefaultRoutes()
     {
         $controller = new Controller();
 
+        $app = new App();
+        $req = new Request();
+        $res = new Response();
+        $controller->injectApp($app);
+
+        $controller->middleware($req, $res);
+
         $expected = [
-            'post /api/:module' => 'create',
-            'post /api/:module/:model' => 'create',
-            'get /api/:module' => 'findAll',
-            'get /api/:module/:model' => 'findAll',
-            'get /api/:module/:model/:id' => 'findOne',
-            'put /api/:module/:id' => 'edit',
-            'put /api/:module/:model/:id' => 'edit',
-            'patch /api/:module/:id' => 'edit',
-            'patch /api/:module/:model/:id' => 'edit',
-            'delete /api/:module/:id' => 'delete',
-            'delete /api/:module/:model/:id' => 'delete',
+            'post /api/:module' => ['api\\Controller', 'create'],
+            'post /api/:module/:model' => ['api\\Controller', 'create'],
+            'get /api/:module' => ['api\\Controller', 'findAll'],
+            'get /api/:module/:model' => ['api\\Controller', 'findAll'],
+            'get /api/:module/:model/:id' => ['api\\Controller', 'findOne'],
+            'put /api/:module/:id' => ['api\\Controller', 'edit'],
+            'put /api/:module/:model/:id' => ['api\\Controller', 'edit'],
+            'patch /api/:module/:id' => ['api\\Controller', 'edit'],
+            'patch /api/:module/:model/:id' => ['api\\Controller', 'edit'],
+            'delete /api/:module/:id' => ['api\\Controller', 'delete'],
+            'delete /api/:module/:model/:id' => ['api\\Controller', 'delete'],
         ];
-        $this->assertEquals($expected, $controller::$properties['routes']);
+
+        $this->assertEquals($expected, $app->getRoutes());
     }
 }
