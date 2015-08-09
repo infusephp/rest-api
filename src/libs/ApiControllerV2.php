@@ -24,10 +24,6 @@ class ApiControllerV2
 
     public function _create($route)
     {
-        if ($this->parseFetchModelFromParams($route) === false) {
-            return SKIP_ROUTE;
-        }
-
         $this->parseRequireApiScaffolding($route);
         $this->parseRequireCreatePermission($route);
         $this->parseModelCreateParameters($route);
@@ -46,21 +42,6 @@ class ApiControllerV2
 
     public function _findAll($route)
     {
-        // if the model could not be determined, then it might
-        // be the case that the model is actually a model id for
-        // a module with only 1 model
-        if ($this->parseFetchModelFromParams($route) === false) {
-            if ($req->params('model')) {
-                $req->setParams([
-                    'model' => false,
-                    'model_id' => $req->params('model'), ]);
-
-                return $this->findOne($req, $res);
-            }
-
-            return SKIP_ROUTE;
-        }
-
         $this->parseRouteBase($route);
         $this->parseRequireApiScaffolding($route);
         $this->parseRequireFindPermission($route);
@@ -80,10 +61,6 @@ class ApiControllerV2
 
     public function _findOne($route)
     {
-        if ($this->parseFetchModelFromParams($route) === false) {
-            return SKIP_ROUTE;
-        }
-
         $this->parseRequireApiScaffolding($route);
         $this->parseModelFindOneParameters($route);
 
@@ -101,10 +78,6 @@ class ApiControllerV2
 
     public function _edit($route)
     {
-        if ($this->parseFetchModelFromParams($route) === false) {
-            return SKIP_ROUTE;
-        }
-
         $this->parseRequireApiScaffolding($route);
         $this->parseModelEditParameters($route);
 
@@ -122,10 +95,6 @@ class ApiControllerV2
 
     public function _delete($route)
     {
-        if ($this->parseFetchModelFromParams($route) === false) {
-            return SKIP_ROUTE;
-        }
-
         $this->parseRequireApiScaffolding($route);
 
         $result = $this->queryModelDelete($route);
@@ -155,40 +124,6 @@ class ApiControllerV2
         $url =  str_replace(static::$apiBase, $url, $path);
 
         $route->addQueryParams(['endpoint_url' => $url]);
-    }
-
-    public function parseFetchModelFromParams(ApiRoute $route)
-    {
-        // skip this method if a model class has already been supplied
-        if ($route->getQuery('model')) {
-            return;
-        }
-
-        $req = $route->getRequest();
-        $module = $req->params('module');
-
-        // instantiate the controller
-        $controller = 'app\\'.$module.'\\Controller';
-        if (!class_exists($controller)) {
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
-        }
-
-        // pick a default model if one isn't provided
-        $model = $req->params('model');
-        if (!$model && isset($controller::$properties['models']) && count($controller::$properties['models']) > 0) {
-            $model = $controller::$properties['models'][0];
-        }
-
-        // convert the route name (pluralized underscore) to the class name
-        $inflector = Inflector::get();
-        $modelClassName = $inflector->singularize($inflector->camelize($model));
-        $modelClassName = 'app\\'.$module.'\\models\\'.$modelClassName;
-
-        if (!class_exists($modelClassName)) {
-            return false;
-        }
-
-        $route->addQueryParams(['model' => $modelClassName]);
     }
 
     public function parseRequireApiScaffolding(ApiRoute $route)
