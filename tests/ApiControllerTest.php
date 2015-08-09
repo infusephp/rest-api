@@ -112,7 +112,10 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testParseFetchModelFromParamsAlreadySet()
     {
+        $req = new Request();
+
         $route = new ApiRoute();
+        $route->setRequest($req);
         $route->addQueryParams([
             'module' => 'test',
             'model' => 'Test', ]);
