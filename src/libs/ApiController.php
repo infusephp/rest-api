@@ -81,7 +81,7 @@ class ApiController
                 if ($req->params('model')) {
                     $req->setParams([
                         'model' => false,
-                        'id' => $req->params('model'), ]);
+                        'model_id' => $req->params('model'), ]);
 
                     return $this->findOne($req, $res);
                 }
@@ -351,7 +351,7 @@ class ApiController
         }
 
         $route->addQueryParams(array_replace([
-            'model_id' => $req->params('id'),
+            'model_id' => $req->params('model_id'),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
             'expand' => array_filter($expand), ], $route->getQuery()));
@@ -377,7 +377,7 @@ class ApiController
         }
 
         $route->addQueryParams(array_replace([
-            'model_id' => $req->params('id'),
+            'model_id' => $req->params('model_id'),
             'properties' => $req->request(),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
@@ -386,7 +386,7 @@ class ApiController
 
     public function parseModelDeleteParameters(ApiRoute $route)
     {
-        $route->addQueryParams(['model_id' => $route->getRequest()->params('id')]);
+        $route->addQueryParams(['model_id' => $route->getRequest()->params('model_id')]);
     }
 
     ///////////////////////////////

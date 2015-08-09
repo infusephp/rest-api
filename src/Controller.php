@@ -31,13 +31,13 @@ class Controller extends ApiController
                   ->post('/api/:module/:model', [$controller, 'create'])
                   ->get('/api/:module', [$controller, 'findAll'])
                   ->get('/api/:module/:model', [$controller, 'findAll'])
-                  ->get('/api/:module/:model/:id', [$controller, 'findOne'])
-                  ->patch('/api/:module/:id', [$controller, 'edit'])
-                  ->patch('/api/:module/:model/:id', [$controller, 'edit'])
-                  ->delete('/api/:module/:id', [$controller, 'delete'])
-                  ->delete('/api/:module/:model/:id', [$controller, 'delete'])
+                  ->get('/api/:module/:model/:model_id', [$controller, 'findOne'])
+                  ->patch('/api/:module/:model_id', [$controller, 'edit'])
+                  ->patch('/api/:module/:model/:model_id', [$controller, 'edit'])
+                  ->delete('/api/:module/:model_id', [$controller, 'delete'])
+                  ->delete('/api/:module/:model/:model_id', [$controller, 'delete'])
                   // WARNING put will be deprecated in the future
-                  ->put('/api/:module/:id', [$controller, 'edit'])
-                  ->put('/api/:module/:model/:id', [$controller, 'edit']);
+                  ->put('/api/:module/:model_id', [$controller, 'edit'])
+                  ->put('/api/:module/:model/:model_id', [$controller, 'edit']);
     }
 }

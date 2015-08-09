@@ -22,13 +22,13 @@ class ControllerTest extends PHPUnit_Framework_TestCase
             'post /api/:module/:model' => ['api\\Controller', 'create'],
             'get /api/:module' => ['api\\Controller', 'findAll'],
             'get /api/:module/:model' => ['api\\Controller', 'findAll'],
-            'get /api/:module/:model/:id' => ['api\\Controller', 'findOne'],
-            'put /api/:module/:id' => ['api\\Controller', 'edit'],
-            'put /api/:module/:model/:id' => ['api\\Controller', 'edit'],
-            'patch /api/:module/:id' => ['api\\Controller', 'edit'],
-            'patch /api/:module/:model/:id' => ['api\\Controller', 'edit'],
-            'delete /api/:module/:id' => ['api\\Controller', 'delete'],
-            'delete /api/:module/:model/:id' => ['api\\Controller', 'delete'],
+            'get /api/:module/:model/:model_id' => ['api\\Controller', 'findOne'],
+            'put /api/:module/:model_id' => ['api\\Controller', 'edit'],
+            'put /api/:module/:model/:model_id' => ['api\\Controller', 'edit'],
+            'patch /api/:module/:model_id' => ['api\\Controller', 'edit'],
+            'patch /api/:module/:model/:model_id' => ['api\\Controller', 'edit'],
+            'delete /api/:module/:model_id' => ['api\\Controller', 'delete'],
+            'delete /api/:module/:model/:model_id' => ['api\\Controller', 'delete'],
         ];
 
         $this->assertEquals($expected, $app->getRoutes());

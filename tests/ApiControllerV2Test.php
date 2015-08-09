@@ -320,7 +320,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $req = new Request();
-        $req->setParams(['id' => 101]);
+        $req->setParams(['model_id' => 101]);
         $route->setRequest($req);
 
         $this->assertNull(self::$api->parseModelFindOneParameters($route));
@@ -339,7 +339,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
 
         $test = [ 'test' => 'hello' ];
         $req = new Request(null, $test);
-        $req->setParams([ 'id' => 101 ]);
+        $req->setParams([ 'model_id' => 101 ]);
         $route->setRequest($req);
 
         $this->assertNull(self::$api->parseModelEditParameters($route));
@@ -352,7 +352,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $req = new Request();
-        $req->setParams([ 'id' => 102 ]);
+        $req->setParams([ 'model_id' => 102 ]);
         $route->setRequest($req);
 
         $this->assertNull(self::$api->parseModelDeleteParameters($route));
