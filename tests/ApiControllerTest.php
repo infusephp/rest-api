@@ -330,13 +330,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $req = new Request();
-        $req->setParams(['model_id' => 101]);
         $route->setRequest($req);
 
         $this->assertNull(self::$api->parseModelFindOneParameters($route));
 
         $expected = [
-            'model_id' => 101,
             'exclude' => [],
             'include' => [],
             'expand' => [], ];
@@ -349,24 +347,10 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $test = [ 'test' => 'hello' ];
         $req = new Request(null, $test);
-        $req->setParams([ 'model_id' => 101 ]);
         $route->setRequest($req);
 
         $this->assertNull(self::$api->parseModelEditParameters($route));
-        $this->assertEquals(101, $route->getQuery('model_id'));
         $this->assertEquals($test, $route->getQuery('properties'));
-    }
-
-    public function testParseModelDeleteParameters()
-    {
-        $route = new ApiRoute();
-
-        $req = new Request();
-        $req->setParams([ 'model_id' => 102 ]);
-        $route->setRequest($req);
-
-        $this->assertNull(self::$api->parseModelDeleteParameters($route));
-        $this->assertEquals(102, $route->getQuery('model_id'));
     }
 
     public function testQueryModelCreate()

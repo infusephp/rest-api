@@ -144,8 +144,7 @@ class ApiController
         $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
-                'parseModelDeleteParameters', ])
+                'parseRequireApiScaffolding', ])
               ->addQueryStep('queryModelDelete')
               ->addTransformSteps(['transformModelDelete']);
 
@@ -353,7 +352,6 @@ class ApiController
         }
 
         $route->addQueryParams(array_replace([
-            'model_id' => $req->params('model_id'),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
             'expand' => array_filter($expand), ], $route->getQuery()));
@@ -379,16 +377,10 @@ class ApiController
         }
 
         $route->addQueryParams(array_replace([
-            'model_id' => $req->params('model_id'),
             'properties' => $req->request(),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
             'expand' => array_filter($expand), ], $route->getQuery()));
-    }
-
-    public function parseModelDeleteParameters(ApiRoute $route)
-    {
-        $route->addQueryParams(['model_id' => $route->getRequest()->params('model_id')]);
     }
 
     ///////////////////////////////

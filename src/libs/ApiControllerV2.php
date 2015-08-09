@@ -127,7 +127,6 @@ class ApiControllerV2
         }
 
         $this->parseRequireApiScaffolding($route);
-        $this->parseModelDeleteParameters($route);
 
         $result = $this->queryModelDelete($route);
 
@@ -329,7 +328,6 @@ class ApiControllerV2
         }
 
         $route->addQueryParams(array_replace([
-            'model_id' => $req->params('model_id'),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
             'expand' => array_filter($expand), ], $route->getQuery()));
@@ -355,16 +353,10 @@ class ApiControllerV2
         }
 
         $route->addQueryParams(array_replace([
-            'model_id' => $req->params('model_id'),
             'properties' => $req->request(),
             'exclude' => array_filter($exclude),
             'include' => array_filter($include),
             'expand' => array_filter($expand), ], $route->getQuery()));
-    }
-
-    public function parseModelDeleteParameters(ApiRoute $route)
-    {
-        $route->addQueryParams(['model_id' => $route->getRequest()->params('model_id')]);
     }
 
     ///////////////////////////////
