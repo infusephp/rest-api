@@ -183,14 +183,15 @@ class ApiController
 
     public function parseFetchModelFromParams(ApiRoute $route)
     {
-        $req = $route->getRequest();
-        $model = $req->params('model');
+        $modelClassName = $route->getQuery('model');
 
         // skip this method if a model class has already been supplied
-        if ($route->getQuery('model') && !$model) {
+        if ($modelClassName && class_exists($modelClassName)) {
             return;
         }
 
+        $req = $route->getRequest();
+        $model = $req->params('model');
         $module = $req->params('module');
 
         // instantiate the controller

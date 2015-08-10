@@ -114,11 +114,11 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     {
         $req = new Request();
 
+        Mockery::mock('alias:ModelAlreadyExists');
+
         $route = new ApiRoute();
         $route->setRequest($req);
-        $route->addQueryParams([
-            'module' => 'test',
-            'model' => 'Test', ]);
+        $route->addQueryParams(['model' => 'ModelAlreadyExists']);
 
         $this->assertNull(self::$api->parseFetchModelFromParams($route));
     }
