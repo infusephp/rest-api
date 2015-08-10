@@ -100,38 +100,6 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $this->assertEquals('https://api.example.com/users', $route->getQuery('endpoint_url'));
     }
 
-    public function testParseRequireApiScaffolding()
-    {
-        $model = new stdClass();
-        $model->scaffoldApi = true;
-
-        $route = new ApiRoute();
-        $route->addQueryParams(['model' => $model]);
-
-        $this->assertNull(self::$api->parseRequireApiScaffolding($route));
-    }
-
-    public function testParseRequireApiScaffoldingFail()
-    {
-        $req = Mockery::mock('infuse\\Request');
-        $req->shouldReceive('method')->andReturn('GET');
-        $req->shouldReceive('path')->andReturn('/users');
-
-        $route = new ApiRoute();
-        $route->addQueryParams(['model' => new \stdClass()]);
-        $route->setRequest($req);
-
-        try {
-            self::$api->parseRequireApiScaffolding($route);
-        } catch (Error\InvalidRequest $ex) {
-            $this->assertEquals(404, $ex->getHttpStatus());
-
-            return;
-        }
-
-        $this->fail('An exception was not raised.');
-    }
-
     public function testParseRequireFindPermission()
     {
         $testModel = Mockery::mock();

@@ -24,7 +24,6 @@ class ApiControllerV2
 
     public function _create($route)
     {
-        $this->parseRequireApiScaffolding($route);
         $this->parseRequireCreatePermission($route);
         $this->parseModelCreateParameters($route);
 
@@ -43,7 +42,6 @@ class ApiControllerV2
     public function _findAll($route)
     {
         $this->parseRouteBase($route);
-        $this->parseRequireApiScaffolding($route);
         $this->parseRequireFindPermission($route);
         $this->parseModelFindAllParameters($route);
 
@@ -61,7 +59,6 @@ class ApiControllerV2
 
     public function _findOne($route)
     {
-        $this->parseRequireApiScaffolding($route);
         $this->parseModelFindOneParameters($route);
 
         $result = $this->queryModelFindOne($route);
@@ -78,7 +75,6 @@ class ApiControllerV2
 
     public function _edit($route)
     {
-        $this->parseRequireApiScaffolding($route);
         $this->parseModelEditParameters($route);
 
         $result = $this->queryModelEdit($route);
@@ -95,8 +91,6 @@ class ApiControllerV2
 
     public function _delete($route)
     {
-        $this->parseRequireApiScaffolding($route);
-
         $result = $this->queryModelDelete($route);
 
         $this->transformModelDelete($result, $route);
@@ -124,15 +118,6 @@ class ApiControllerV2
         $url =  str_replace(static::$apiBase, $url, $path);
 
         $route->addQueryParams(['endpoint_url' => $url]);
-    }
-
-    public function parseRequireApiScaffolding(ApiRoute $route)
-    {
-        // check if api scaffolding is enabled on the model
-        if (!property_exists($route->getQuery('model'), 'scaffoldApi')) {
-            $req = $route->getRequest();
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
-        }
     }
 
     public function parseRequireFindPermission(ApiRoute $route)
