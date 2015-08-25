@@ -196,7 +196,8 @@ class ApiController
 
         // instantiate the controller
         $controller = 'app\\'.$module.'\\Controller';
-        if (!class_exists($controller)) {
+        if (!class_exists($controller) ||
+           (!$model && (!property_exists($controller, 'properties') || !isset($controller::$properties['models'])))) {
             throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
         }
 
