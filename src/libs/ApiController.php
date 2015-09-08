@@ -176,7 +176,7 @@ class ApiController
             $path = substr($path, 0, -1);
         }
 
-        $url =  str_replace(static::$apiBase, $url, $path);
+        $url = str_replace(static::$apiBase, $url, $path);
 
         $route->addQueryParams(['endpoint_url' => $url]);
     }
@@ -496,11 +496,11 @@ class ApiController
 
         // previous/next links
         if ($page > 1) {
-            $links['previous'] = $this->link($base, array_replace($requestQuery, ['page' => $page-1]));
+            $links['previous'] = $this->link($base, array_replace($requestQuery, ['page' => $page - 1]));
         }
 
         if ($page < $pageCount) {
-            $links['next'] = $this->link($base, array_replace($requestQuery, ['page' => $page+1]));
+            $links['next'] = $this->link($base, array_replace($requestQuery, ['page' => $page + 1]));
         }
 
         // last link
@@ -542,31 +542,15 @@ class ApiController
         }
     }
 
-    public function transformModelToArray(&$result, ApiRoute $route, $envelope = null)
+    public function transformModelToArray(&$result, ApiRoute $route)
     {
-        // passing in ?envelope=0 will turn off enveloping
-        if ($envelope === null) {
-            $_envelope = $route->getRequest()->query('envelope');
-            if ($_envelope !== null && !$_envelope) {
-                $envelope = false;
-            } else {
-                $envelope = true;
-            }
-        }
-
         if (is_object($result)) {
             $_model = $result->toArray(
                 $route->getQuery('exclude'),
                 $route->getQuery('include'),
                 $route->getQuery('expand'));
 
-            // envelope the response (will be deprecated in the future)
-            if ($envelope) {
-                $modelRouteName = $this->singularClassName($route->getQuery('model'));
-                $result = [$modelRouteName => $_model];
-            } else {
-                $result = $_model;
-            }
+            $result = $_model;
         } elseif (is_array($result)) {
             $models = $result;
             $result = [];
@@ -574,14 +558,6 @@ class ApiController
             foreach ($models as $model) {
                 $this->transformModelToArray($model, $route, false);
                 $result[] = $model;
-            }
-
-            // envelope the response (will be deprecated in the future)
-            if ($envelope) {
-                $modelRouteName = $this->pluralClassName($route->getQuery('model'));
-                $result = [
-                    $modelRouteName => $result,
-                ];
             }
         }
     }
@@ -665,7 +641,7 @@ class ApiController
      * @param ApiRoute $route
      * @param object   $modelObj   optional model Object
      *
-     * @return boolean
+     * @return bool
      */
     private function requirePermission($permission, ApiRoute $route, $modelObj = false)
     {

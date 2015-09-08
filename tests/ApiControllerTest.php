@@ -348,7 +348,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     {
         $route = new ApiRoute();
 
-        $test = [ 'test' => 'hello' ];
+        $test = ['test' => 'hello'];
         $req = new Request(null, $test);
         $route->setRequest($req);
 
@@ -663,16 +663,16 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = Mockery::mock('TestModel');
         $result->shouldReceive('toArray')
                ->withArgs([['exclude'], ['include'], ['expand']])
-               ->andReturn('model')
+               ->andReturn(['model'])
                ->once();
 
         self::$api->transformModelToArray($result, $route);
 
         // result should be replaced with the output from toArray()
-        $this->assertEquals(['test_model' => 'model'], $result);
+        $this->assertEquals(['model'], $result);
     }
 
-    public function testTransformModelToArrayNoEnvelope()
+    public function testTransformModelToArrayMultiple()
     {
         $route = new ApiRoute();
         $route->addQueryParams([
@@ -680,36 +680,9 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
             'exclude' => ['exclude'],
             'include' => ['include'],
             'expand' => ['expand'], ]);
-
-        $req = new Request(['envelope' => 0]);
-        $route->setRequest($req);
-
-        $result = Mockery::mock('TestModel');
-        $result->shouldReceive('toArray')
-               ->withArgs([['exclude'], ['include'], ['expand']])
-               ->andReturn('model')
-               ->once();
-
-        self::$api->transformModelToArray($result, $route);
-
-        // result should be replaced with the output from toArray()
-        $this->assertEquals('model', $result);
-    }
-
-    public function testTransformModelToArrayMultipleNoEnvelope()
-    {
-        $route = new ApiRoute();
-        $route->addQueryParams([
-            'model' => 'TestModel',
-            'exclude' => ['exclude'],
-            'include' => ['include'],
-            'expand' => ['expand'], ]);
-
-        $req = new Request(['envelope' => 0]);
-        $route->setRequest($req);
 
         $result = [];
-        for ($i = 1; $i <= 5; $i++) {
+        for ($i = 1; $i <= 5; ++$i) {
             $obj = Mockery::mock('TestModel');
             $obj->shouldReceive('toArray')
                 ->withArgs([['exclude'], ['include'], ['expand']])
@@ -722,34 +695,6 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         // result should be replaced with the output from toArray()
         $this->assertEquals([1, 2, 3, 4, 5], $result);
-    }
-
-    public function testTransformModelToArrayMultipleEnvelope()
-    {
-        $route = new ApiRoute();
-        $route->addQueryParams([
-            'model' => 'TestModel',
-            'exclude' => ['exclude'],
-            'include' => ['include'],
-            'expand' => ['expand'], ]);
-
-        $req = new Request(['envelope' => 1]);
-        $route->setRequest($req);
-
-        $result = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $obj = Mockery::mock('TestModel');
-            $obj->shouldReceive('toArray')
-                ->withArgs([['exclude'], ['include'], ['expand']])
-                ->andReturn($i)
-                ->once();
-            $result[] = $obj;
-        }
-
-        self::$api->transformModelToArray($result, $route);
-
-        // result should be replaced with the output from toArray()
-        $this->assertEquals(['test_models' => [1, 2, 3, 4, 5]], $result);
     }
 
     public function testTransformModelDelete()
