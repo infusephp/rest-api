@@ -405,10 +405,17 @@ class ApiController
     {
         $modelClass = $route->getQuery('model');
 
-        $result = $modelClass::find($route->getQuery());
-        $route->addQueryParams(['total_count' => $result['count']]);
+        $input = $route->getQuery();
 
-        return $result['models'];
+        // load models
+        $result = iterator_to_array($modelClass::findAll($input)
+            ->setMax($input['limit']));
+
+        // total records
+        $total = $modelClass::totalRecords();
+        $route->addQueryParams(['total_count' => $total]);
+
+        return $result;
     }
 
     public function queryModelFindOne(ApiRoute $route)

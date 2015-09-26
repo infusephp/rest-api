@@ -115,7 +115,7 @@ class ApiControllerV2
             $path = substr($path, 0, -1);
         }
 
-        $url =  str_replace(static::$apiBase, $url, $path);
+        $url = str_replace(static::$apiBase, $url, $path);
 
         $route->addQueryParams(['endpoint_url' => $url]);
     }
@@ -298,10 +298,17 @@ class ApiControllerV2
     {
         $modelClass = $route->getQuery('model');
 
-        $result = $modelClass::find($route->getQuery());
-        $route->addQueryParams(['total_count' => $result['count']]);
+        $input = $route->getQuery();
 
-        return $result['models'];
+        // load models
+        $result = iterator_to_array($modelClass::findAll($input)
+            ->setMax($input['limit']));
+
+        // total records
+        $total = $modelClass::totalRecords();
+        $route->addQueryParams(['total_count' => $total]);
+
+        return $result;
     }
 
     public function queryModelFindOne(ApiRoute $route)
@@ -389,11 +396,11 @@ class ApiControllerV2
 
         // previous/next links
         if ($page > 1) {
-            $links['previous'] = $this->link($base, array_replace($requestQuery, ['page' => $page-1]));
+            $links['previous'] = $this->link($base, array_replace($requestQuery, ['page' => $page - 1]));
         }
 
         if ($page < $pageCount) {
-            $links['next'] = $this->link($base, array_replace($requestQuery, ['page' => $page+1]));
+            $links['next'] = $this->link($base, array_replace($requestQuery, ['page' => $page + 1]));
         }
 
         // last link
@@ -545,7 +552,7 @@ class ApiControllerV2
      * @param ApiRoute $route
      * @param object   $modelObj   optional model Object
      *
-     * @return boolean
+     * @return bool
      */
     private function requirePermission($permission, ApiRoute $route, $modelObj = false)
     {
