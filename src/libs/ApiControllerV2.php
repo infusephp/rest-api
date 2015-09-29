@@ -305,7 +305,7 @@ class ApiControllerV2
             ->setMax($input['limit']));
 
         // total records
-        $total = $modelClass::totalRecords();
+        $total = $modelClass::totalRecords($input['where']);
         $route->addQueryParams(['total_count' => $total]);
 
         return $result;
