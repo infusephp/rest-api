@@ -2,9 +2,9 @@
 
 namespace app\api\libs;
 
-use infuse\Request;
-use infuse\Response;
-use infuse\Utility as U;
+use Infuse\Request;
+use Infuse\Response;
+use Infuse\Utility as U;
 
 /*
     An API request can be broken into 3 steps:
@@ -252,7 +252,7 @@ class ApiRoute
      * Parse, Query, Transform.
      *
      *
-     * @return boolean true when completed, false when failed at some step
+     * @return bool true when completed, false when failed at some step
      */
     public function execute()
     {

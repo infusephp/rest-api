@@ -3,8 +3,8 @@
 namespace app\api\libs;
 
 use ICanBoogie\Inflector;
-use infuse\Request;
-use infuse\Response;
+use Infuse\Request;
+use Infuse\Response;
 
 class ApiControllerV2
 {

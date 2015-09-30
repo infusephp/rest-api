@@ -1,7 +1,7 @@
 <?php
 
-use infuse\Request;
-use infuse\Response;
+use Infuse\Request;
+use Infuse\Response;
 use app\api\libs\ApiRoute;
 
 class ApiRouteTest extends PHPUnit_Framework_TestCase

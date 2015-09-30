@@ -1,8 +1,8 @@
 <?php
 
 use app\api\Controller;
-use infuse\Request;
-use infuse\Response;
+use Infuse\Request;
+use Infuse\Response;
 
 class ControllerTest extends PHPUnit_Framework_TestCase
 {
