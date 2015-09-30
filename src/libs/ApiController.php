@@ -405,14 +405,44 @@ class ApiController
     {
         $modelClass = $route->getQuery('model');
 
-        $input = $route->getQuery();
+        $parameters = $route->getQuery();
 
-        // load models
-        $result = iterator_to_array($modelClass::findAll($input)
-            ->setMax($input['limit']));
+        // build the model query
+        $query = $modelClass::query();
+
+        $where = $parameters['where'];
+
+        // perform a search
+        // WARNING LIKE queries are extremely inefficient
+        // use sparingly
+        // TODO move into the rest-api module
+        if (!empty($parameters['search'])) {
+            $w = [];
+            $search = addslashes($parameters['search']);
+            foreach ($modelClass::properties() as $name => $property) {
+                if ($property['searchable']) {
+                    $w[] = "`$name` LIKE '%$search%'";
+                }
+            }
+
+            if (count($w) > 0) {
+                $where[] = '('.implode(' OR ', $w).')';
+            }
+        }
+
+        $query->where($where)
+              ->start($parameters['start'])
+              ->limit($parameters['limit']);
+
+        if (isset($parameters['sort'])) {
+            $query->sort($parameters['sort']);
+        }
+
+        // load models by executing the query
+        $result = $query->execute();
 
         // total records
-        $total = $modelClass::totalRecords($input['where']);
+        $total = $modelClass::totalRecords($where);
         $route->addQueryParams(['total_count' => $total]);
 
         return $result;

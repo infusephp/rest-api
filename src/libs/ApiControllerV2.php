@@ -297,15 +297,39 @@ class ApiControllerV2
     public function queryModelFindAll(ApiRoute $route)
     {
         $modelClass = $route->getQuery('model');
+        $parameters = $route->getQuery();
 
-        $input = $route->getQuery();
+        $where = $parameters['where'];
 
-        // load models
-        $result = iterator_to_array($modelClass::findAll($input)
-            ->setMax($input['limit']));
+        // perform a search on all searchable properties
+        // WARNING LIKE queries are extremely inefficient
+        // use sparingly
+        if (!empty($parameters['search'])) {
+            $w = [];
+            $search = addslashes($parameters['search']);
+            foreach ($modelClass::properties() as $name => $property) {
+                if ($property['searchable']) {
+                    $w[] = "`$name` LIKE '%$search%'";
+                }
+            }
+
+            if (count($w) > 0) {
+                $where[] = '('.implode(' OR ', $w).')';
+            }
+        }
+
+        // build the model query
+        $query = $modelClass::query();
+        $query->where($where)
+              ->start($parameters['start'])
+              ->limit($parameters['limit'])
+              ->sort($parameters['sort']);
+
+        // load models by executing the query
+        $result = $query->execute();
 
         // total records
-        $total = $modelClass::totalRecords($input['where']);
+        $total = $modelClass::totalRecords($where);
         $route->addQueryParams(['total_count' => $total]);
 
         return $result;
