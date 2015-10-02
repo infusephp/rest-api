@@ -419,7 +419,7 @@ class ApiController
         if (!empty($parameters['search'])) {
             $w = [];
             $search = addslashes($parameters['search']);
-            foreach ($modelClass::properties() as $name => $property) {
+            foreach ($modelClass::getProperties() as $name => $property) {
                 if ($property['searchable']) {
                     $w[] = "`$name` LIKE '%$search%'";
                 }
