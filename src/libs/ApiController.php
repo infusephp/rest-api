@@ -415,14 +415,11 @@ class ApiController
         // perform a search
         // WARNING LIKE queries are extremely inefficient
         // use sparingly
-        // TODO move into the rest-api module
-        if (!empty($parameters['search'])) {
+        if (!empty($parameters['search']) && property_exists($modelClass, 'searchableProperties')) {
             $w = [];
             $search = addslashes($parameters['search']);
-            foreach ($modelClass::getProperties() as $name => $property) {
-                if ($property['searchable']) {
-                    $w[] = "`$name` LIKE '%$search%'";
-                }
+            foreach ($modelClass::$searchableProperties as $name) {
+                $w[] = "`$name` LIKE '%$search%'";
             }
 
             if (count($w) > 0) {
