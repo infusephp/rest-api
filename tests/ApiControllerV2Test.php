@@ -536,7 +536,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
             'expand' => ['expand'], ]);
 
         $result = Mockery::mock('TestModel');
-        $result->shouldReceive('toArray')
+        $result->shouldReceive('toArrayDeprecated')
                ->withArgs([['exclude'], ['include'], ['expand']])
                ->andReturn(['property' => 'test'])
                ->once();
@@ -559,7 +559,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = [];
         for ($i = 1; $i <= 5; ++$i) {
             $obj = Mockery::mock('TestModel');
-            $obj->shouldReceive('toArray')
+            $obj->shouldReceive('toArrayDeprecated')
                 ->withArgs([['exclude'], ['include'], ['expand']])
                 ->andReturn($i)
                 ->once();

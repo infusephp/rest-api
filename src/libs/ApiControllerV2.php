@@ -467,7 +467,7 @@ class ApiControllerV2
     public function transformModelToArray(&$result, ApiRoute $route)
     {
         if (is_object($result)) {
-            $_model = $result->toArray(
+            $_model = $result->toArrayDeprecated(
                 $route->getQuery('exclude'),
                 $route->getQuery('include'),
                 $route->getQuery('expand'));

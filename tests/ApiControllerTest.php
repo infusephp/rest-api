@@ -661,7 +661,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route->setRequest($req);
 
         $result = Mockery::mock('TestModel');
-        $result->shouldReceive('toArray')
+        $result->shouldReceive('toArrayDeprecated')
                ->withArgs([['exclude'], ['include'], ['expand']])
                ->andReturn(['model'])
                ->once();
@@ -684,7 +684,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = [];
         for ($i = 1; $i <= 5; ++$i) {
             $obj = Mockery::mock('TestModel');
-            $obj->shouldReceive('toArray')
+            $obj->shouldReceive('toArrayDeprecated')
                 ->withArgs([['exclude'], ['include'], ['expand']])
                 ->andReturn($i)
                 ->once();
