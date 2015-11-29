@@ -52,9 +52,7 @@ class ApiController
                 'transformOutputJson', ]);
 
         if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
+            $route->execute();
         } else {
             return $route;
         }
@@ -88,7 +86,7 @@ class ApiController
                     return $this->findOne($req, $res);
                 }
 
-                return SKIP_ROUTE;
+                return $res->setCode(404);
             }
         } else {
             return $route;
@@ -109,9 +107,7 @@ class ApiController
                 'transformOutputJson', ]);
 
         if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
+            $route->execute();
         } else {
             return $route;
         }
@@ -131,9 +127,7 @@ class ApiController
                 'transformOutputJson', ]);
 
         if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
+            $route->execute();
         } else {
             return $route;
         }
@@ -149,9 +143,7 @@ class ApiController
               ->addTransformSteps(['transformModelDelete']);
 
         if ($execute) {
-            if (!$route->execute() && $res->getCode() == 200) {
-                return SKIP_ROUTE;
-            }
+            $route->execute();
         } else {
             return $route;
         }
