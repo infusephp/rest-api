@@ -402,6 +402,14 @@ class ApiController
         // build the model query
         $query = $modelClass::query();
 
+        // perform joins - use internally only, not from user input!
+        if (isset($parameters['join'])) {
+            foreach ($parameters['join'] as $condition) {
+                list($model, $column, $foreignKey) = $condition;
+                $query->join($model, $column, $foreignKey);
+            }
+        }
+
         $where = $parameters['where'];
 
         // perform a search

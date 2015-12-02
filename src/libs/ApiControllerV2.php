@@ -318,6 +318,15 @@ class ApiControllerV2
 
         // build the model query
         $query = $modelClass::query();
+
+        // perform joins - use internally only, not from user input!
+        if (isset($parameters['join'])) {
+            foreach ($parameters['join'] as $condition) {
+                list($model, $column, $foreignKey) = $condition;
+                $query->join($model, $column, $foreignKey);
+            }
+        }
+
         $query->where($where)
               ->start($parameters['start'])
               ->limit($parameters['limit'])
