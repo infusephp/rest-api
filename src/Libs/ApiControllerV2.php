@@ -1,6 +1,6 @@
 <?php
 
-namespace app\api\libs;
+namespace App\Api\Libs;
 
 use ICanBoogie\Inflector;
 use Infuse\Request;

@@ -1,8 +1,8 @@
 <?php
 
-namespace app\api;
+namespace App\Api;
 
-use app\api\libs\ApiController;
+use App\Api\Libs\ApiController;
 
 if (!function_exists('json_last_error_msg')) {
     function json_last_error_msg()

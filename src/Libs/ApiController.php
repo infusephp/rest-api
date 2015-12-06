@@ -1,6 +1,6 @@
 <?php
 
-namespace app\api\libs;
+namespace App\Api\Libs;
 
 use ICanBoogie\Inflector;
 use Infuse\Request;
@@ -187,7 +187,7 @@ class ApiController
         $module = $req->params('module');
 
         // instantiate the controller
-        $controller = 'app\\'.$module.'\\Controller';
+        $controller = 'App\\'.$module.'\\Controller';
         if (!class_exists($controller) ||
            (!$model && (!property_exists($controller, 'properties') || !isset($controller::$properties['models'])))) {
             throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
@@ -201,7 +201,7 @@ class ApiController
         // convert the route name (pluralized underscore) to the class name
         $inflector = Inflector::get();
         $modelClassName = $inflector->singularize($inflector->camelize($model));
-        $modelClassName = 'app\\'.$module.'\\models\\'.$modelClassName;
+        $modelClassName = 'App\\'.$module.'\\Models\\'.$modelClassName;
 
         if (!class_exists($modelClassName)) {
             return false;

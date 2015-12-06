@@ -1,10 +1,10 @@
 <?php
 
+use App\Api\Libs\ApiController;
+use App\Api\Libs\ApiRoute;
+use App\Api\Libs\Error;
 use Infuse\Request;
 use Infuse\Response;
-use app\api\libs\ApiController;
-use app\api\libs\ApiRoute;
-use app\api\libs\Error;
 
 class ApiControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -25,7 +25,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->newApiRoute($req, $res);
-        $this->assertInstanceOf('app\\api\\libs\\ApiRoute', $route);
+        $this->assertInstanceOf('App\Api\Libs\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());
@@ -98,7 +98,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         Test::$app['base_url'] = 'https://example.com/';
 
         $route = new ApiRoute();
-        $req = Mockery::mock('\\Infuse\\Request');
+        $req = Mockery::mock('Infuse\Request');
         $req->shouldReceive('path')->andReturn('/api/users/');
         $route->setRequest($req);
 
@@ -129,7 +129,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $req = new Request();
         $req->setParams([
-            'module' => 'test',
+            'module' => 'Test',
             'model' => 'Test', ]);
         $route->setRequest($req);
 
@@ -153,14 +153,14 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $req = new Request();
         $req->setParams([
-            'module' => 'test',
+            'module' => 'Test',
             'model' => 'TestModelNotFound', ]);
         $route->setRequest($req);
 
         $res = new Response();
         $route->setResponse($res);
 
-        $testController = Mockery::mock('alias:app\\test\\Controller');
+        $testController = Mockery::mock('alias:App\Test\Controller');
 
         $this->assertFalse(self::$api->parseFetchModelFromParams($route));
     }
@@ -171,20 +171,20 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         $req = new Request();
         $req->setParams([
-            'module' => 'test',
+            'module' => 'Test',
             'model' => 'TestModel', ]);
         $route->setRequest($req);
 
         $res = new Response();
         $route->setResponse($res);
 
-        $testController = Mockery::mock('alias:app\\test\\Controller');
+        $testController = Mockery::mock('alias:App\Test\Controller');
 
-        $testModel = Mockery::mock('alias:app\\test\\models\\TestModel');
+        $testModel = Mockery::mock('alias:App\Test\Models\TestModel');
 
         $this->assertNull(self::$api->parseFetchModelFromParams($route));
 
-        $this->assertEquals('app\\test\\models\\TestModel', $route->getQuery('model'));
+        $this->assertEquals('App\Test\Models\TestModel', $route->getQuery('model'));
     }
 
     public function testParseRequireApiScaffolding()
@@ -200,7 +200,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testParseRequireApiScaffoldingFail()
     {
-        $req = Mockery::mock('Infuse\\Request');
+        $req = Mockery::mock('Infuse\Request');
         $req->shouldReceive('method')->andReturn('GET');
         $req->shouldReceive('path')->andReturn('/users');
 
@@ -399,7 +399,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelCreateNoPermission()
     {
         $route = new ApiRoute();
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $res->shouldReceive('setCode')->withArgs([403])->once();
         $route->setResponse($res);
 
@@ -435,7 +435,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route->addQueryParams([
             'model' => 'user', ]);
 
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $route->setResponse($res);
 
         $result = false;
@@ -555,7 +555,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     {
         $route = new ApiRoute();
 
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $res->shouldReceive('setCode')
             ->withArgs([403])
             ->once();
@@ -590,7 +590,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelEditInvalid()
     {
         $route = new ApiRoute();
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $route->setResponse($res);
 
         $result = false;
@@ -623,7 +623,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelEditFail()
     {
         $route = new ApiRoute();
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $route->setResponse($res);
 
         $result = false;
@@ -713,7 +713,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelDeleteNoPermission()
     {
         $route = new ApiRoute();
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $res->shouldReceive('setCode')->withArgs([403])->once();
         $route->setResponse($res);
 
@@ -746,7 +746,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelDeleteFail()
     {
         $route = new ApiRoute();
-        $res = Mockery::mock('\\Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $route->setResponse($res);
 
         $result = false;
@@ -822,7 +822,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     "message": "Test",
     "param": "param"
 }';
-        $res = Mockery::mock('Infuse\\Response');
+        $res = Mockery::mock('Infuse\Response');
         $res->shouldReceive('setCode')
             ->withArgs([404])
             ->once();

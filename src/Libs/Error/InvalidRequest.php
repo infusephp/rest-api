@@ -1,6 +1,6 @@
 <?php
 
-namespace app\api\libs\Error;
+namespace App\Api\Libs\Error;
 
 class InvalidRequest extends Base
 {
