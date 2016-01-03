@@ -3,8 +3,10 @@
 use App\Api\Libs\ApiControllerV2;
 use App\Api\Libs\ApiRoute;
 use App\Api\Libs\Error;
+use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\Test;
 
 class ApiControllerV2Test extends PHPUnit_Framework_TestCase
 {
@@ -287,7 +289,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $error = [
             'error' => 'no_permission',
             'message' => 'No Permission',
@@ -322,7 +324,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
                ->andReturn([]);
@@ -442,7 +444,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $error = [
             'error' => 'no_permission',
             'message' => 'No Permission',
@@ -474,7 +476,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $error = [
             'error' => 'invalid_parameter',
             'message' => 'Invalid',
@@ -507,7 +509,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
                ->andReturn([]);
@@ -595,7 +597,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $error = [
             'error' => 'no_permission',
@@ -627,7 +629,7 @@ class ApiControllerV2Test extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiControllerV2();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
                ->andReturn([]);

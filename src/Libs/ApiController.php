@@ -3,12 +3,13 @@
 namespace App\Api\Libs;
 
 use ICanBoogie\Inflector;
+use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
 
 class ApiController
 {
-    use \InjectApp;
+    use HasApp;
 
     protected static $apiBase = '/api';
     protected static $pageLimit = 100;

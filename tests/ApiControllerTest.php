@@ -3,8 +3,11 @@
 use App\Api\Libs\ApiController;
 use App\Api\Libs\ApiRoute;
 use App\Api\Libs\Error;
+use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\Test;
+use Pulsar\Model;
 
 class ApiControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -406,7 +409,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $error = [
             'error' => 'no_permission',
             'message' => 'No Permission',
@@ -441,7 +444,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
                ->andReturn([]);
@@ -564,7 +567,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $error = [
             'error' => 'no_permission',
             'message' => 'No Permission',
@@ -596,7 +599,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $error = [
             'error' => 'invalid_parameter',
             'message' => 'Invalid',
@@ -629,7 +632,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
                ->andReturn([]);
@@ -720,7 +723,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $error = [
             'error' => 'no_permission',
@@ -752,7 +755,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $result = false;
 
         $api = new ApiController();
-        $app = new App();
+        $app = new Application();
         $errors = Mockery::mock();
         $errors->shouldReceive('errors')
                ->andReturn([]);
@@ -836,4 +839,171 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         self::$api->handleError($ex, $route);
     }
+
+    public function testToArrayDeprecated()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+
+        $driver->shouldReceive('loadModel')
+               ->andReturn([]);
+
+        TestModel::setDriver($driver);
+
+        $model = new TestModel(5);
+
+        $expected = [
+            'id' => 5,
+            'relation' => null,
+            'answer' => null,
+            'test_hook' => null,
+            'appended' => true,
+            // this is tacked on in toArrayHook() below
+            'toArray' => true,
+        ];
+
+        $this->assertEquals($expected, $model->toArrayDeprecated([], [], ['relation']));
+    }
+
+    public function testToArrayDeprecatedExcluded()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+
+        $driver->shouldReceive('loadModel')
+               ->andReturn([]);
+
+        TestModel::setDriver($driver);
+
+        $model = new TestModel(5);
+        $model->relation = 100;
+
+        $expected = [
+            'relation' => 100,
+        ];
+
+        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'answer', 'toArray', 'test_hook', 'appended']));
+    }
+
+    public function testToArrayDeprecatedAutoTimestamps()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+
+        $driver->shouldReceive('loadModel')
+               ->andReturn([]);
+
+        TestModel2::setDriver($driver);
+
+        $model = new TestModel2(5);
+        $model->created_at = 100;
+        $model->updated_at = 102;
+
+        $expected = [
+            'created_at' => 100,
+            'updated_at' => '102',
+        ];
+
+        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'id2', 'default', 'validate', 'unique', 'required']));
+
+        $model->created_at = '-1';
+        $this->assertEquals(-1, $model->created_at);
+    }
+
+    public function testToArrayDeprecatedIncluded()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+
+        $driver->shouldReceive('loadModel')
+               ->andReturn([]);
+
+        TestModel::setDriver($driver);
+
+        $model = new TestModel2(5);
+        $model->hidden = true;
+        $model->object = new stdClass();
+
+        $expected = [
+            'hidden' => true,
+            'array' => [
+                'tax' => '%',
+                'discounts' => false,
+                'shipping' => false,
+            ],
+            'object' => new stdClass(),
+            'toArrayHook' => true,
+        ];
+
+        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'id2', 'default', 'validate', 'unique', 'required', 'created_at', 'updated_at'], ['hidden', 'toArrayHook', 'array', 'object']));
+    }
+
+    public function testToArrayDeprecatedExpand()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+
+        $driver->shouldReceive('loadModel')
+               ->andReturn([]);
+
+        TestModel::setDriver($driver);
+
+        $model = new TestModel(10);
+        $model->relation = 100;
+        $model->answer = 42;
+
+        $result = $model->toArrayDeprecated(
+            [
+                'id',
+                'toArray',
+                'test_hook',
+                'appended',
+                'relation.created_at',
+                'relation.updated_at',
+                'relation.validate',
+                'relation.unique',
+                'relation.person.email',
+            ],
+            [
+                'relation.hidden',
+                'relation.person',
+            ],
+            [
+                'relation.person',
+            ]);
+
+        $expected = [
+            'answer' => 42,
+            'relation' => [
+                'id' => 100,
+                'id2' => 0,
+                'required' => null,
+                'default' => 'some default value',
+                'hidden' => false,
+                'person' => [
+                    'id' => 20,
+                    'name' => 'Jared',
+                ],
+            ],
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+}
+
+class TestModel extends Model
+{
+    protected static $properties = [
+        'relation' => [
+            'type' => Model::TYPE_NUMBER,
+        ],
+        'answer' => [
+            'type' => Model::TYPE_STRING,
+        ],
+        'mutator' => [],
+        'accessor' => [],
+        'test_model2_id' => [],
+    ];
+
+    protected static $hidden = [
+        'mutator',
+        'accessor',
+        'test_model2_id',
+    ];
+    protected static $appended = ['appended'];
 }
