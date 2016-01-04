@@ -7,7 +7,6 @@ use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
-use Pulsar\Model;
 
 class ApiControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -352,7 +351,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $route = new ApiRoute();
 
         $test = ['test' => 'hello'];
-        $req = new Request(null, $test);
+        $req = new Request([], $test);
         $route->setRequest($req);
 
         $this->assertNull(self::$api->parseModelEditParameters($route));
@@ -840,170 +839,125 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         self::$api->handleError($ex, $route);
     }
 
-    public function testToArrayDeprecated()
+    public function testToArray()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
 
         $driver->shouldReceive('loadModel')
                ->andReturn([]);
 
-        TestModel::setDriver($driver);
+        Post::setDriver($driver);
 
-        $model = new TestModel(5);
+        $model = new Post(5);
+        $model->author = 6;
+        $model->body = 'text';
 
         $expected = [
             'id' => 5,
-            'relation' => null,
-            'answer' => null,
-            'test_hook' => null,
-            'appended' => true,
-            // this is tacked on in toArrayHook() below
-            'toArray' => true,
+            'author' => 6,
+            'body' => 'text',
+            'appended' => null,
         ];
 
-        $this->assertEquals($expected, $model->toArrayDeprecated([], [], ['relation']));
+        $this->assertEquals($expected, $model->toArrayDeprecated());
     }
 
-    public function testToArrayDeprecatedExcluded()
+    public function testToArrayExcluded()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
 
         $driver->shouldReceive('loadModel')
                ->andReturn([]);
 
-        TestModel::setDriver($driver);
+        Post::setDriver($driver);
 
-        $model = new TestModel(5);
-        $model->relation = 100;
+        $model = new Post(5);
+        $model->author = 100;
 
         $expected = [
-            'relation' => 100,
+            'author' => 100,
         ];
 
-        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'answer', 'toArray', 'test_hook', 'appended']));
+        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'body', 'appended']));
     }
 
-    public function testToArrayDeprecatedAutoTimestamps()
+    public function testToArrayIncluded()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
 
         $driver->shouldReceive('loadModel')
                ->andReturn([]);
 
-        TestModel2::setDriver($driver);
+        Post::setDriver($driver);
 
-        $model = new TestModel2(5);
-        $model->created_at = 100;
-        $model->updated_at = 102;
+        $model = new Post(5);
+        $model->body = 'text';
+        $model->date = 'Dec 5, 2015';
 
         $expected = [
-            'created_at' => 100,
-            'updated_at' => '102',
+            'id' => 5,
+            'author' => null,
+            'body' => 'text',
+            'date' => 'Dec 5, 2015',
+            'appended' => null,
         ];
 
-        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'id2', 'default', 'validate', 'unique', 'required']));
-
-        $model->created_at = '-1';
-        $this->assertEquals(-1, $model->created_at);
+        $this->assertEquals($expected, $model->toArrayDeprecated([], ['date'], []));
     }
 
-    public function testToArrayDeprecatedIncluded()
+    public function testToArrayExpand()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
 
         $driver->shouldReceive('loadModel')
-               ->andReturn([]);
+               ->andReturn([
+                    'body' => 'text',
+                    'author' => 100,
+                    'date' => 3,
+                    'appended' => '...',
+                ]);
 
-        TestModel::setDriver($driver);
+        Post::setDriver($driver);
 
-        $model = new TestModel2(5);
-        $model->hidden = true;
-        $model->object = new stdClass();
+        $model = new Post(10);
+        $author = $model->relation('author');
+        $author->address = 200;
+        $author->name = 'Bob';
+        $author->email = 'bob@example.com';
+        $author->created_at = 1;
+        $author->updated_at = 2;
+        $author->balance = 150;
 
-        $expected = [
-            'hidden' => true,
-            'array' => [
-                'tax' => '%',
-                'discounts' => false,
-                'shipping' => false,
-            ],
-            'object' => new stdClass(),
-            'toArrayHook' => true,
-        ];
-
-        $this->assertEquals($expected, $model->toArrayDeprecated(['id', 'id2', 'default', 'validate', 'unique', 'required', 'created_at', 'updated_at'], ['hidden', 'toArrayHook', 'array', 'object']));
-    }
-
-    public function testToArrayDeprecatedExpand()
-    {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
-
-        $driver->shouldReceive('loadModel')
-               ->andReturn([]);
-
-        TestModel::setDriver($driver);
-
-        $model = new TestModel(10);
-        $model->relation = 100;
-        $model->answer = 42;
-
-        $result = $model->toArrayDeprecated(
-            [
-                'id',
-                'toArray',
-                'test_hook',
-                'appended',
-                'relation.created_at',
-                'relation.updated_at',
-                'relation.validate',
-                'relation.unique',
-                'relation.person.email',
-            ],
-            [
-                'relation.hidden',
-                'relation.person',
-            ],
-            [
-                'relation.person',
+        $result = $model->toArrayDeprecated([
+                'author.address.created_at',
+            ], [
+                'author.balance',
+                'author.address.updated_at',
+            ], [
+                'author.address',
             ]);
 
         $expected = [
-            'answer' => 42,
-            'relation' => [
+            'id' => 10,
+            'body' => 'text',
+            'appended' => '...',
+            'author' => [
                 'id' => 100,
-                'id2' => 0,
-                'required' => null,
-                'default' => 'some default value',
-                'hidden' => false,
-                'person' => [
-                    'id' => 20,
-                    'name' => 'Jared',
+                'name' => 'Bob',
+                'email' => 'bob@example.com',
+                'address' => [
+                    'id' => 200,
+                    'street' => null,
+                    'city' => '',
+                    'state' => '',
+                    'updated_at' => null,
                 ],
+                'balance' => 150,
+                'created_at' => 1,
+                'updated_at' => 2,
             ],
         ];
 
         $this->assertEquals($expected, $result);
     }
-}
-
-class TestModel extends Model
-{
-    protected static $properties = [
-        'relation' => [
-            'type' => Model::TYPE_NUMBER,
-        ],
-        'answer' => [
-            'type' => Model::TYPE_STRING,
-        ],
-        'mutator' => [],
-        'accessor' => [],
-        'test_model2_id' => [],
-    ];
-
-    protected static $hidden = [
-        'mutator',
-        'accessor',
-        'test_model2_id',
-    ];
-    protected static $appended = ['appended'];
 }
