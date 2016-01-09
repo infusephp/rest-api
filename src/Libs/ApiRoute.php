@@ -4,7 +4,6 @@ namespace App\RestApi\Libs;
 
 use Infuse\Request;
 use Infuse\Response;
-use Infuse\Utility as U;
 
 /*
     An API request can be broken into 3 steps:
@@ -172,7 +171,7 @@ class ApiRoute
      */
     public function getQuery($index = false)
     {
-        return ($index) ? U::array_value($this->query, $index) : $this->query;
+        return ($index) ? array_value($this->query, $index) : $this->query;
     }
 
     /**
