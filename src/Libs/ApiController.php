@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Libs;
+namespace App\RestApi\Libs;
 
 use ICanBoogie\Inflector;
 use Infuse\HasApp;

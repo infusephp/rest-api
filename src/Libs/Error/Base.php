@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Libs\Error;
+namespace App\RestApi\Libs\Error;
 
 use Exception;
 

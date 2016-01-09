@@ -1,8 +1,8 @@
 <?php
 
-use App\Api\Libs\ApiController;
-use App\Api\Libs\ApiRoute;
-use App\Api\Libs\Error;
+use App\RestApi\Libs\ApiController;
+use App\RestApi\Libs\ApiRoute;
+use App\RestApi\Libs\Error;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
@@ -27,7 +27,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         $route = self::$api->newApiRoute($req, $res);
-        $this->assertInstanceOf('App\Api\Libs\ApiRoute', $route);
+        $this->assertInstanceOf('App\RestApi\Libs\ApiRoute', $route);
 
         $this->assertEquals($req, $route->getRequest());
         $this->assertEquals($res, $route->getResponse());

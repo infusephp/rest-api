@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Libs;
+namespace App\RestApi\Libs;
 
 use Infuse\Request;
 use Infuse\Response;
