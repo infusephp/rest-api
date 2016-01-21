@@ -20,6 +20,17 @@ class Post extends Model
 
     protected static $hidden = ['date'];
     protected static $appended = ['appended'];
+
+    public function toArrayHook(&$result, array $exclude, array $include, array $expand)
+    {
+        if (!isset($exclude['hook'])) {
+            $result['hook'] = true;
+        }
+
+        if (isset($incldue['include'])) {
+            $result['include'] = true;
+        }
+    }
 }
 
 class Person extends Model

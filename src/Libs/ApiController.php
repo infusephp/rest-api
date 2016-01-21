@@ -6,6 +6,7 @@ use ICanBoogie\Inflector;
 use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
+use Pulsar\Model;
 
 class ApiController
 {
@@ -579,20 +580,19 @@ class ApiController
 
     public function transformModelToArray(&$result, ApiRoute $route)
     {
-        if (is_object($result)) {
-            $_model = $result->toArrayDeprecated(
-                $route->getQuery('exclude'),
-                $route->getQuery('include'),
-                $route->getQuery('expand'));
+        $serializer = new ModelSerializer();
+        $serializer->setExclude($route->getQuery('exclude'))
+                   ->setInclude($route->getQuery('include'))
+                   ->setExpand($route->getQuery('expand'));
 
-            $result = $_model;
+        if ($result instanceof Model) {
+            $result = $serializer->toArray($result);
         } elseif (is_array($result)) {
             $models = $result;
             $result = [];
 
             foreach ($models as $model) {
-                $this->transformModelToArray($model, $route, false);
-                $result[] = $model;
+                $result[] = $serializer->toArray($model);
             }
         }
     }
