@@ -1,6 +1,6 @@
 <?php
 
-namespace App\RestApi\Libs\Error;
+namespace App\RestApi\Error;
 
 class InvalidRequest extends Base
 {

@@ -2,12 +2,18 @@
 
 namespace App\RestApi\Libs;
 
+use App\RestApi\Error;
+use App\RestApi\Serializer\ModelSerializer;
 use ICanBoogie\Inflector;
 use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;
 use Pulsar\Model;
 
+/**
+ * @deprecated
+ * @codeCoverageIgnore
+ */
 class ApiController
 {
     use HasApp;
@@ -571,6 +577,7 @@ class ApiController
                 $code = ($error['error'] == 'no_permission') ? 403 : 400;
                 $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
                 throw new Error\InvalidRequest($error['message'], $code, $param);
+
             // no specific errors available, throw a generic one
             } else {
                 throw new Error\Api('There was an error performing the update.');
@@ -580,7 +587,7 @@ class ApiController
 
     public function transformModelToArray(&$result, ApiRoute $route)
     {
-        $serializer = new ModelSerializer();
+        $serializer = new ModelSerializer($route->getRequest());
         $serializer->setExclude($route->getQuery('exclude'))
                    ->setInclude($route->getQuery('include'))
                    ->setExpand($route->getQuery('expand'));
@@ -742,31 +749,6 @@ class ApiController
         $inflector = Inflector::get();
 
         return $inflector->underscore($className);
-    }
-
-    /**
-     * Generates the plural key from a class
-     * i.e. LineItem -> line_items.
-     *
-     * @param string|object $class
-     *
-     * @return string
-     */
-    private function pluralClassName($class)
-    {
-        // get the class name if an object is given
-        if (is_object($class)) {
-            $class = get_class($class);
-        }
-
-        // split the class name up by namespaces
-        $namespace = explode('\\', $class);
-        $className = end($namespace);
-
-        // convert the class name into the pluralized underscore version
-        $inflector = Inflector::get();
-
-        return $inflector->pluralize($inflector->underscore($className));
     }
 
     private function link($url, array $query)

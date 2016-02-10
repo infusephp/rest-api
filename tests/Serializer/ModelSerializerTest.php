@@ -1,6 +1,7 @@
 <?php
 
-use App\RestApi\Libs\ModelSerializer;
+use App\RestApi\Serializer\ModelSerializer;
+use Infuse\Request;
 use Pulsar\Model;
 
 class ModelSerializerTest extends PHPUnit_Framework_TestCase
@@ -17,9 +18,19 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
         Model::setDriver(self::$driver);
     }
 
+    public function testConstruct()
+    {
+        $req = new Request(['exclude' => 'exclude,these', 'include' => 'include,these', 'expand' => 'expand_this']);
+        $serializer = new ModelSerializer($req);
+
+        $this->assertEquals(['exclude', 'these'], $serializer->getExclude());
+        $this->assertEquals(['include', 'these'], $serializer->getInclude());
+        $this->assertEquals(['expand_this'], $serializer->getExpand());
+    }
+
     public function testGettersAndSetters()
     {
-        $serializer = new ModelSerializer();
+        $serializer = new ModelSerializer(new Request());
 
         $this->assertEquals($serializer, $serializer->setExclude(['exclude']));
         $this->assertEquals(['exclude'], $serializer->getExclude());
@@ -31,13 +42,18 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(['expand'], $serializer->getExpand());
     }
 
-    public function testToArray()
+    public function testSerialize()
     {
         $model = new Post(5);
         $model->author = 6;
         $model->body = 'text';
 
-        $serializer = new ModelSerializer();
+        $serializer = new ModelSerializer(new Request());
+
+        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+
+        $this->assertEquals('blah', $serializer->serialize('blah', $route));
+        $this->assertEquals(['blah'], $serializer->serialize(['blah'], $route));
 
         $expected = [
             'id' => 5,
@@ -47,31 +63,33 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
             'hook' => true,
         ];
 
-        $this->assertEquals($expected, $serializer->toArray($model));
+        $this->assertEquals($expected, $serializer->serialize($model, $route));
     }
 
-    public function testToArrayExcluded()
+    public function testSerializeExcluded()
     {
         $model = new Post(5);
         $model->author = 100;
 
-        $serializer = new ModelSerializer();
+        $serializer = new ModelSerializer(new Request());
         $serializer->setExclude(['id', 'body', 'appended', 'hook']);
+
+        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
 
         $expected = [
             'author' => 100,
         ];
 
-        $this->assertEquals($expected, $serializer->toArray($model));
+        $this->assertEquals($expected, $serializer->serialize($model, $route));
     }
 
-    public function testToArrayIncluded()
+    public function testSerializeIncluded()
     {
         $model = new Post(5);
         $model->body = 'text';
         $model->date = 'Dec 5, 2015';
 
-        $serializer = new ModelSerializer();
+        $serializer = new ModelSerializer(new Request());
         $serializer->setInclude(['date']);
 
         $expected = [
@@ -83,10 +101,12 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
             'hook' => true,
         ];
 
-        $this->assertEquals($expected, $serializer->toArray($model));
+        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+
+        $this->assertEquals($expected, $serializer->serialize($model, $route));
     }
 
-    public function testToArrayExpand()
+    public function testSerializeExpand()
     {
         self::$driver = Mockery::mock('Pulsar\Driver\DriverInterface');
         self::$driver->shouldReceive('loadModel')
@@ -107,12 +127,14 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
         $author->updated_at = 2;
         $author->balance = 150;
 
-        $serializer = new ModelSerializer();
+        $serializer = new ModelSerializer(new Request());
         $serializer->setExclude(['author.address.created_at'])
                    ->setInclude(['author.balance', 'author.address.updated_at'])
                    ->setExpand(['author.address']);
 
-        $result = $serializer->toArray($model);
+        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+
+        $result = $serializer->serialize($model, $route);
 
         $expected = [
             'id' => 10,
@@ -135,6 +157,36 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
                 'updated_at' => 2,
             ],
         ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testSerializeMultiple()
+    {
+        $serializer = new ModelSerializer(new Request());
+        $serializer->setExclude(['address'])
+                   ->setInclude(['include'])
+                   ->setExpand(['expand']);
+
+        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+
+        $models = [];
+        $expected = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $obj = new Person($i);
+            $models[] = $obj;
+
+            $expected[] = [
+                'id' => $i,
+                'email' => null,
+                'name' => null,
+                'include' => null,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        $result = $serializer->serialize($models, $route);
 
         $this->assertEquals($expected, $result);
     }

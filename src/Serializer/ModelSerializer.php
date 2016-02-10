@@ -1,10 +1,12 @@
 <?php
 
-namespace App\RestApi\Libs;
+namespace App\RestApi\Serializer;
 
+use App\RestApi\Route\AbstractRoute;
+use Infuse\Request;
 use Pulsar\Model;
 
-class ModelSerializer
+class ModelSerializer implements SerializerInterface
 {
     /**
      * @var array
@@ -20,6 +22,49 @@ class ModelSerializer
      * @var array
      */
     private $expand = [];
+
+    /**
+     * @var Request
+     */
+    private $request;
+
+    /**
+     * @param Request $req
+     */
+    public function __construct(Request $req)
+    {
+        $this->request = $req;
+
+        // exclude parameter
+        $exclude = $req->query('exclude');
+        if (is_string($exclude) && !empty($exclude)) {
+            $exclude = explode(',', $exclude);
+        }
+
+        if (is_array($exclude)) {
+            $this->setExclude(array_filter($exclude));
+        }
+
+        // include parameter
+        $include = $req->query('include');
+        if (is_string($include) && !empty($include)) {
+            $include = explode(',', $include);
+        }
+
+        if (is_array($include)) {
+            $this->setInclude(array_filter($include));
+        }
+
+        // expand parameter
+        $expand = $req->query('expand');
+        if (is_string($expand) && !empty($expand)) {
+            $expand = explode(',', $expand);
+        }
+
+        if (is_array($expand)) {
+            $this->setExpand(array_filter($expand));
+        }
+    }
 
     /**
      * Sets properties to be excluded.
@@ -178,7 +223,7 @@ class ModelSerializer
             $flatExp = is_array($subExp) ? array_keys(array_dot($subExp)) : [];
 
             $relation = $model->relation($k);
-            $serializer = new self();
+            $serializer = new self($this->request);
             $serializer->setExclude($flatExc)
                        ->setInclude($flatInc)
                        ->setExpand($flatExp);
@@ -186,5 +231,30 @@ class ModelSerializer
         }
 
         return $result;
+    }
+
+    public function serialize($input, AbstractRoute $route)
+    {
+        // serialize a collection of models
+        if (is_array($input)) {
+            $models = [];
+            foreach ($input as $model) {
+                // skip serialization if we are not dealing with models
+                if (!($model instanceof Model)) {
+                    return $input;
+                }
+
+                $models[] = $this->toArray($model);
+            }
+
+            return $models;
+        }
+
+        // serialize a single model
+        if ($input instanceof Model) {
+            return $this->toArray($input);
+        }
+
+        return $input;
     }
 }

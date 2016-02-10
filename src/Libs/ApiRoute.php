@@ -2,6 +2,7 @@
 
 namespace App\RestApi\Libs;
 
+use App\RestApi\Error;
 use Infuse\Request;
 use Infuse\Response;
 
@@ -22,6 +23,10 @@ use Infuse\Response;
     void transform(mixed &$result, ApiRoute $route)
 */
 
+/**
+ * @deprecated
+ * @codeCoverageIgnore
+ */
 class ApiRoute
 {
     private $action;

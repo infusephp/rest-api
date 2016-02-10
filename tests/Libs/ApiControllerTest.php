@@ -1,8 +1,8 @@
 <?php
 
+use App\RestApi\Error;
 use App\RestApi\Libs\ApiController;
 use App\RestApi\Libs\ApiRoute;
-use App\RestApi\Libs\Error;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
@@ -662,6 +662,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelToArray()
     {
         $route = new ApiRoute();
+        $route->setRequest(new Request());
         $route->addQueryParams([
             'model' => 'TestModel',
             'exclude' => ['body', 'hook'],
@@ -695,6 +696,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
     public function testTransformModelToArrayMultiple()
     {
         $route = new ApiRoute();
+        $route->setRequest(new Request());
         $route->addQueryParams([
             'model' => 'TestModel',
             'exclude' => ['address'],

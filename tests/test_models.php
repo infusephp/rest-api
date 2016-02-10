@@ -49,6 +49,7 @@ class Person extends Model
 
     protected static $autoTimestamps;
     protected static $hidden = ['balance'];
+    public static $searchableProperties = ['name', 'email'];
 }
 
 class Address extends Model
