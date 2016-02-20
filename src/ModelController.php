@@ -52,7 +52,7 @@ class ModelController
     {
         $route = new DeleteModelRoute($req, $res);
         $route->injectApp($this->app)
-              ->setSerializer(new JsonSerializer($req))
+              ->setSerializer($this->getSerializer($req))
               ->run();
     }
 
