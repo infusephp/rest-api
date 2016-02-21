@@ -2,8 +2,6 @@
 
 namespace App\RestApi\Route;
 
-use App\RestApi\Error\InvalidRequest;
-
 class RetrieveModelRoute extends AbstractModelRoute
 {
     const MODEL_PERMISSION = 'view';
@@ -23,6 +21,6 @@ class RetrieveModelRoute extends AbstractModelRoute
             return $this->model;
         }
 
-        throw new InvalidRequest($this->humanClassName($this->model).' was not found: '.$this->modelId, 404);
+        throw $this->modelNotFoundError();
     }
 }

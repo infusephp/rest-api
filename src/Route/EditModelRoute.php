@@ -3,7 +3,6 @@
 namespace App\RestApi\Route;
 
 use App\RestApi\Error\Api as ApiError;
-use App\RestApi\Error\InvalidRequest;
 
 class EditModelRoute extends AbstractModelRoute
 {
@@ -56,12 +55,10 @@ class EditModelRoute extends AbstractModelRoute
 
         // get the first error
         if ($error = $this->getFirstError()) {
-            $code = ($error['error'] == 'no_permission') ? 403 : 400;
-            $param = array_value($error, 'params.field');
-            throw new InvalidRequest($error['message'], $code, $param);
-        // no specific errors available, throw a generic one
-        } else {
-            throw new ApiError('There was an error updating the '.$this->humanClassName($this->model).'.');
+            throw $this->modelValidationError($error);
         }
+
+        // no specific errors available, throw a generic one
+        throw new ApiError('There was an error updating the '.$this->humanClassName($this->model).'.');
     }
 }

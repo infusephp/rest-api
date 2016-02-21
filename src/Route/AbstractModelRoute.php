@@ -109,6 +109,31 @@ abstract class AbstractModelRoute extends AbstractRoute
         return (count($errors) > 0) ? $errors[0] : false;
     }
 
+    /**
+     * Builds a validation error from a CRUD operation.
+     *
+     * @param array $error
+     *
+     * @return InvalidRequest
+     */
+    protected function modelValidationError(array $error)
+    {
+        $code = ($error['error'] == 'no_permission') ? 403 : 400;
+        $param = array_value($error, 'params.field');
+
+        return new InvalidRequest($error['message'], $code, $param);
+    }
+
+    /**
+     * Builds a model 404 error.
+     *
+     * @return InvalidRequest
+     */
+    protected function modelNotFoundError()
+    {
+        return new InvalidRequest($this->humanClassName($this->model).' was not found: '.$this->modelId, 404);
+    }
+
     public function buildResponse()
     {
         if (!$this->model) {
