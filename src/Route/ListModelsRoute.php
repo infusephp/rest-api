@@ -10,7 +10,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * @staticvar int
      */
-    protected static $pageLimit = 100;
+    protected static $pageLimit = 1000;
 
     /**
      * @var int
