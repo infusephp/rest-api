@@ -130,7 +130,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
         $serializer = new ModelSerializer(new Request());
         $serializer->setExclude(['author.address.created_at'])
                    ->setInclude(['author.balance', 'author.address.updated_at'])
-                   ->setExpand(['author.address']);
+                   ->setExpand(['author.address', 'author.does_not_exist', 'author.id']);
 
         $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
 

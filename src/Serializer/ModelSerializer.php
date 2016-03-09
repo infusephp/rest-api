@@ -207,9 +207,8 @@ class ModelSerializer implements SerializerInterface
     private function expand(Model $model, array $result, array $namedExc, array $namedInc, array $namedExp)
     {
         foreach ($namedExp as $k => $subExp) {
-            // if not a property, or the value is null is null, excluded, or not included
-            // then we are not going to expand it
-            if (!$model::hasProperty($k) || !isset($result[$k]) || !$result[$k]) {
+            $value = array_value($result, $k);
+            if (!$this->isExpandable($model, $k, $value)) {
                 continue;
             }
 
@@ -231,6 +230,33 @@ class ModelSerializer implements SerializerInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Expands a model.
+     *
+     * @param Model  $model
+     * @param string $k
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    private function isExpandable(Model $model, $k, $value)
+    {
+        // if the value is falsey then do not expand it
+        // could be null, excluded, or not included
+        if (!$value) {
+            return false;
+        }
+
+        // if not a property or no relationship model specified
+        // then do not expand
+        $property = $model::getProperty($k);
+        if (!$property || !isset($property['relation'])) {
+            return false;
+        }
+
+        return true;
     }
 
     public function serialize($input, AbstractRoute $route)
