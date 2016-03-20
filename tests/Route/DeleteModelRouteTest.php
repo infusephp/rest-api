@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\Error\Api as ApiError;
+use App\RestApi\Error\ApiError;
 use App\RestApi\Error\InvalidRequest;
 use Infuse\Request;
 use Infuse\Test;

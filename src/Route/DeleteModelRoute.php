@@ -2,7 +2,7 @@
 
 namespace App\RestApi\Route;
 
-use App\RestApi\Error\Api as ApiError;
+use App\RestApi\Error\ApiError;
 
 class DeleteModelRoute extends AbstractModelRoute
 {

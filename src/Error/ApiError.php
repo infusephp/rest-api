@@ -2,7 +2,7 @@
 
 namespace App\RestApi\Error;
 
-class Api extends Base
+class ApiError extends Base
 {
     public function __construct($message, $httpStatus = 500)
     {

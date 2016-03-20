@@ -3,6 +3,7 @@
 namespace App\RestApi\Route;
 
 use App\RestApi\Error;
+use App\RestApi\Error\InvalidRequest;
 use App\RestApi\Serializer\SerializerInterface;
 use ICanBoogie\Inflector;
 use Infuse\HasApp;
@@ -124,7 +125,7 @@ abstract class AbstractRoute
             'message' => $ex->getMessage(),
         ];
 
-        if ($ex instanceof Error\InvalidRequest && $param = $ex->getParam()) {
+        if ($ex instanceof InvalidRequest && $param = $ex->getParam()) {
             $body['param'] = $param;
         }
 

@@ -1,18 +1,18 @@
 <?php
 
-use App\RestApi\Error\Api;
+use App\RestApi\Error\ApiError;
 
 class ApiErrorTest extends PHPUnit_Framework_TestCase
 {
     public function testGetMessage()
     {
-        $error = new Api('error');
+        $error = new ApiError('error');
         $this->assertEquals('error', $error->getMessage());
     }
 
     public function testGetHttpStatus()
     {
-        $error = new Api('error', 500);
+        $error = new ApiError('error', 500);
         $this->assertEquals(500, $error->getHttpStatus());
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
-use App\RestApi\Error;
+use App\RestApi\Error\ApiError;
+use App\RestApi\Error\InvalidRequest;
 use App\RestApi\Libs\ApiController;
 use App\RestApi\Libs\ApiRoute;
 use Infuse\Application;
@@ -149,7 +150,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             self::$api->parseFetchModelFromParams($route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals(404, $ex->getHttpStatus());
 
             return;
@@ -221,7 +222,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             self::$api->parseRequireApiScaffolding($route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals(404, $ex->getHttpStatus());
 
             return;
@@ -430,7 +431,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelCreate($result, $route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals('No Permission', $ex->getMessage());
             $this->assertEquals(403, $ex->getHttpStatus());
 
@@ -461,7 +462,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelCreate($result, $route);
-        } catch (Error\Api $ex) {
+        } catch (ApiError $ex) {
             $this->assertEquals('There was an error creating the User.', $ex->getMessage());
             $this->assertEquals(500, $ex->getHttpStatus());
 
@@ -519,7 +520,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             self::$api->transformModelFindOne($result, $route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals(404, $ex->getHttpStatus());
 
             return;
@@ -543,7 +544,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             self::$api->transformModelFindOne($result, $route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals(403, $ex->getHttpStatus());
 
             return;
@@ -588,7 +589,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelEdit($result, $route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals('No Permission', $ex->getMessage());
             $this->assertEquals(403, $ex->getHttpStatus());
 
@@ -621,7 +622,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelEdit($result, $route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals('Invalid', $ex->getMessage());
             $this->assertEquals(400, $ex->getHttpStatus());
 
@@ -649,7 +650,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelEdit($result, $route);
-        } catch (Error\Api $ex) {
+        } catch (ApiError $ex) {
             $this->assertEquals('There was an error performing the update.', $ex->getMessage());
             $this->assertEquals(500, $ex->getHttpStatus());
 
@@ -760,7 +761,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelDelete($result, $route);
-        } catch (Error\InvalidRequest $ex) {
+        } catch (InvalidRequest $ex) {
             $this->assertEquals('No Permission', $ex->getMessage());
             $this->assertEquals(403, $ex->getHttpStatus());
 
@@ -788,7 +789,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
         try {
             $api->transformModelDelete($result, $route);
-        } catch (Error\Api $ex) {
+        } catch (ApiError $ex) {
             $this->assertEquals('There was an error performing the delete.', $ex->getMessage());
             $this->assertEquals(500, $ex->getHttpStatus());
 
@@ -840,7 +841,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
 
     public function testHandleError()
     {
-        $ex = new Error\InvalidRequest('Test', 404, 'param');
+        $ex = new InvalidRequest('Test', 404, 'param');
 
         $req = new Request();
 

@@ -3,6 +3,8 @@
 namespace App\RestApi\Libs;
 
 use App\RestApi\Error;
+use App\RestApi\Error\ApiError;
+use App\RestApi\Error\InvalidRequest;
 use App\RestApi\Serializer\ModelSerializer;
 use ICanBoogie\Inflector;
 use Infuse\HasApp;
@@ -198,7 +200,7 @@ class ApiController
         $controller = 'App\\'.$module.'\\Controller';
         if (!class_exists($controller) ||
            (!$model && (!property_exists($controller, 'properties') || !isset($controller::$properties['models'])))) {
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
+            throw new InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
         }
 
         // pick a default model if one isn't provided
@@ -223,7 +225,7 @@ class ApiController
         // check if api scaffolding is enabled on the model
         if (!property_exists($route->getQuery('model'), 'scaffoldApi')) {
             $req = $route->getRequest();
-            throw new Error\InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
+            throw new InvalidRequest('Request was not recognized: '.$req->method().' '.$req->path(), 404);
         }
     }
 
@@ -495,10 +497,10 @@ class ApiController
             if ($error = $this->getFirstError()) {
                 $code = ($error['error'] == 'no_permission') ? 403 : 400;
                 $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
-                throw new Error\InvalidRequest($error['message'], $code, $param);
+                throw new InvalidRequest($error['message'], $code, $param);
             // no specific errors available, throw a server error
             } else {
-                throw new Error\Api('There was an error creating the '.$this->humanClassName($route->getQuery('model')).'.');
+                throw new ApiError('There was an error creating the '.$this->humanClassName($route->getQuery('model')).'.');
             }
         }
     }
@@ -562,7 +564,7 @@ class ApiController
 
         // check if the model exists
         if (!$modelObj->exists()) {
-            throw new Error\InvalidRequest($this->humanClassName($modelObj).' was not found: '.$route->getQuery('model_id'), 404);
+            throw new InvalidRequest($this->humanClassName($modelObj).' was not found: '.$route->getQuery('model_id'), 404);
         }
 
         // verify the requester has `view` permission on the model
@@ -576,11 +578,11 @@ class ApiController
             if ($error = $this->getFirstError()) {
                 $code = ($error['error'] == 'no_permission') ? 403 : 400;
                 $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
-                throw new Error\InvalidRequest($error['message'], $code, $param);
+                throw new InvalidRequest($error['message'], $code, $param);
 
             // no specific errors available, throw a generic one
             } else {
-                throw new Error\Api('There was an error performing the update.');
+                throw new ApiError('There was an error performing the update.');
             }
         }
     }
@@ -615,10 +617,10 @@ class ApiController
             if ($error = $this->getFirstError()) {
                 $code = ($error['error'] == 'no_permission') ? 403 : 400;
                 $param = (isset($error['params']['field'])) ? $error['params']['field'] : '';
-                throw new Error\InvalidRequest($error['message'], $code, $param);
+                throw new InvalidRequest($error['message'], $code, $param);
             // no specific errors available, throw a server error
             } else {
-                throw new Error\Api('There was an error performing the delete.');
+                throw new ApiError('There was an error performing the delete.');
             }
         }
     }
@@ -661,7 +663,7 @@ class ApiController
             'message' => $ex->getMessage(),
         ];
 
-        if ($ex instanceof Error\InvalidRequest && $param = $ex->getParam()) {
+        if ($ex instanceof InvalidRequest && $param = $ex->getParam()) {
             $body['param'] = $param;
         }
 
@@ -697,7 +699,7 @@ class ApiController
         }
 
         if (!$modelObj->can($permission, $this->app['requester'])) {
-            throw new Error\InvalidRequest('You do not have permission to do that', 403);
+            throw new InvalidRequest('You do not have permission to do that', 403);
         }
     }
 
