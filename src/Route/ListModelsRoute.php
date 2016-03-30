@@ -81,7 +81,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Sets the maximum # of results to return.
      *
-     * @return int
+     * @return self
      */
     public function setPerPage($perPage)
     {
@@ -103,7 +103,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Sets the page #.
      *
-     * @return int
+     * @return self
      */
     public function setPage($page)
     {
@@ -139,7 +139,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Gets the query filter.
      *
-     * @return int
+     * @return array
      */
     public function getFilter()
     {
@@ -150,7 +150,7 @@ class ListModelsRoute extends AbstractModelRoute
      * Sets the join conditions.
      * Use internally only, not from user input!
      *
-     * @param string $join
+     * @param array $join
      *
      * @return self
      */
@@ -164,7 +164,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Gets the join conditions.
      *
-     * @return int
+     * @return array
      */
     public function getJoin()
     {
@@ -174,7 +174,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Sets the sort string.
      *
-     * @param string $search
+     * @param string $sort
      *
      * @return self
      */
@@ -188,7 +188,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Gets the sort string.
      *
-     * @return int
+     * @return string
      */
     public function getSort()
     {
