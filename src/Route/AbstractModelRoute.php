@@ -134,14 +134,24 @@ abstract class AbstractModelRoute extends AbstractRoute
         return new InvalidRequest($this->humanClassName($this->model).' was not found: '.$this->modelId, 404);
     }
 
+    /**
+     * Builds a model permission error.
+     *
+     * @return InvalidRequest
+     */
+    protected function permissionError()
+    {
+        return new InvalidRequest('You do not have permission to do that', 403);
+    }
+
     public function buildResponse()
     {
         if (!$this->model) {
-            throw new InvalidRequest('Request was not recognized: '.$this->request->method().' '.$this->request->path(), 404);
+            throw $this->requestNotRecognizedError();
         }
 
         if (!$this->hasPermission()) {
-            throw new InvalidRequest('You do not have permission to do that', 403);
+            throw $this->permissionError();
         }
     }
 }

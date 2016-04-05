@@ -251,4 +251,14 @@ abstract class AbstractRoute
 
         return $inflector->pluralize($inflector->underscore($className));
     }
+
+    /**
+     * Builds a request not recognized error.
+     *
+     * @return InvalidRequest
+     */
+    protected function requestNotRecognizedError()
+    {
+        return new InvalidRequest('Request was not recognized: '.$this->request->method().' '.$this->request->path(), 404);
+    }
 }
