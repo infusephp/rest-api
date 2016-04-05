@@ -83,8 +83,8 @@ abstract class AbstractModelRoute extends AbstractRoute
     }
 
     /**
-     * Checks if the requester has permission to perform this route
-     * on this model (if the model implements an ACL).
+     * Checks if the requester has permission to perform this
+     * route on this model (if the model implements an ACL).
      *
      * @return bool
      */
@@ -148,10 +148,6 @@ abstract class AbstractModelRoute extends AbstractRoute
     {
         if (!$this->model) {
             throw $this->requestNotRecognizedError();
-        }
-
-        if (!$this->hasPermission()) {
-            throw $this->permissionError();
         }
     }
 }

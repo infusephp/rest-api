@@ -19,6 +19,14 @@ class DeleteModelRoute extends AbstractModelRoute
     {
         parent::buildResponse();
 
+        if (!$this->model->exists()) {
+            throw $this->modelNotFoundError();
+        }
+
+        if (!$this->hasPermission()) {
+            throw $this->permissionError();
+        }
+
         if ($this->model->delete()) {
             $this->response->setCode(204);
 

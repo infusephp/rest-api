@@ -17,10 +17,14 @@ class RetrieveModelRoute extends AbstractModelRoute
     {
         parent::buildResponse();
 
-        if ($this->model->exists()) {
-            return $this->model;
+        if (!$this->model->exists()) {
+            throw $this->modelNotFoundError();
         }
 
-        throw $this->modelNotFoundError();
+        if (!$this->hasPermission()) {
+            throw $this->permissionError();
+        }
+
+        return $this->model;
     }
 }

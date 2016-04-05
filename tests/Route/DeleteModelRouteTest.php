@@ -20,6 +20,8 @@ class DeleteModelRouteTest extends ModelTestBase
     public function testBuildResponse()
     {
         $model = Mockery::mock();
+        $model->shouldReceive('exists')
+              ->andReturn(true);
         $model->shouldReceive('delete')
               ->andReturn(true);
         $route = $this->getRoute();
@@ -29,9 +31,32 @@ class DeleteModelRouteTest extends ModelTestBase
         $this->assertEquals(204, self::$res->getCode());
     }
 
-    public function testBuildResponseFail()
+    public function testBuildResponseNotFound()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver->shouldReceive('totalRecords')
+               ->andReturn(0);
+        Person::setDriver($driver);
+
+        $model = 'Person';
+        $route = $this->getRoute();
+        $route->setModelId(100)
+              ->setModel($model);
+
+        try {
+            $route->buildResponse();
+        } catch (InvalidRequest $e) {
+        }
+
+        $this->assertEquals('Person was not found: 100', $e->getMessage());
+        $this->assertEquals(404, $e->getHttpStatus());
+    }
+
+    public function testBuildResponseDeleteFail()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver->shouldReceive('totalRecords')
+               ->andReturn(1);
         $driver->shouldReceive('deleteModel')
                ->andReturn(false);
         Post::setDriver($driver);
@@ -48,11 +73,13 @@ class DeleteModelRouteTest extends ModelTestBase
         $this->assertEquals('There was an error deleting the Post.', $e->getMessage());
     }
 
-    public function testBuildResponseFailWithError()
+    public function testBuildResponseValidationError()
     {
         Test::$app['errors']->push('error');
 
         $model = Mockery::mock();
+        $model->shouldReceive('exists')
+              ->andReturn(true);
         $model->shouldReceive('delete')
               ->andReturn(false);
         $route = $this->getRoute();

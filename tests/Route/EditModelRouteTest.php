@@ -31,6 +31,8 @@ class EditModelRouteTest extends ModelTestBase
     public function testBuildResponse()
     {
         $model = Mockery::mock();
+        $model->shouldReceive('exists')
+              ->andReturn(true);
         $model->shouldReceive('set')
               ->andReturn(true);
         $route = $this->getRoute();
@@ -39,9 +41,32 @@ class EditModelRouteTest extends ModelTestBase
         $this->assertEquals($model, $route->buildResponse());
     }
 
-    public function testBuildResponseFail()
+    public function testBuildResponseNotFound()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver->shouldReceive('totalRecords')
+               ->andReturn(0);
+        Person::setDriver($driver);
+
+        $model = 'Person';
+        $route = $this->getRoute();
+        $route->setModelId(100)
+              ->setModel($model);
+
+        try {
+            $route->buildResponse();
+        } catch (InvalidRequest $e) {
+        }
+
+        $this->assertEquals('Person was not found: 100', $e->getMessage());
+        $this->assertEquals(404, $e->getHttpStatus());
+    }
+
+    public function testBuildResponseSetFail()
+    {
+        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver->shouldReceive('totalRecords')
+               ->andReturn(1);
         $driver->shouldReceive('updateModel')
                ->andReturn(false);
         Post::setDriver($driver);
@@ -59,11 +84,13 @@ class EditModelRouteTest extends ModelTestBase
         $this->assertEquals('There was an error updating the Post.', $e->getMessage());
     }
 
-    public function testBuildResponseFailWithError()
+    public function testBuildResponseValidationError()
     {
         Test::$app['errors']->push('error');
 
         $model = Mockery::mock();
+        $model->shouldReceive('exists')
+              ->andReturn(true);
         $model->shouldReceive('set')
               ->andReturn(false);
         $route = $this->getRoute();

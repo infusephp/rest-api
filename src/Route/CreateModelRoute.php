@@ -48,6 +48,10 @@ class CreateModelRoute extends AbstractModelRoute
     {
         parent::buildResponse();
 
+        if (!$this->hasPermission()) {
+            throw $this->permissionError();
+        }
+
         if ($this->model->create($this->createParameters)) {
             $this->response->setCode(201);
 

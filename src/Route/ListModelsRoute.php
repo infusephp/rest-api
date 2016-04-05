@@ -223,6 +223,10 @@ class ListModelsRoute extends AbstractModelRoute
     {
         parent::buildResponse();
 
+        if (!$this->hasPermission()) {
+            throw $this->permissionError();
+        }
+
         $query = $this->buildQuery();
         $models = $query->execute();
 

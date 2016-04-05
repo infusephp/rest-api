@@ -49,6 +49,14 @@ class EditModelRoute extends AbstractModelRoute
     {
         parent::buildResponse();
 
+        if (!$this->model->exists()) {
+            throw $this->modelNotFoundError();
+        }
+
+        if (!$this->hasPermission()) {
+            throw $this->permissionError();
+        }
+
         if ($this->model->set($this->updateParameters)) {
             return $this->model;
         }
