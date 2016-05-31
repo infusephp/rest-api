@@ -52,7 +52,6 @@ class ApiController
         $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
                 'parseRequireCreatePermission',
                 'parseModelCreateParameters', ])
               ->addQueryStep('queryModelCreate')
@@ -74,7 +73,6 @@ class ApiController
         $route->addParseSteps([
                 'parseRouteBase',
                 'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
                 'parseRequireFindPermission',
                 'parseModelFindAllParameters', ])
               ->addQueryStep('queryModelFindAll')
@@ -108,7 +106,6 @@ class ApiController
         $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
                 'parseModelFindOneParameters', ])
               ->addQueryStep('queryModelFindOne')
               ->addTransformSteps([
@@ -128,7 +125,6 @@ class ApiController
         $route = $this->newApiRoute($req, $res);
         $route->addParseSteps([
                 'parseFetchModelFromParams',
-                'parseRequireApiScaffolding',
                 'parseModelEditParameters', ])
               ->addQueryStep('queryModelEdit')
               ->addTransformSteps([
@@ -146,9 +142,7 @@ class ApiController
     public function delete($req, $res, $execute = true)
     {
         $route = $this->newApiRoute($req, $res);
-        $route->addParseSteps([
-                'parseFetchModelFromParams',
-                'parseRequireApiScaffolding', ])
+        $route->addParseSteps(['parseFetchModelFromParams'])
               ->addQueryStep('queryModelDelete')
               ->addTransformSteps(['transformModelDelete']);
 
