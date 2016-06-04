@@ -93,7 +93,7 @@ abstract class ModelTestBase extends RouteTestBase
         $app['errors']->push('Test 2');
         $app['errors']->push('Test 3');
         $route = $this->getRoute();
-        $route->injectApp($app);
+        $route->setApp($app);
 
         $expected = [
             'error' => 'Test',

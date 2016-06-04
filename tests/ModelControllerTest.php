@@ -72,7 +72,7 @@ class ModelControllerTest extends PHPUnit_Framework_TestCase
     public function getController()
     {
         $controller = new ModelController();
-        $controller->injectApp(Test::$app);
+        $controller->setApp(Test::$app);
 
         return $controller;
     }

@@ -146,7 +146,7 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
 
         $class = static::ROUTE_CLASS;
         $route = new $class($req, $res);
-        $route->injectApp(Test::$app);
+        $route->setApp(Test::$app);
 
         return $route;
     }

@@ -54,7 +54,7 @@ class ModelController
     protected function getCreateRoute(Request $req, Response $res)
     {
         $route = new CreateModelRoute($req, $res);
-        $route->injectApp($this->app)
+        $route->setApp($this->app)
               ->setSerializer($this->getSerializer($req));
 
         return $route;
@@ -71,7 +71,7 @@ class ModelController
     protected function getListRoute(Request $req, Response $res)
     {
         $route = new ListModelsRoute($req, $res);
-        $route->injectApp($this->app)
+        $route->setApp($this->app)
               ->setSerializer($this->getSerializer($req));
 
         return $route;
@@ -88,7 +88,7 @@ class ModelController
     protected function getRetrieveRoute(Request $req, Response $res)
     {
         $route = new RetrieveModelRoute($req, $res);
-        $route->injectApp($this->app)
+        $route->setApp($this->app)
               ->setSerializer($this->getSerializer($req));
 
         return $route;
@@ -105,7 +105,7 @@ class ModelController
     protected function getEditRoute(Request $req, Response $res)
     {
         $route = new EditModelRoute($req, $res);
-        $route->injectApp($this->app)
+        $route->setApp($this->app)
               ->setSerializer($this->getSerializer($req));
 
         return $route;
@@ -122,7 +122,7 @@ class ModelController
     protected function getDeleteRoute(Request $req, Response $res)
     {
         $route = new DeleteModelRoute($req, $res);
-        $route->injectApp($this->app)
+        $route->setApp($this->app)
               ->setSerializer($this->getSerializer($req));
 
         return $route;

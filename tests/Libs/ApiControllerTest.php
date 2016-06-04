@@ -20,7 +20,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         Test::$app['requester'] = Mockery::mock();
 
         self::$api = new ApiController();
-        self::$api->injectApp(Test::$app);
+        self::$api->setApp(Test::$app);
 
         self::$driver = Mockery::mock('Pulsar\Driver\DriverInterface');
 
@@ -427,7 +427,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([$error]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelCreate($result, $route);
@@ -458,7 +458,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelCreate($result, $route);
@@ -585,7 +585,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([$error]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelEdit($result, $route);
@@ -618,7 +618,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([$error]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelEdit($result, $route);
@@ -646,7 +646,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelEdit($result, $route);
@@ -757,7 +757,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([$error]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelDelete($result, $route);
@@ -785,7 +785,7 @@ class ApiControllerTest extends PHPUnit_Framework_TestCase
         $errors->shouldReceive('errors')
                ->andReturn([]);
         $app['errors'] = $errors;
-        $api->injectApp($app);
+        $api->setApp($app);
 
         try {
             $api->transformModelDelete($result, $route);
