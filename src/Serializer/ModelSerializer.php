@@ -190,6 +190,10 @@ class ModelSerializer implements SerializerInterface
             $model->toArrayHook($result, $namedExc, $namedInc, $namedExp);
         }
 
+        // order the properties array by name for consistency
+        // since it is constructed in a random order
+        ksort($result);
+
         return $result;
     }
 
