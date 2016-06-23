@@ -45,10 +45,15 @@ class Person extends Model
         'balance' => [
             'type' => Model::TYPE_NUMBER,
         ],
+        'active' => [
+            'type' => Model::TYPE_BOOLEAN,
+            'default' => false,
+        ],
     ];
 
     protected static $autoTimestamps;
     protected static $hidden = ['balance'];
+    public static $filterableProperties = ['active'];
     public static $searchableProperties = ['name', 'email'];
 }
 

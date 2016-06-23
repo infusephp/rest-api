@@ -1,6 +1,7 @@
 <?php
 
 use App\RestApi\Error\InvalidRequest;
+use App\RestApi\Libs\ErrorStack;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Test;
@@ -89,6 +90,7 @@ abstract class ModelTestBase extends RouteTestBase
     public function testGetFirstError()
     {
         $app = new Application();
+        $app['errors'] = new ErrorStack($app);
         $app['errors']->push('Test');
         $app['errors']->push('Test 2');
         $app['errors']->push('Test 3');

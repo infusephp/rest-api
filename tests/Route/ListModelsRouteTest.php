@@ -41,9 +41,10 @@ class ListModelsRouteTest extends ModelTestBase
         $route->setFilter(['test' => true]);
         $this->assertEquals(['test' => true], $route->getFilter());
 
-        $req = new Request(['filter' => ['test' => 'blah', 'invalid' => [], 'invalid2"*)#$*#)%' => []]]);
+        $filter = ['test' => 'blah', 'invalid' => [], 'invalid2"*)#$*#)%' => []];
+        $req = new Request(['filter' => $filter]);
         $route = $this->getRoute($req);
-        $this->assertEquals(['test' => 'blah'], $route->getFilter());
+        $this->assertEquals($filter, $route->getFilter());
     }
 
     public function testJoin()
@@ -87,7 +88,7 @@ class ListModelsRouteTest extends ModelTestBase
         $route->setModel('Person')
               ->setPage(3)
               ->setPerPage(50)
-              ->setFilter(['test' => true])
+              ->setFilter(['active' => true])
               ->setJoin([['Address', 'id', 'address_id']])
               ->setSort('name ASC')
               ->setSearch('search!');
@@ -96,10 +97,32 @@ class ListModelsRouteTest extends ModelTestBase
 
         $this->assertInstanceOf('Pulsar\Query', $query);
         $this->assertEquals([['Address', 'id', 'address_id']], $query->getJoins());
-        $this->assertEquals(['test' => true, "(`name` LIKE '%search!%' OR `email` LIKE '%search!%')"], $query->getWhere());
+        $this->assertEquals(['active' => true, "(`name` LIKE '%search!%' OR `email` LIKE '%search!%')"], $query->getWhere());
         $this->assertEquals([['name', 'asc']], $query->getSort());
         $this->assertEquals(100, $query->getStart());
         $this->assertEquals(50, $query->getLimit());
+    }
+
+    public function testBuildQueryInvalidFilterPropertyString()
+    {
+        $this->setExpectedException('App\RestApi\Error\InvalidRequest', 'Invalid filter parameter: *#)*$J)F(');
+
+        $route = $this->getRoute();
+        $route->setModel('Person')
+              ->setFilter(['*#)*$J)F(' => true]);
+
+        $query = $route->buildQuery();
+    }
+
+    public function testBuildQueryInvalidFilterProperty()
+    {
+        $this->setExpectedException('App\RestApi\Error\InvalidRequest', 'Invalid filter parameter: test');
+
+        $route = $this->getRoute();
+        $route->setModel('Person')
+              ->setFilter(['test' => true]);
+
+        $query = $route->buildQuery();
     }
 
     public function testPaginate()

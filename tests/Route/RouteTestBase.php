@@ -1,6 +1,7 @@
 <?php
 
 use App\RestApi\Error\InvalidRequest;
+use App\RestApi\Libs\ErrorStack;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -14,6 +15,8 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
     {
         self::$req = new Request();
         self::$res = new Response();
+
+        Test::$app['errors'] = new ErrorStack(Test::$app);
     }
 
     public static function tearDownAfterClass()

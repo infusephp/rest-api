@@ -2,6 +2,8 @@
 
 namespace App\RestApi\Route;
 
+use App\RestApi\Error\InvalidRequest;
+
 class ListModelsRoute extends AbstractModelRoute
 {
     const MODEL_PERMISSION = 'find';
@@ -46,7 +48,7 @@ class ListModelsRoute extends AbstractModelRoute
     {
         parent::parseRequest();
 
-        // parse paging
+        // parse pagination
         if ($this->request->query('per_page')) {
             $this->perPage = (int) $this->request->query('per_page');
         }
@@ -59,21 +61,10 @@ class ListModelsRoute extends AbstractModelRoute
 
         $this->page = max(1, $this->page);
 
-        // parse filter/sort/search parameters
-        $filter = [];
-        foreach ((array) $this->request->query('filter') as $key => $value) {
-            if (is_numeric($key) || !preg_match('/^[A-Za-z0-9_]*$/', $key)) {
-                continue;
-            }
+        // parse filter parameters
+        $this->filter = (array) $this->request->query('filter');
 
-            if (is_array($value) || is_object($value)) {
-                continue;
-            }
-
-            $filter[$key] = $value;
-        }
-
-        $this->filter = $filter;
+        // parse sort/search parameters
         $this->sort = $this->request->query('sort');
         $this->search = $this->request->query('search');
     }
@@ -256,7 +247,9 @@ class ListModelsRoute extends AbstractModelRoute
             }
         }
 
-        $query->where($this->filter);
+        // sanitze and set the filter
+        $filter = $this->parseFilterInput($this->filter);
+        $query->where($filter);
 
         // performs a search using LIKE queries
         // WARNING use sparingly, these queries are expensive
@@ -335,6 +328,45 @@ class ListModelsRoute extends AbstractModelRoute
         }, $links, array_keys($links)));
 
         $this->response->setHeader('Link', $linkStr);
+    }
+
+    /**
+     * Builds the filter from an input array of parameters.
+     *
+     * @param array $input
+     *
+     * @throws InvalidRequest when an invalid input parameter was used
+     *
+     * @return array
+     */
+    protected function parseFilterInput(array $input)
+    {
+        if (count($input) === 0) {
+            return [];
+        }
+
+        $allowed = [];
+        $model = $this->model;
+
+        if (property_exists($model, 'filterableProperties')) {
+            $allowed = $model::$filterableProperties;
+        }
+
+        $filter = [];
+        foreach ($input as $key => $value) {
+            if (is_numeric($key) || !preg_match('/^[A-Za-z0-9_]*$/', $key)) {
+                throw new InvalidRequest("Invalid filter parameter: $key");
+            }
+
+            // check if in the list of allowed filter properties
+            if (!in_array($key, $allowed)) {
+                throw new InvalidRequest("Invalid filter parameter: $key");
+            }
+
+            $filter[$key] = $value;
+        }
+
+        return $filter;
     }
 
     /**
