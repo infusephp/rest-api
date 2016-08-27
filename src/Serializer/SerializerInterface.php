@@ -1,8 +1,8 @@
 <?php
 
-namespace App\RestApi\Serializer;
+namespace Infuse\RestApi\Serializer;
 
-use App\RestApi\Route\AbstractRoute;
+use Infuse\RestApi\Route\AbstractRoute;
 
 interface SerializerInterface
 {

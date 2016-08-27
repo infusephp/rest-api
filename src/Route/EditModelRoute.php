@@ -1,8 +1,8 @@
 <?php
 
-namespace App\RestApi\Route;
+namespace Infuse\RestApi\Route;
 
-use App\RestApi\Error\ApiError;
+use Infuse\RestApi\Error\ApiError;
 
 class EditModelRoute extends AbstractModelRoute
 {

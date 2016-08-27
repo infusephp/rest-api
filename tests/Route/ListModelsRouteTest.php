@@ -5,7 +5,7 @@ use Infuse\Test;
 
 class ListModelsRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'App\RestApi\Route\ListModelsRoute';
+    const ROUTE_CLASS = 'Infuse\RestApi\Route\ListModelsRoute';
 
     public function testGetPage()
     {
@@ -105,7 +105,7 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildQueryInvalidFilterPropertyString()
     {
-        $this->setExpectedException('App\RestApi\Error\InvalidRequest', 'Invalid filter parameter: *#)*$J)F(');
+        $this->setExpectedException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: *#)*$J)F(');
 
         $route = $this->getRoute();
         $route->setModel('Person')
@@ -116,7 +116,7 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildQueryInvalidFilterProperty()
     {
-        $this->setExpectedException('App\RestApi\Error\InvalidRequest', 'Invalid filter parameter: test');
+        $this->setExpectedException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: test');
 
         $route = $this->getRoute();
         $route->setModel('Person')

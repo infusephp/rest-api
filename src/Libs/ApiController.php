@@ -1,11 +1,11 @@
 <?php
 
-namespace App\RestApi\Libs;
+namespace Infuse\RestApi\Libs;
 
-use App\RestApi\Error;
-use App\RestApi\Error\ApiError;
-use App\RestApi\Error\InvalidRequest;
-use App\RestApi\Serializer\ModelSerializer;
+use Infuse\RestApi\Error;
+use Infuse\RestApi\Error\ApiError;
+use Infuse\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Serializer\ModelSerializer;
 use ICanBoogie\Inflector;
 use Infuse\HasApp;
 use Infuse\Request;

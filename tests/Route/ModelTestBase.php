@@ -1,7 +1,7 @@
 <?php
 
-use App\RestApi\Error\InvalidRequest;
-use App\RestApi\Libs\ErrorStack;
+use Infuse\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Libs\ErrorStack;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Test;

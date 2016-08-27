@@ -8,7 +8,8 @@
  * @copyright 2015 Jared King
  * @license MIT
  */
-namespace App\RestApi\Libs;
+
+namespace Infuse\RestApi\Libs;
 
 use Pimple\Container;
 

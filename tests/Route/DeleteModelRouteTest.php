@@ -1,13 +1,13 @@
 <?php
 
-use App\RestApi\Error\ApiError;
-use App\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Error\ApiError;
+use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\Request;
 use Infuse\Test;
 
 class DeleteModelRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'App\RestApi\Route\DeleteModelRoute';
+    const ROUTE_CLASS = 'Infuse\RestApi\Route\DeleteModelRoute';
 
     public function testParseModelId()
     {

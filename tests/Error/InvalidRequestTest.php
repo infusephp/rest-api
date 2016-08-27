@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Error\InvalidRequest;
 
 class InvalidRequestTest extends PHPUnit_Framework_TestCase
 {

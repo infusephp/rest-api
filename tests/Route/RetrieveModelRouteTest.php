@@ -1,11 +1,11 @@
 <?php
 
-use App\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\Request;
 
 class RetrieveModelRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'App\RestApi\Route\RetrieveModelRoute';
+    const ROUTE_CLASS = 'Infuse\RestApi\Route\RetrieveModelRoute';
 
     public function testParseModelId()
     {

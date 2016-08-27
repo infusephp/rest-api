@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\ModelController;
+use Infuse\RestApi\ModelController;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -62,11 +62,11 @@ class ModelControllerTest extends PHPUnit_Framework_TestCase
         $controller = $this->getController();
 
         $serializer = $controller->getSerializer(new Request());
-        $this->assertInstanceOf('App\RestApi\Serializer\ChainedSerializer', $serializer);
+        $this->assertInstanceOf('Infuse\RestApi\Serializer\ChainedSerializer', $serializer);
         $serializers = $serializer->getSerializers();
         $this->assertCount(2, $serializers);
-        $this->assertInstanceOf('App\RestApi\Serializer\ModelSerializer', $serializers[0]);
-        $this->assertInstanceOf('App\RestApi\Serializer\JsonSerializer', $serializers[1]);
+        $this->assertInstanceOf('Infuse\RestApi\Serializer\ModelSerializer', $serializers[0]);
+        $this->assertInstanceOf('Infuse\RestApi\Serializer\JsonSerializer', $serializers[1]);
     }
 
     public function getController()

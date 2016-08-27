@@ -1,8 +1,8 @@
 <?php
 
-namespace App\RestApi\Route;
+namespace Infuse\RestApi\Route;
 
-use App\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Error\InvalidRequest;
 
 class ListModelsRoute extends AbstractModelRoute
 {

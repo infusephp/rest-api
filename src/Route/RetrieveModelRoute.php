@@ -1,6 +1,6 @@
 <?php
 
-namespace App\RestApi\Route;
+namespace Infuse\RestApi\Route;
 
 class RetrieveModelRoute extends AbstractModelRoute
 {

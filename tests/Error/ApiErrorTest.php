@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\Error\ApiError;
+use Infuse\RestApi\Error\ApiError;
 
 class ApiErrorTest extends PHPUnit_Framework_TestCase
 {

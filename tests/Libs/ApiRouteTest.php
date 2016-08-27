@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\Libs\ApiRoute;
+use Infuse\RestApi\Libs\ApiRoute;
 use Infuse\Request;
 use Infuse\Response;
 

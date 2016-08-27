@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\Serializer\ModelSerializer;
+use Infuse\RestApi\Serializer\ModelSerializer;
 use Infuse\Request;
 use Pulsar\Model;
 
@@ -50,7 +50,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
 
         $serializer = new ModelSerializer(new Request());
 
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
 
         $this->assertEquals('blah', $serializer->serialize('blah', $route));
         $this->assertEquals(['blah'], $serializer->serialize(['blah'], $route));
@@ -74,7 +74,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
         $serializer = new ModelSerializer(new Request());
         $serializer->setExclude(['id', 'body', 'appended', 'hook']);
 
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
 
         $expected = [
             'author' => 100,
@@ -101,7 +101,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
             'hook' => true,
         ];
 
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
 
         $this->assertEquals($expected, $serializer->serialize($model, $route));
     }
@@ -132,7 +132,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
                    ->setInclude(['author.balance', 'author.address.updated_at'])
                    ->setExpand(['author.address', 'author.does_not_exist', 'author.id']);
 
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
 
         $result = $serializer->serialize($model, $route);
 
@@ -169,7 +169,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
                    ->setInclude(['include'])
                    ->setExpand(['expand']);
 
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
 
         $models = [];
         $expected = [];

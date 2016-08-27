@@ -1,15 +1,15 @@
 <?php
 
-namespace App\RestApi;
+namespace Infuse\RestApi;
 
-use App\RestApi\Route\CreateModelRoute;
-use App\RestApi\Route\DeleteModelRoute;
-use App\RestApi\Route\EditModelRoute;
-use App\RestApi\Route\ListModelsRoute;
-use App\RestApi\Route\RetrieveModelRoute;
-use App\RestApi\Serializer\ChainedSerializer;
-use App\RestApi\Serializer\JsonSerializer;
-use App\RestApi\Serializer\ModelSerializer;
+use Infuse\RestApi\Route\CreateModelRoute;
+use Infuse\RestApi\Route\DeleteModelRoute;
+use Infuse\RestApi\Route\EditModelRoute;
+use Infuse\RestApi\Route\ListModelsRoute;
+use Infuse\RestApi\Route\RetrieveModelRoute;
+use Infuse\RestApi\Serializer\ChainedSerializer;
+use Infuse\RestApi\Serializer\JsonSerializer;
+use Infuse\RestApi\Serializer\ModelSerializer;
 use Infuse\HasApp;
 use Infuse\Request;
 use Infuse\Response;

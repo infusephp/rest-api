@@ -1,8 +1,8 @@
 <?php
 
-namespace App\RestApi\Libs;
+namespace Infuse\RestApi\Libs;
 
-use App\RestApi\Error;
+use Infuse\RestApi\Error;
 use Infuse\Request;
 use Infuse\Response;
 

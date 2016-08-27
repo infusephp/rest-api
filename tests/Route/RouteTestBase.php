@@ -1,7 +1,7 @@
 <?php
 
-use App\RestApi\Error\InvalidRequest;
-use App\RestApi\Libs\ErrorStack;
+use Infuse\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Libs\ErrorStack;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -39,7 +39,7 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
     public function testGetSerializer()
     {
         $route = $this->getRoute();
-        $serializer = Mockery::mock('App\RestApi\Serializer\SerializerInterface');
+        $serializer = Mockery::mock('Infuse\RestApi\Serializer\SerializerInterface');
         $this->assertEquals($route, $route->setSerializer($serializer));
         $this->assertEquals($serializer, $route->getSerializer());
     }
@@ -108,7 +108,7 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
               ->andReturn('RESPONSE')
               ->once();
 
-        $serializer = Mockery::mock('App\RestApi\Serializer\SerializerInterface');
+        $serializer = Mockery::mock('Infuse\RestApi\Serializer\SerializerInterface');
         $serializer->shouldReceive('serialize')
                    ->withArgs(['RESPONSE', $route])
                    ->once();
@@ -124,7 +124,7 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
               ->andThrow(new InvalidRequest('error'))
               ->once();
 
-        $serializer = Mockery::mock('App\RestApi\Serializer\SerializerInterface');
+        $serializer = Mockery::mock('Infuse\RestApi\Serializer\SerializerInterface');
         $expectedError = [
             'type' => 'invalid_request',
             'message' => 'error',

@@ -1,6 +1,6 @@
 <?php
 
-use App\RestApi\Serializer\JsonSerializer;
+use Infuse\RestApi\Serializer\JsonSerializer;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
@@ -30,7 +30,7 @@ class JsonSerializerTest extends PHPUnit_Framework_TestCase
         $req = new Request();
         $res = new Response();
 
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
         $route->shouldReceive('getRequest')
               ->andReturn($req);
         $route->shouldReceive('getResponse')
@@ -69,7 +69,7 @@ class JsonSerializerTest extends PHPUnit_Framework_TestCase
         $serializer->compactPrint();
 
         $res = new Response();
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute');
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
         $route->shouldReceive('getResponse')
               ->andReturn($res);
 
@@ -98,7 +98,7 @@ class JsonSerializerTest extends PHPUnit_Framework_TestCase
         $app['logger'] = $logger;
 
         $res = new Response();
-        $route = Mockery::mock('App\RestApi\Route\AbstractRoute')->makePartial();
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute')->makePartial();
         $route->shouldReceive('getResponse')
               ->andReturn($res);
         $route->shouldReceive('getApp')

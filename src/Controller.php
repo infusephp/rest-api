@@ -1,8 +1,8 @@
 <?php
 
-namespace App\RestApi;
+namespace Infuse\RestApi;
 
-use App\RestApi\Libs\ApiController;
+use Infuse\RestApi\Libs\ApiController;
 
 class Controller extends ApiController
 {
