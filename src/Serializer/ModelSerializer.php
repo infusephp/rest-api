@@ -230,7 +230,12 @@ class ModelSerializer implements SerializerInterface
             $serializer->setExclude($flatExc)
                        ->setInclude($flatInc)
                        ->setExpand($flatExp);
-            $result[$k] = $serializer->toArray($relation);
+
+            if ($relation instanceof Model) {
+                $result[$k] = $serializer->toArray($relation);
+            } else {
+                $result[$k] = $relation;
+            }
         }
 
         return $result;
