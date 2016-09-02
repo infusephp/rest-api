@@ -20,7 +20,7 @@ class ApiController
 {
     use HasApp;
 
-    protected static $apiBase = '/api';
+    public static $apiBase = '/api';
     protected static $pageLimit = 100;
 
     ///////////////////////////////

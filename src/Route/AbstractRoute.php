@@ -14,7 +14,7 @@ abstract class AbstractRoute
 {
     use HasApp;
 
-    protected static $apiBase = '/api';
+    public static $apiBase = '/api';
 
     /**
      * @var Request
