@@ -63,15 +63,28 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
 
     public function testGetEndpoint()
     {
-        $req = Request::create('https://example.com/api/users/', 'post');
+        $requestedUrl = 'https://example.com/api/v1/users/';
+        $req = Request::create($requestedUrl, 'post');
         $route = $this->getRoute($req);
 
+        // try without an API URL or base path defined
         Test::$app['config']->set('api.url', false);
+        Test::$app['config']->set('api.base_path', null);
         Test::$app['base_url'] = 'https://example.com/';
-        $this->assertEquals('https://example.com/api/users', $route->getEndpoint());
+        $this->assertEquals('https://example.com/api/v1/users', $route->getEndpoint());
 
-        Test::$app['config']->set('api.url', 'https://api.example.com');
-        $this->assertEquals('https://api.example.com/users', $route->getEndpoint());
+        // try without any API URL but with a base path
+        Test::$app['config']->set('api.base_path', '/api');
+        $this->assertEquals('https://example.com/api/v1/users', $route->getEndpoint());
+
+        // Try with an API URL and no base path
+        Test::$app['config']->set('api.url', 'https://api.example.com/');
+        Test::$app['config']->set('api.base_path', null);
+        $this->assertEquals('https://api.example.com/api/v1/users', $route->getEndpoint());
+
+        // Try with an API URL and a base path
+        Test::$app['config']->set('api.base_path', '/api');
+        $this->assertEquals('https://api.example.com/v1/users', $route->getEndpoint());
     }
 
     public function testHumanClassName()

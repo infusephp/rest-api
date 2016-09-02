@@ -14,7 +14,7 @@ abstract class AbstractRoute
 {
     use HasApp;
 
-    public static $apiBase = '/api';
+    const DEFAULT_BASE_PATH = '/';
 
     /**
      * @var Request
@@ -163,18 +163,30 @@ abstract class AbstractRoute
      */
     public function getEndpoint()
     {
-        $url = $this->app['config']->get('api.url');
-        if (!$url) {
-            $url = $this->app['base_url'].substr(static::$apiBase, 1);
+        $basePath = $this->app['config']->get('api.base_path', self::DEFAULT_BASE_PATH);
+        $basePath = $this->stripTrailingSlash($basePath);
+
+        // determine the base URL for the API,
+        // i.e. https://api.example.com/v1
+        $urlBase = $this->app['config']->get('api.url');
+        if ($urlBase) {
+            $urlBase = $this->stripTrailingSlash($urlBase);
+        } else {
+            // no base URL was defined so we're going to generate one
+            $urlBase = $this->app['base_url'];
+            $urlBase = $this->stripTrailingSlash($urlBase).$basePath;
         }
 
-        // replace the default API base with a full URL
-        $path = $this->request->path();
-        if (substr($path, -1) == '/') {
-            $path = substr($path, 0, -1);
+        // get the requested path, strip any trailing '/'
+        $path = $this->stripTrailingSlash($this->request->path());
+
+        // strip out the base path (i.e. /api/v1) from the
+        // requested path
+        if ($basePath) {
+            $path = str_replace($basePath, '', $path);
         }
 
-        return str_replace(static::$apiBase, $url, $path);
+        return $urlBase.$path;
     }
 
     /**
@@ -260,5 +272,21 @@ abstract class AbstractRoute
     protected function requestNotRecognizedError()
     {
         return new InvalidRequest('Request was not recognized: '.$this->request->method().' '.$this->request->path(), 404);
+    }
+
+    /**
+     * Strips any trailing '/' from a string.
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    private function stripTrailingSlash($str)
+    {
+        while (substr($str, -1) === '/') {
+            $str = substr($str, 0, -1);
+        }
+
+        return $str;
     }
 }
