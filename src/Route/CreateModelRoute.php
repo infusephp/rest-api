@@ -3,6 +3,7 @@
 namespace Infuse\RestApi\Route;
 
 use Infuse\RestApi\Error\ApiError;
+use Infuse\RestApi\Error\InvalidRequest;
 
 class CreateModelRoute extends AbstractModelRoute
 {
@@ -11,7 +12,7 @@ class CreateModelRoute extends AbstractModelRoute
     /**
      * @var array
      */
-    private $createParameters = [];
+    private $createParameters;
 
     protected function parseRequest()
     {
@@ -46,6 +47,10 @@ class CreateModelRoute extends AbstractModelRoute
 
     public function buildResponse()
     {
+        if (!is_array($this->createParameters)) {
+            throw new InvalidRequest('Unable to parse request body.');
+        }
+
         parent::buildResponse();
 
         if (!$this->hasPermission()) {

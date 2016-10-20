@@ -1,8 +1,10 @@
 <?php
 
+use Infuse\Request;
+use Infuse\Response;
 use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
-use Infuse\Request;
+use Infuse\RestApi\Route\CreateModelRoute;
 use Infuse\Test;
 
 class CreateModelRouteTest extends ModelTestBase
@@ -70,5 +72,21 @@ class CreateModelRouteTest extends ModelTestBase
 
         $this->assertEquals('error', $e->getMessage());
         $this->assertEquals(400, $e->getHttpStatus());
+    }
+
+    public function testInvalidRequestBody()
+    {
+        $this->setExpectedException('Infuse\RestApi\Error\InvalidRequest');
+
+        $req = Mockery::mock(new Request());
+        $req->shouldReceive('request')
+            ->andReturn('invalid');
+
+        $res = new Response();
+
+        $route = new CreateModelRoute($req, $res);
+        $route->setModel('Post');
+
+        $route->buildResponse();
     }
 }
