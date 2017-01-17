@@ -148,6 +148,9 @@ class ModelSerializer implements SerializerInterface
     public function toArray(Model $model)
     {
         // start with the base representation of the model
+        if (method_exists($model, 'withoutArrayHook')) {
+            $model->withoutArrayHook();
+        }
         $result = $model->toArray();
 
         // apply namespacing to excluded properties

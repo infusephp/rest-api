@@ -64,6 +64,7 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($expected, $serializer->serialize($model, $route));
+        $this->assertTrue($model::$without);
     }
 
     public function testSerializeExcluded()

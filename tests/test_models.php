@@ -21,6 +21,13 @@ class Post extends Model
     protected static $hidden = ['date'];
     protected static $appended = ['appended'];
 
+    public static $without;
+
+    public function withoutArrayHook()
+    {
+        self::$without = true;
+    }
+
     public function toArrayHook(&$result, array $exclude, array $include, array $expand)
     {
         if (!isset($exclude['hook'])) {
