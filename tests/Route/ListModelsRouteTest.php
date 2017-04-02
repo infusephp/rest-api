@@ -33,6 +33,15 @@ class ListModelsRouteTest extends ModelTestBase
         $this->assertEquals(50, $route->getPerPage());
     }
 
+    public function testGetPerPageLimit()
+    {
+        $route = $this->getRoute();
+
+        $req = new Request(['per_page' => 1000]);
+        $route = $this->getRoute($req);
+        $this->assertEquals(100, $route->getPerPage());
+    }
+
     public function testFilter()
     {
         $route = $this->getRoute();
