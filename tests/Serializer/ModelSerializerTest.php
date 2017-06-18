@@ -109,24 +109,25 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
 
     public function testSerializeExpand()
     {
-        self::$driver = Mockery::mock('Pulsar\Driver\DriverInterface');
-        self::$driver->shouldReceive('loadModel')
-                     ->andReturn([
-                        'body' => 'text',
-                        'author' => 100,
-                        'date' => 3,
-                        'appended' => '...',
-                      ]);
-        Model::setDriver(self::$driver);
-
         $model = new Post(10);
-        $author = $model->relation('author');
-        $author->address = 200;
+        $model->body = 'text';
+        $model->date = 3;
+        $model->appended = '...';
+        $author = new Person(100);
         $author->name = 'Bob';
         $author->email = 'bob@example.com';
+        $author->active = false;
+        $author->balance = 150;
         $author->created_at = 1;
         $author->updated_at = 2;
-        $author->balance = 150;
+        $address = new Address(200);
+        $address->street = '1234 Main St';
+        $address->city = 'Austin';
+        $address->state = 'TX';
+        $address->created_at = 12345;
+        $address->updated_at = 12345;
+        $author->setRelation('address', $address);
+        $model->setRelation('author', $author);
 
         $serializer = new ModelSerializer(new Request());
         $serializer->setExclude(['author.address.created_at'])
@@ -148,10 +149,10 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
                 'email' => 'bob@example.com',
                 'address' => [
                     'id' => 200,
-                    'street' => null,
-                    'city' => '',
-                    'state' => '',
-                    'updated_at' => null,
+                    'street' => '1234 Main St',
+                    'city' => 'Austin',
+                    'state' => 'TX',
+                    'updated_at' => 12345,
                 ],
                 'balance' => 150,
                 'active' => false,
@@ -165,6 +166,16 @@ class ModelSerializerTest extends PHPUnit_Framework_TestCase
 
     public function testSerializeMultiple()
     {
+        self::$driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        self::$driver->shouldReceive('loadModel')
+                     ->andReturn([
+                        'body' => 'text',
+                        'author' => 100,
+                        'date' => 3,
+                        'appended' => '...',
+                      ]);
+        Model::setDriver(self::$driver);
+
         $serializer = new ModelSerializer(new Request());
         $serializer->setExclude(['address'])
                    ->setInclude(['include'])
