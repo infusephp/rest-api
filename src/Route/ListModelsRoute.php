@@ -220,9 +220,7 @@ class ListModelsRoute extends AbstractModelRoute
 
         $query = $this->buildQuery();
         $models = $query->execute();
-
-        $model = $this->model;
-        $total = $model::totalRecords($query->getWhere());
+        $total = $query->count();
 
         $this->paginate($this->page, $this->perPage, $total);
 
@@ -232,7 +230,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Builds the model query.
      *
-     * @return Pulsar\Query
+     * @return \Pulsar\Query
      */
     public function buildQuery()
     {
