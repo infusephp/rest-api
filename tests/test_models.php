@@ -6,7 +6,7 @@ class Post extends Model
 {
     protected static $properties = [
         'author' => [
-            'type' => Model::TYPE_NUMBER,
+            'type' => Model::TYPE_INTEGER,
             'relation' => 'Person',
             'null' => true,
         ],
@@ -46,11 +46,11 @@ class Person extends Model
         'name' => [],
         'email' => [],
         'address' => [
-            'type' => Model::TYPE_NUMBER,
+            'type' => Model::TYPE_INTEGER,
             'relation' => 'Address',
         ],
         'balance' => [
-            'type' => Model::TYPE_NUMBER,
+            'type' => Model::TYPE_FLOAT,
         ],
         'active' => [
             'type' => Model::TYPE_BOOLEAN,
