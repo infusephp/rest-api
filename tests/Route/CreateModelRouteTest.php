@@ -24,6 +24,8 @@ class CreateModelRouteTest extends ModelTestBase
     public function testBuildResponse()
     {
         $model = Mockery::mock();
+        $model->shouldReceive('id')
+              ->andReturn(1);
         $model->shouldReceive('create')
               ->andReturn(true);
         $route = $this->getRoute();
@@ -76,7 +78,7 @@ class CreateModelRouteTest extends ModelTestBase
 
     public function testInvalidRequestBody()
     {
-        $this->setExpectedException('Infuse\RestApi\Error\InvalidRequest');
+        $this->expectException('Infuse\RestApi\Error\InvalidRequest');
 
         $req = Mockery::mock(new Request());
         $req->shouldReceive('request')

@@ -5,9 +5,19 @@ use Infuse\RestApi\Libs\ErrorStack;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Test;
+use Pulsar\Driver\DriverInterface;
+use Pulsar\Model;
 
 abstract class ModelTestBase extends RouteTestBase
 {
+    static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+
+        $driver = Mockery::mock(DriverInterface::class);
+        Model::setDriver($driver);
+    }
+
     public function testGetModelId()
     {
         $route = $this->getRoute();
@@ -70,8 +80,10 @@ abstract class ModelTestBase extends RouteTestBase
         $this->assertTrue($route->hasPermission());
 
         $model = Mockery::mock('Pulsar\ACLModel');
-        $model->shouldReceive('exists')
-              ->andReturn(true);
+        $model->shouldReceive('id')
+              ->andReturn(1);
+        $model->shouldReceive('persisted')
+            ->andReturn(true);
         $model->shouldReceive('can')
               ->withArgs([$class::MODEL_PERMISSION, $requester])
               ->andReturn(false);

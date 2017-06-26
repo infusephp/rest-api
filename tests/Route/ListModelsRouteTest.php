@@ -114,7 +114,7 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildQueryInvalidFilterPropertyString()
     {
-        $this->setExpectedException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: *#)*$J)F(');
+        $this->expectException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: *#)*$J)F(');
 
         $route = $this->getRoute();
         $route->setModel('Person')
@@ -125,7 +125,7 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildQueryInvalidFilterProperty()
     {
-        $this->setExpectedException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: test');
+        $this->expectException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: test');
 
         $route = $this->getRoute();
         $route->setModel('Person')

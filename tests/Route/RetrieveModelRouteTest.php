@@ -2,6 +2,7 @@
 
 use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\Request;
+use Pulsar\Driver\DriverInterface;
 
 class RetrieveModelRouteTest extends ModelTestBase
 {
@@ -17,9 +18,8 @@ class RetrieveModelRouteTest extends ModelTestBase
 
     public function testBuildResponse()
     {
-        $model = Mockery::mock();
-        $model->shouldReceive('exists')
-              ->andReturn(true);
+        $model = new Person(100);
+        $model->refreshWith(['name' => 'Bob']);
         $route = $this->getRoute();
         $route->setModel($model);
 
@@ -28,9 +28,9 @@ class RetrieveModelRouteTest extends ModelTestBase
 
     public function testBuildResponseNotFound()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
-        $driver->shouldReceive('totalRecords')
-               ->andReturn(0);
+        $driver = Mockery::mock(DriverInterface::class);
+        $driver->shouldReceive('queryModels')
+               ->andReturn([]);
         Person::setDriver($driver);
 
         $model = 'Person';

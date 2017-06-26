@@ -19,9 +19,9 @@ class DeleteModelRouteTest extends ModelTestBase
 
     public function testBuildResponse()
     {
-        $model = Mockery::mock();
-        $model->shouldReceive('exists')
-              ->andReturn(true);
+        $model = new Person(100);
+        $model = Mockery::mock($model);
+        $model->refreshWith(['name' => 'Bob']);
         $model->shouldReceive('delete')
               ->andReturn(true);
         $route = $this->getRoute();
@@ -34,8 +34,8 @@ class DeleteModelRouteTest extends ModelTestBase
     public function testBuildResponseNotFound()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
-        $driver->shouldReceive('totalRecords')
-               ->andReturn(0);
+        $driver->shouldReceive('queryModels')
+               ->andReturn([]);
         Person::setDriver($driver);
 
         $model = 'Person';
@@ -55,15 +55,15 @@ class DeleteModelRouteTest extends ModelTestBase
     public function testBuildResponseDeleteFail()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
-        $driver->shouldReceive('totalRecords')
-               ->andReturn(1);
+        $driver->shouldReceive('queryModels')
+            ->andReturn([['id' => 1]]);
         $driver->shouldReceive('deleteModel')
                ->andReturn(false);
         Post::setDriver($driver);
 
         $model = 'Post';
         $route = $this->getRoute();
-        $route->setModel($model);
+        $route->setModel($model)->setModelId(1);
 
         try {
             $route->buildResponse();
@@ -78,7 +78,9 @@ class DeleteModelRouteTest extends ModelTestBase
         Test::$app['errors']->push('error');
 
         $model = Mockery::mock();
-        $model->shouldReceive('exists')
+        $model->shouldReceive('id')
+            ->andReturn(1);
+        $model->shouldReceive('persisted')
               ->andReturn(true);
         $model->shouldReceive('delete')
               ->andReturn(false);

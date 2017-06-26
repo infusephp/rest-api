@@ -16,7 +16,7 @@ abstract class RouteTestBase extends PHPUnit_Framework_TestCase
         self::$req = new Request();
         self::$res = new Response();
 
-        Test::$app['errors'] = new ErrorStack(Test::$app);
+        Test::$app['errors'] = new ErrorStack(Test::$app);;
     }
 
     public static function tearDownAfterClass()

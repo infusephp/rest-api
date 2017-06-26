@@ -13,9 +13,14 @@ abstract class AbstractModelRoute extends AbstractRoute
     protected $modelId = false;
 
     /**
-     * @var Model
+     * @var \Pulsar\Model|false
      */
     protected $model;
+
+    /**
+     * @var string
+     */
+    protected $modelClass;
 
     protected function parseRequest()
     {
@@ -64,7 +69,11 @@ abstract class AbstractModelRoute extends AbstractRoute
     {
         // convert the model class into an instance
         if (!is_object($model)) {
+            $this->modelClass = $model;
             $model = new $model($this->modelId);
+        } else {
+            $this->modelId = $model->id();
+            $this->modelClass = get_class($model);
         }
 
         $this->model = $model;
@@ -125,13 +134,33 @@ abstract class AbstractModelRoute extends AbstractRoute
     }
 
     /**
+     * Retrieves the model associated on this class with
+     * the persisted version from the data layer.
+     *
+     * @throws InvalidRequest if the model cannot be found.
+     */
+    function retrieveModel()
+    {
+        if ($this->model->persisted()) {
+            return;
+        }
+
+        $modelClass = $this->modelClass;
+        $this->model = $modelClass::find($this->modelId);
+
+        if (!$this->model) {
+            throw $this->modelNotFoundError();
+        }
+    }
+
+    /**
      * Builds a model 404 error.
      *
      * @return InvalidRequest
      */
     protected function modelNotFoundError()
     {
-        return new InvalidRequest($this->humanClassName($this->model).' was not found: '.$this->modelId, 404);
+        return new InvalidRequest($this->humanClassName($this->modelClass).' was not found: '.$this->modelId, 404);
     }
 
     /**
