@@ -75,17 +75,13 @@ class DeleteModelRouteTest extends ModelTestBase
 
     public function testBuildResponseValidationError()
     {
-        Test::$app['errors']->push('error');
-
-        $model = Mockery::mock();
-        $model->shouldReceive('id')
-            ->andReturn(1);
-        $model->shouldReceive('persisted')
-              ->andReturn(true);
+        $model = Mockery::mock(new Person(10));
         $model->shouldReceive('delete')
               ->andReturn(false);
+        $model->refreshWith(['name' => 'test']);
         $route = $this->getRoute();
         $route->setModel($model);
+        $model->getErrors()->add('error');
 
         try {
             $route->buildResponse();

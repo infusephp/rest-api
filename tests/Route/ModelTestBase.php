@@ -101,17 +101,18 @@ abstract class ModelTestBase extends RouteTestBase
 
     public function testGetFirstError()
     {
-        $app = new Application();
-        $app['errors'] = new ErrorStack($app);
-        $app['errors']->push('Test');
-        $app['errors']->push('Test 2');
-        $app['errors']->push('Test 3');
         $route = $this->getRoute();
-        $route->setApp($app);
+        $this->assertFalse($route->getFirstError());
+
+        $model = new Post();
+        $errors = $model->getErrors();
+        $errors->add('Test');
+        $errors->add('Test 2');
+        $errors->add('Test 3');
+        $route->setModel($model);
 
         $expected = [
             'error' => 'Test',
-            'context' => '',
             'params' => [],
             'message' => 'Test',
         ];

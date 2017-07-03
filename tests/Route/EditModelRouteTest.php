@@ -89,8 +89,6 @@ class EditModelRouteTest extends ModelTestBase
 
     public function testBuildResponseValidationError()
     {
-        Test::$app['errors']->push('error');
-
         $model = new Person(100);
         $model = Mockery::mock($model);
         $model->refreshWith(['name' => 'Bob']);
@@ -98,6 +96,7 @@ class EditModelRouteTest extends ModelTestBase
               ->andReturn(false);
         $route = $this->getRoute();
         $route->setModel($model);
+        $model->getErrors()->add('error');
 
         try {
             $route->buildResponse();

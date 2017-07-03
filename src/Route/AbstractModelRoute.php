@@ -113,7 +113,11 @@ abstract class AbstractModelRoute extends AbstractRoute
      */
     public function getFirstError()
     {
-        $errors = $this->app['errors']->errors();
+        if (!$this->model) {
+            return false;
+        }
+
+        $errors = $this->model->getErrors()->errors();
 
         return (count($errors) > 0) ? $errors[0] : false;
     }

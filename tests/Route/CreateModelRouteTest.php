@@ -56,8 +56,6 @@ class CreateModelRouteTest extends ModelTestBase
 
     public function testBuildResponseFailWithError()
     {
-        Test::$app['errors']->push('error');
-
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
         $driver->shouldReceive('createModel')
                ->andReturn(false);
@@ -66,6 +64,7 @@ class CreateModelRouteTest extends ModelTestBase
         $model = 'Post';
         $route = $this->getRoute();
         $route->setModel($model);
+        $route->getModel()->getErrors()->add('error');
 
         try {
             $route->buildResponse();
