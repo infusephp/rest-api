@@ -150,7 +150,7 @@ class ListModelsRouteTest extends ModelTestBase
     public function testBuildResponse()
     {
         $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
-        $driver->shouldReceive('totalRecords')
+        $driver->shouldReceive('count')
                ->andReturn(2);
         $driver->shouldReceive('queryModels')
                ->andReturn([['id' => 1], ['id' => 2]]);
