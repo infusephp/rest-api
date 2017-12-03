@@ -4,6 +4,7 @@ namespace Infuse\RestApi\Route;
 
 use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
+use Pulsar\Exception\MassAssignmentException;
 
 class CreateModelRoute extends AbstractModelRoute
 {
@@ -57,10 +58,14 @@ class CreateModelRoute extends AbstractModelRoute
             throw $this->permissionError();
         }
 
-        if ($this->model->create($this->createParameters)) {
-            $this->response->setCode(201);
+        try {
+            if ($this->model->create($this->createParameters)) {
+                $this->response->setCode(201);
 
-            return $this->model;
+                return $this->model;
+            }
+        } catch (MassAssignmentException $e) {
+            throw new InvalidRequest($e->getMessage());
         }
 
         // get the first error

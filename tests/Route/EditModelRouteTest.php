@@ -107,6 +107,24 @@ class EditModelRouteTest extends ModelTestBase
         $this->assertEquals(400, $e->getHttpStatus());
     }
 
+    public function testBuildResponseMassAssignmentError()
+    {
+        $req = Request::create('/', 'POST', ['not_allowed' => true]);
+        $route = $this->getRoute($req);
+        $model = new Book(100);
+        $model = Mockery::mock($model);
+        $model->refreshWith(['name' => 'Bob']);
+        $route->setModel($model);
+
+        try {
+            $route->buildResponse();
+        } catch (InvalidRequest $e) {
+        }
+
+        $this->assertEquals('Mass assignment of not_allowed on Book is not allowed', $e->getMessage());
+        $this->assertEquals(400, $e->getHttpStatus());
+    }
+
     public function testInvalidRequestBody()
     {
         $this->expectException('Infuse\RestApi\Error\InvalidRequest');

@@ -75,3 +75,17 @@ class Address extends Model
     protected static $autoTimestamps;
     protected static $hidden = ['updated_at'];
 }
+
+class Book extends Model
+{
+    protected static $properties = [
+        'name' => [],
+        'author' => []
+    ];
+
+    protected static $autoTimestamps;
+    protected static $hidden = [];
+    public static $filterableProperties = [];
+    public static $searchableProperties = ['name'];
+    protected static $permitted = ['name', 'author'];
+}
