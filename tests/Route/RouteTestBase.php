@@ -1,7 +1,6 @@
 <?php
 
 use Infuse\RestApi\Error\InvalidRequest;
-use Infuse\RestApi\Libs\ErrorStack;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
@@ -16,13 +15,6 @@ abstract class RouteTestBase extends MockeryTestCase
     {
         self::$req = new Request();
         self::$res = new Response();
-
-        Test::$app['errors'] = new ErrorStack(Test::$app);;
-    }
-
-    public static function tearDownAfterClass()
-    {
-        Test::$app['errors']->clear();
     }
 
     public function testGetRequest()
