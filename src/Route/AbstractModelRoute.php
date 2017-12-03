@@ -32,6 +32,8 @@ abstract class AbstractModelRoute extends AbstractRoute
     /**
      * Sets the model ID.
      *
+     * @param mixed $id
+     *
      * @return self
      */
     public function setModelId($id)
@@ -61,7 +63,7 @@ abstract class AbstractModelRoute extends AbstractRoute
     /**
      * Sets the model for this route.
      *
-     * @param Model|string $model
+     * @param \Pulsar\Model|string $model
      *
      * @return self
      */
@@ -72,7 +74,7 @@ abstract class AbstractModelRoute extends AbstractRoute
             $this->modelClass = $model;
             $model = new $model($this->modelId);
         } else {
-            $this->modelId = $model->id();
+            $this->modelId = $model->ids();
             $this->modelClass = get_class($model);
         }
 
@@ -84,7 +86,7 @@ abstract class AbstractModelRoute extends AbstractRoute
     /**
      * Gets the model for this route.
      *
-     * @return Model
+     * @return \Pulsar\Model
      */
     public function getModel()
     {

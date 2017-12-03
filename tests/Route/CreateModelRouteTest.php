@@ -25,8 +25,8 @@ class CreateModelRouteTest extends ModelTestBase
     public function testBuildResponse()
     {
         $model = Mockery::mock();
-        $model->shouldReceive('id')
-              ->andReturn(1);
+        $model->shouldReceive('ids')
+              ->andReturn([1]);
         $model->shouldReceive('create')
               ->andReturn(true);
         $route = $this->getRoute();

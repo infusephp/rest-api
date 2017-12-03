@@ -81,8 +81,8 @@ abstract class ModelTestBase extends RouteTestBase
         $this->assertTrue($route->hasPermission());
 
         $model = Mockery::mock('Pulsar\ACLModel');
-        $model->shouldReceive('id')
-              ->andReturn(1);
+        $model->shouldReceive('ids')
+              ->andReturn([1]);
         $model->shouldReceive('persisted')
             ->andReturn(true);
         $model->shouldReceive('can')
