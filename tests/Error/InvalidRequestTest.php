@@ -1,8 +1,9 @@
 <?php
 
 use Infuse\RestApi\Error\InvalidRequest;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class InvalidRequestTest extends PHPUnit_Framework_TestCase
+class InvalidRequestTest extends MockeryTestCase
 {
     public function testGetMessage()
     {

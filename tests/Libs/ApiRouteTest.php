@@ -3,8 +3,9 @@
 use Infuse\RestApi\Libs\ApiRoute;
 use Infuse\Request;
 use Infuse\Response;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ApiRouteTest extends PHPUnit_Framework_TestCase
+class ApiRouteTest extends MockeryTestCase
 {
     public function testGetAction()
     {

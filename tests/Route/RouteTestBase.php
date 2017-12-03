@@ -5,8 +5,9 @@ use Infuse\RestApi\Libs\ErrorStack;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-abstract class RouteTestBase extends PHPUnit_Framework_TestCase
+abstract class RouteTestBase extends MockeryTestCase
 {
     public static $req;
     public static $res;

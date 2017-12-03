@@ -4,8 +4,9 @@ use Infuse\RestApi\ModelController;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\Test;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ModelControllerTest extends PHPUnit_Framework_TestCase
+class ModelControllerTest extends MockeryTestCase
 {
     public function testCreate()
     {

@@ -1,8 +1,9 @@
 <?php
 
 use Infuse\RestApi\Serializer\ChainedSerializer;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ChainedSerializerTest extends PHPUnit_Framework_TestCase
+class ChainedSerializerTest extends MockeryTestCase
 {
     public function testSerialize()
     {

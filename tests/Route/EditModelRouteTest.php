@@ -6,6 +6,7 @@ use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\RestApi\Route\EditModelRoute;
 use Infuse\Test;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class EditModelRouteTest extends ModelTestBase
 {

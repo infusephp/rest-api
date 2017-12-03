@@ -3,6 +3,7 @@
 use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\Request;
 use Pulsar\Driver\DriverInterface;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class RetrieveModelRouteTest extends ModelTestBase
 {

@@ -2,6 +2,7 @@
 
 use Infuse\Request;
 use Infuse\Test;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class ListModelsRouteTest extends ModelTestBase
 {

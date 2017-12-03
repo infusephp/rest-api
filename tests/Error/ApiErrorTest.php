@@ -1,8 +1,9 @@
 <?php
 
 use Infuse\RestApi\Error\ApiError;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ApiErrorTest extends PHPUnit_Framework_TestCase
+class ApiErrorTest extends MockeryTestCase
 {
     public function testGetMessage()
     {

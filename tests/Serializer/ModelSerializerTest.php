@@ -3,8 +3,9 @@
 use Infuse\RestApi\Serializer\ModelSerializer;
 use Infuse\Request;
 use Pulsar\Model;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class ModelSerializerTest extends PHPUnit_Framework_TestCase
+class ModelSerializerTest extends MockeryTestCase
 {
     public static $driver;
 

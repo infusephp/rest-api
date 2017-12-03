@@ -7,6 +7,7 @@ use Infuse\Request;
 use Infuse\Test;
 use Pulsar\Driver\DriverInterface;
 use Pulsar\Model;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 abstract class ModelTestBase extends RouteTestBase
 {

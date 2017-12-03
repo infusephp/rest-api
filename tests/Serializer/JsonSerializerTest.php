@@ -4,8 +4,9 @@ use Infuse\RestApi\Serializer\JsonSerializer;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class JsonSerializerTest extends PHPUnit_Framework_TestCase
+class JsonSerializerTest extends MockeryTestCase
 {
     public function testConstruct()
     {

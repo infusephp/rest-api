@@ -1,8 +1,9 @@
 <?php
 
 use Infuse\RestApi\Serializer\NullSerializer;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
-class NullSerializerTest extends PHPUnit_Framework_TestCase
+class NullSerializerTest extends MockeryTestCase
 {
     public function testSerialize()
     {

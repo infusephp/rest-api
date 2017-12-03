@@ -4,6 +4,7 @@ use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\Request;
 use Infuse\Test;
+use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class DeleteModelRouteTest extends ModelTestBase
 {
