@@ -61,10 +61,12 @@ class CreateModelRouteTest extends ModelTestBase
                ->andReturn(false);
         Post::setDriver($driver);
 
-        $model = 'Post';
+        $post = new Post();
+        $model = Mockery::mock($post);
+        $model->shouldReceive('create')->andReturn(false);
+        $model->getErrors()->add('error');
         $route = $this->getRoute();
         $route->setModel($model);
-        $route->getModel()->getErrors()->add('error');
 
         try {
             $route->buildResponse();
