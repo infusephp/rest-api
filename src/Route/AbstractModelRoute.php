@@ -38,7 +38,11 @@ abstract class AbstractModelRoute extends AbstractRoute
      */
     public function setModelId($id)
     {
-        $this->modelId = $id;
+        if (is_array($id)) {
+            $this->modelId = $id;
+        } else {
+            $this->modelId = [$id];
+        }
 
         // rebuild the model instance with ID
         if ($this->model) {
@@ -53,7 +57,7 @@ abstract class AbstractModelRoute extends AbstractRoute
     /**
      * Gets the model ID.
      *
-     * @return mixed
+     * @return array
      */
     public function getModelId()
     {
@@ -166,7 +170,7 @@ abstract class AbstractModelRoute extends AbstractRoute
      */
     protected function modelNotFoundError()
     {
-        return new InvalidRequest($this->humanClassName($this->modelClass).' was not found: '.$this->modelId, 404);
+        return new InvalidRequest($this->humanClassName($this->modelClass).' was not found: '.implode(',', $this->modelId), 404);
     }
 
     /**

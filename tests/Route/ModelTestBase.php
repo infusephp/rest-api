@@ -23,7 +23,7 @@ abstract class ModelTestBase extends RouteTestBase
     {
         $route = $this->getRoute();
         $route->setModelId(10);
-        $this->assertEquals(10, $route->getModelId());
+        $this->assertEquals([10], $route->getModelId());
     }
 
     public function testGetModel()

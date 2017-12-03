@@ -17,7 +17,7 @@ class EditModelRouteTest extends ModelTestBase
         $req = new Request();
         $req->setParams(['model_id' => 1]);
         $route = $this->getRoute($req);
-        $this->assertEquals(1, $route->getModelId());
+        $this->assertEquals([1], $route->getModelId());
     }
 
     public function testGetUpdateParameters()
