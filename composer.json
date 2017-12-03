@@ -19,11 +19,11 @@
         "psr-4": {"Infuse\\RestApi\\": "src/"}
     },
 	"require": {
-		"php": ">=5.6.0"
+		"php": ">=7.0.0"
 	},
 	"require-dev": {
-		"infuse/infuse": "~1.4",
-		"pulsar/pulsar": "~0.5",
+		"infuse/infuse": "~1.6",
+		"pulsar/pulsar": "~0.6",
 		"satooshi/php-coveralls": "0.6.1",
 		"mockery/mockery": "0.9.1",
 		"phpunit/phpunit": "5.7.*"
