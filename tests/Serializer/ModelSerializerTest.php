@@ -90,13 +90,39 @@ class ModelSerializerTest extends MockeryTestCase
         $model = new Post(5);
         $model->body = 'text';
         $model->date = 'Dec 5, 2015';
+        $model->appended = null; // TODO this is needed until https://github.com/jaredtking/pulsar/issues/43 is fixed
+        $model->person = null; // TODO this is needed until https://github.com/jaredtking/pulsar/issues/43 is fixed
+        $author = new Person(100);
+        $author->name = 'Bob';
+        $author->email = 'bob@example.com';
+        $author->active = false;
+        $author->balance = 150;
+        $author->created_at = 1;
+        $author->updated_at = 2;
+        $address = new Address(200);
+        $address->street = '1234 Main St';
+        $address->city = 'Austin';
+        $address->state = 'TX';
+        $address->created_at = 12345;
+        $address->updated_at = 12345;
+        $author->setRelation('address', $address);
+        $model->setRelation('author', $author);
 
         $serializer = new ModelSerializer(new Request());
-        $serializer->setInclude(['date']);
+        $serializer->setInclude(['date', 'person']);
 
         $expected = [
             'id' => 5,
-            'author' => null,
+            'author' => 100,
+            'person' => [
+                'id' => 100,
+                'name' => 'Bob',
+                'email' => 'bob@example.com',
+                'address' => 200,
+                'active' => false,
+                'created_at' => 1,
+                'updated_at' => 2
+            ],
             'body' => 'text',
             'date' => 'Dec 5, 2015',
             'appended' => null,

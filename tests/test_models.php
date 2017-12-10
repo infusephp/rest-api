@@ -38,6 +38,11 @@ class Post extends Model
             $result['include'] = true;
         }
     }
+
+    protected function getPersonValue()
+    {
+        return $this->relation('author');
+    }
 }
 
 class Person extends Model

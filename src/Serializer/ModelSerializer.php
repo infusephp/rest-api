@@ -182,6 +182,24 @@ class ModelSerializer implements SerializerInterface
         foreach (array_keys($namedInc) as $k) {
             if (!isset($result[$k]) && isset($namedInc[$k])) {
                 $result[$k] = $model->$k;
+                if ($result[$k] instanceof Model) {
+                    $subExc = array_value($namedExc, $k);
+                    $subInc = array_value($namedInc, $k);
+                    $subExp = array_value($namedExp, $k);
+
+                    // convert exclude, include, and expand into dot notation
+                    // then take the keys for a flattened dot notation
+                    $flatExc = is_array($subExc) ? array_keys(array_dot($subExc)) : [];
+                    $flatInc = is_array($subInc) ? array_keys(array_dot($subInc)) : [];
+                    $flatExp = is_array($subExp) ? array_keys(array_dot($subExp)) : [];
+
+                    $serializer = new self($this->request);
+                    $serializer->setExclude($flatExc)
+                        ->setInclude($flatInc)
+                        ->setExpand($flatExp);
+
+                    $result[$k] = $serializer->toArray($result[$k]);
+                }
             }
         }
 
