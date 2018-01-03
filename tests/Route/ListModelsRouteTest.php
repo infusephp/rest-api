@@ -57,6 +57,19 @@ class ListModelsRouteTest extends ModelTestBase
         $this->assertEquals($filter, $route->getFilter());
     }
 
+    public function testExpand()
+    {
+        $route = $this->getRoute();
+
+        $this->assertEquals([], $route->getExpand());
+        $route->setExpand(['test']);
+        $this->assertEquals(['test'], $route->getExpand());
+
+        $req = new Request(['expand' => 'test,blah']);
+        $route = $this->getRoute($req);
+        $this->assertEquals(['test','blah'], $route->getExpand());
+    }
+
     public function testJoin()
     {
         $route = $this->getRoute();
@@ -99,6 +112,7 @@ class ListModelsRouteTest extends ModelTestBase
               ->setPage(3)
               ->setPerPage(50)
               ->setFilter(['active' => true])
+              ->setExpand(['address', 'address_shim'])
               ->setJoin([['Address', 'id', 'address_id']])
               ->setSort('name ASC')
               ->setSearch('search!');
@@ -106,6 +120,7 @@ class ListModelsRouteTest extends ModelTestBase
         $query = $route->buildQuery();
 
         $this->assertInstanceOf('Pulsar\Query', $query);
+        $this->assertEquals(['address', 'address'], $query->getWith()); // TODO this duplicate is fixed in newer versions of Pulsar
         $this->assertEquals([['Address', 'id', 'address_id']], $query->getJoins());
         $this->assertEquals(['active' => true, "(`name` LIKE '%search!%' OR `email` LIKE '%search!%')"], $query->getWhere());
         $this->assertEquals([['name', 'asc']], $query->getSort());

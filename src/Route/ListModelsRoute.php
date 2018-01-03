@@ -32,6 +32,11 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * @var array
      */
+    protected $expand = [];
+
+    /**
+     * @var array
+     */
     protected $join = false;
 
     /**
@@ -63,6 +68,12 @@ class ListModelsRoute extends AbstractModelRoute
 
         // parse filter parameters
         $this->filter = (array) $this->request->query('filter');
+
+        // parse expansions
+        $expand = $this->request->query('expand');
+        if (is_string($expand)) {
+            $this->expand = explode(',', $expand);
+        }
 
         // parse sort/search parameters
         $this->sort = $this->request->query('sort');
@@ -111,6 +122,29 @@ class ListModelsRoute extends AbstractModelRoute
     public function getPage()
     {
         return $this->page;
+    }
+
+    /**
+     * Gets the expanded properties.
+     *
+     * @return array
+     */
+    function getExpand()
+    {
+        return $this->expand;
+    }
+
+    /**
+     * Sets the expanded properties.
+     *
+     * @param array $expand
+     *
+     * @return $this
+     */
+    function setExpand(array $expand)
+    {
+        $this->expand = $expand;
+        return $this;
     }
 
     /**
@@ -260,6 +294,18 @@ class ListModelsRoute extends AbstractModelRoute
 
             if (count($w) > 0) {
                 $query->where('('.implode(' OR ', $w).')');
+            }
+        }
+
+        // eager loading
+        foreach ($this->expand as $k) {
+            $property = $model::getProperty($k);
+            if ($property && isset($property['relation'])) {
+                if (isset($property['id_property'])) {
+                    $query->with($property['id_property']);
+                } else {
+                    $query->with($k);
+                }
             }
         }
 

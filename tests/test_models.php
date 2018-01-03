@@ -61,10 +61,14 @@ class Person extends Model
             'type' => Model::TYPE_BOOLEAN,
             'default' => false,
         ],
+        'address_shim' => [
+            'relation' => 'Address',
+            'id_property' => 'address'
+        ]
     ];
 
     protected static $autoTimestamps;
-    protected static $hidden = ['balance'];
+    protected static $hidden = ['balance', 'address_shim'];
     public static $filterableProperties = ['active'];
     public static $searchableProperties = ['name', 'email'];
 }
