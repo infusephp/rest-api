@@ -17,7 +17,7 @@ class ChainedSerializer implements SerializerInterface
      *
      * @param SerializerInterface $serializer
      *
-     * @return self
+     * @return $this
      */
     public function add(SerializerInterface $serializer)
     {

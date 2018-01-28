@@ -27,7 +27,7 @@ class CreateModelRoute extends AbstractModelRoute
      *
      * @param array $params
      *
-     * @return self
+     * @return $this
      */
     public function setCreateParameters(array $params)
     {

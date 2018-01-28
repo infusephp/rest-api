@@ -28,7 +28,7 @@ class EditModelRoute extends AbstractModelRoute
      *
      * @param array $params
      *
-     * @return self
+     * @return $this
      */
     public function setUpdateParameters(array $params)
     {

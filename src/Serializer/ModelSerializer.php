@@ -71,7 +71,7 @@ class ModelSerializer implements SerializerInterface
      *
      * @param array $exclude
      *
-     * @return self
+     * @return $this
      */
     public function setExclude(array $exclude)
     {
@@ -95,7 +95,7 @@ class ModelSerializer implements SerializerInterface
      *
      * @param array $exclude
      *
-     * @return self
+     * @return $this
      */
     public function setInclude(array $include)
     {
@@ -119,7 +119,7 @@ class ModelSerializer implements SerializerInterface
      *
      * @param array $exclude
      *
-     * @return self
+     * @return $this
      */
     public function setExpand(array $expand)
     {

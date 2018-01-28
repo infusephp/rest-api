@@ -73,7 +73,7 @@ abstract class AbstractRoute
      *
      * @param SerializerInterface $serializer
      *
-     * @return self
+     * @return $this
      */
     public function setSerializer(SerializerInterface $serializer)
     {
@@ -95,7 +95,7 @@ abstract class AbstractRoute
     /**
      * Runs the API route.
      *
-     * @return self
+     * @return $this
      */
     public function run()
     {

@@ -83,7 +83,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Sets the maximum # of results to return.
      *
-     * @return self
+     * @return $this
      */
     public function setPerPage($perPage)
     {
@@ -105,7 +105,7 @@ class ListModelsRoute extends AbstractModelRoute
     /**
      * Sets the page #.
      *
-     * @return self
+     * @return $this
      */
     public function setPage($page)
     {
@@ -152,7 +152,7 @@ class ListModelsRoute extends AbstractModelRoute
      *
      * @param string $filter
      *
-     * @return self
+     * @return $this
      */
     public function setFilter(array $filter)
     {
@@ -177,7 +177,7 @@ class ListModelsRoute extends AbstractModelRoute
      *
      * @param array $join
      *
-     * @return self
+     * @return $this
      */
     public function setJoin(array $join)
     {
@@ -201,7 +201,7 @@ class ListModelsRoute extends AbstractModelRoute
      *
      * @param string $sort
      *
-     * @return self
+     * @return $this
      */
     public function setSort($sort)
     {
@@ -225,7 +225,7 @@ class ListModelsRoute extends AbstractModelRoute
      *
      * @param string $search
      *
-     * @return self
+     * @return $this
      */
     public function setSearch($search)
     {

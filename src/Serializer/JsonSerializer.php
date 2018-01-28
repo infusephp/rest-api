@@ -44,7 +44,7 @@ class JsonSerializer implements SerializerInterface
     /**
      * Serializes input to pretty printed JSON.
      *
-     * @return self
+     * @return $this
      */
     public function prettyPrint()
     {
@@ -56,7 +56,7 @@ class JsonSerializer implements SerializerInterface
     /**
      * Serializes input to compact JSON.
      *
-     * @return self
+     * @return $this
      */
     public function compactPrint()
     {

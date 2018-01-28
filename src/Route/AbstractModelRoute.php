@@ -34,7 +34,7 @@ abstract class AbstractModelRoute extends AbstractRoute
      *
      * @param mixed $id
      *
-     * @return self
+     * @return $this
      */
     public function setModelId($id)
     {
@@ -69,7 +69,7 @@ abstract class AbstractModelRoute extends AbstractRoute
      *
      * @param \Pulsar\Model|string $model
      *
-     * @return self
+     * @return $this
      */
     public function setModel($model)
     {

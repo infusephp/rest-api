@@ -60,7 +60,7 @@ class ApiRoute
      *
      * @param array $query
      *
-     * @return self
+     * @return $this
      */
     public function addQueryParams(array $query)
     {
@@ -74,7 +74,7 @@ class ApiRoute
      *
      * @param array $parseSteps collection of ordered callables for parsing
      *
-     * @return self
+     * @return $this
      */
     public function addParseSteps(array $parseSteps)
     {
@@ -88,7 +88,7 @@ class ApiRoute
      *
      * @param callable|string $queryStep step for performing the query
      *
-     * @return self
+     * @return $this
      */
     public function addQueryStep($queryStep)
     {
@@ -102,7 +102,7 @@ class ApiRoute
      *
      * @param array $transformSteps collection of ordered callables for transforming the result
      *
-     * @return self
+     * @return $this
      */
     public function addTransformSteps(array $transformSteps)
     {
@@ -116,7 +116,7 @@ class ApiRoute
      *
      * @param Response $res
      *
-     * @return self
+     * @return $this
      */
     public function setRequest(Request $req)
     {
@@ -130,7 +130,7 @@ class ApiRoute
      *
      * @param Response $res
      *
-     * @return self
+     * @return $this
      */
     public function setResponse(Response $res)
     {
@@ -144,7 +144,7 @@ class ApiRoute
      *
      * @param object $controller
      *
-     * @return self
+     * @return $this
      */
     public function setController($controller)
     {
