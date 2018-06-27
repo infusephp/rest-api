@@ -1,27 +1,21 @@
 <?php
 
-use Infuse\RestApi\Serializer\JsonSerializer;
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\RestApi\Serializer\JsonSerializer;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class JsonSerializerTest extends MockeryTestCase
 {
-    public function testConstruct()
-    {
-        $serializer = new JsonSerializer(new Request(['compact' => true]));
-        $this->assertEquals(0, $serializer->getJsonParams());
-    }
-
     public function testGetJsonParams()
     {
         $serializer = new JsonSerializer(new Request());
-        $this->assertEquals(JSON_PRETTY_PRINT, $serializer->getJsonParams());
-        $serializer->compactPrint();
         $this->assertEquals(0, $serializer->getJsonParams());
         $serializer->prettyPrint();
         $this->assertEquals(JSON_PRETTY_PRINT, $serializer->getJsonParams());
+        $serializer->compactPrint();
+        $this->assertEquals(0, $serializer->getJsonParams());
     }
 
     public function testSerialize()
@@ -53,21 +47,14 @@ class JsonSerializerTest extends MockeryTestCase
 
         $this->assertEquals('application/json', $res->getContentType());
 
-        // JSON should be pretty-printed by default
-        $expected = '{
-    "answer": 42,
-    "nested": {
-        "id": 10,
-        "name": "John Appleseed"
-    }
-}';
+        // JSON should be compact by default
+        $expected = '{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}';
         $this->assertEquals($expected, $res->getBody());
     }
 
-    public function testSerializeCompact()
+    public function testSerializePretty()
     {
-        $serializer = new JsonSerializer(new Request());
-        $serializer->compactPrint();
+        $serializer = new JsonSerializer(new Request(['pretty' => 1]));
 
         $res = new Response();
         $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
@@ -84,8 +71,44 @@ class JsonSerializerTest extends MockeryTestCase
 
         $serializer->serialize($result, $route);
 
-        // JSON should be compacted
-        $expected = '{"answer":42,"nested":{"id":10,"name":"John Appleseed"}}';
+        // JSON should be pretty printed
+        $expected = '{
+    "answer": 42,
+    "nested": {
+        "id": 10,
+        "name": "John Appleseed"
+    }
+}';
+        $this->assertEquals($expected, $res->getBody());
+    }
+
+    public function testSerializePrettyCurl()
+    {
+        $serializer = new JsonSerializer(Request::create('/', 'GET', [], [], [], ['HTTP_USER_AGENT' => 'curl/7.47.0']));
+
+        $res = new Response();
+        $route = Mockery::mock('Infuse\RestApi\Route\AbstractRoute');
+        $route->shouldReceive('getResponse')
+            ->andReturn($res);
+
+        $result = [
+            'answer' => 42,
+            'nested' => [
+                'id' => 10,
+                'name' => 'John Appleseed',
+            ],
+        ];
+
+        $serializer->serialize($result, $route);
+
+        // JSON should be pretty printed
+        $expected = '{
+    "answer": 42,
+    "nested": {
+        "id": 10,
+        "name": "John Appleseed"
+    }
+}';
         $this->assertEquals($expected, $res->getBody());
     }
 
