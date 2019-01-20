@@ -2,7 +2,6 @@
 
 use Infuse\Request;
 use Infuse\Test;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class ListModelsRouteTest extends ModelTestBase
 {
@@ -67,7 +66,7 @@ class ListModelsRouteTest extends ModelTestBase
 
         $req = new Request(['expand' => 'test,blah']);
         $route = $this->getRoute($req);
-        $this->assertEquals(['test','blah'], $route->getExpand());
+        $this->assertEquals(['test', 'blah'], $route->getExpand());
     }
 
     public function testJoin()
@@ -120,7 +119,7 @@ class ListModelsRouteTest extends ModelTestBase
         $query = $route->buildQuery();
 
         $this->assertInstanceOf('Pulsar\Query', $query);
-        $this->assertEquals(['address', 'address'], $query->getWith()); // TODO this duplicate is fixed in newer versions of Pulsar
+        $this->assertEquals(['address'], $query->getWith());
         $this->assertEquals([['Address', 'id', 'address_id']], $query->getJoins());
         $this->assertEquals(['active' => true, "(`name` LIKE '%search!%' OR `email` LIKE '%search!%')"], $query->getWhere());
         $this->assertEquals([['name', 'asc']], $query->getSort());
