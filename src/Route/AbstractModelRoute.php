@@ -4,6 +4,7 @@ namespace Infuse\RestApi\Route;
 
 use Infuse\RestApi\Error\InvalidRequest;
 use Pulsar\ACLModel;
+use Pulsar\ACLModelRequester;
 
 abstract class AbstractModelRoute extends AbstractRoute
 {
@@ -109,7 +110,7 @@ abstract class AbstractModelRoute extends AbstractRoute
             return true;
         }
 
-        return $this->model->can(static::MODEL_PERMISSION, $this->app['requester']);
+        return $this->model->can(static::MODEL_PERMISSION, ACLModelRequester::get());
     }
 
     /**
@@ -137,7 +138,7 @@ abstract class AbstractModelRoute extends AbstractRoute
      */
     protected function modelValidationError(array $error)
     {
-        $code = ($error['error'] == 'no_permission') ? 403 : 400;
+        $code = ('no_permission' == $error['error']) ? 403 : 400;
         $param = array_value($error, 'params.field');
 
         return new InvalidRequest($error['message'], $code, $param);
@@ -147,9 +148,9 @@ abstract class AbstractModelRoute extends AbstractRoute
      * Retrieves the model associated on this class with
      * the persisted version from the data layer.
      *
-     * @throws InvalidRequest if the model cannot be found.
+     * @throws InvalidRequest if the model cannot be found
      */
-    function retrieveModel()
+    public function retrieveModel()
     {
         if ($this->model->persisted()) {
             return;
