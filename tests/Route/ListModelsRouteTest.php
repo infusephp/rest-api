@@ -1,11 +1,19 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Route;
+
 use Infuse\Request;
+use Infuse\RestApi\Route\ListModelsRoute;
+use Infuse\RestApi\Tests\Person;
 use Infuse\Test;
+use Infuse\RestApi\Error\InvalidRequest;
+use Mockery;
+use Pulsar\Driver\DriverInterface;
+use Pulsar\Query;
 
 class ListModelsRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'Infuse\RestApi\Route\ListModelsRoute';
+    const ROUTE_CLASS = ListModelsRoute::class;
 
     public function testGetPage()
     {
@@ -107,7 +115,7 @@ class ListModelsRouteTest extends ModelTestBase
     public function testBuildQuery()
     {
         $route = $this->getRoute();
-        $route->setModel('Person')
+        $route->setModel(Person::class)
               ->setPage(3)
               ->setPerPage(50)
               ->setFilter(['active' => true])
@@ -118,7 +126,7 @@ class ListModelsRouteTest extends ModelTestBase
 
         $query = $route->buildQuery();
 
-        $this->assertInstanceOf('Pulsar\Query', $query);
+        $this->assertInstanceOf(Query::class, $query);
         $this->assertEquals(['address'], $query->getWith());
         $this->assertEquals([['Address', 'id', 'address_id']], $query->getJoins());
         $this->assertEquals(['active' => true, "(`name` LIKE '%search!%' OR `email` LIKE '%search!%')"], $query->getWhere());
@@ -129,10 +137,10 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildQueryInvalidFilterPropertyString()
     {
-        $this->expectException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: *#)*$J)F(');
+        $this->expectException(InvalidRequest::class, 'Invalid filter parameter: *#)*$J)F(');
 
         $route = $this->getRoute();
-        $route->setModel('Person')
+        $route->setModel(Person::class)
               ->setFilter(['*#)*$J)F(' => true]);
 
         $query = $route->buildQuery();
@@ -140,10 +148,10 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildQueryInvalidFilterProperty()
     {
-        $this->expectException('Infuse\RestApi\Error\InvalidRequest', 'Invalid filter parameter: test');
+        $this->expectException(InvalidRequest::class, 'Invalid filter parameter: test');
 
         $route = $this->getRoute();
-        $route->setModel('Person')
+        $route->setModel(Person::class)
               ->setFilter(['test' => true]);
 
         $query = $route->buildQuery();
@@ -164,7 +172,7 @@ class ListModelsRouteTest extends ModelTestBase
 
     public function testBuildResponse()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('count')
                ->andReturn(2);
         $driver->shouldReceive('queryModels')
@@ -172,15 +180,15 @@ class ListModelsRouteTest extends ModelTestBase
         Person::setDriver($driver);
 
         $route = $this->getRoute();
-        $route->setModel('Person');
+        $route->setModel(Person::class);
 
         $models = $route->buildResponse();
 
         // verify models
         $this->assertCount(2, $models);
-        $this->assertInstanceOf('Person', $models[0]);
+        $this->assertInstanceOf(Person::class, $models[0]);
         $this->assertEquals(1, $models[0]->id());
-        $this->assertInstanceOf('Person', $models[1]);
+        $this->assertInstanceOf(Person::class, $models[1]);
         $this->assertEquals(2, $models[1]->id());
 
         // verify headers

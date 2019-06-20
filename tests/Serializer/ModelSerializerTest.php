@@ -1,9 +1,15 @@
 <?php
 
-use Infuse\RestApi\Serializer\ModelSerializer;
+namespace Infuse\RestApi\Tests\Serializer;
+
 use Infuse\Request;
-use Pulsar\Model;
+use Infuse\RestApi\Serializer\ModelSerializer;
+use Infuse\RestApi\Tests\Address;
+use Infuse\RestApi\Tests\Person;
+use Infuse\RestApi\Tests\Post;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Pulsar\Model;
 
 class ModelSerializerTest extends MockeryTestCase
 {

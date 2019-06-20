@@ -1,8 +1,13 @@
 <?php
 
-use Infuse\RestApi\ModelController;
+namespace Infuse\RestApi\Tests;
+
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\RestApi\ModelController;
+use Infuse\RestApi\Serializer\ChainedSerializer;
+use Infuse\RestApi\Serializer\JsonSerializer;
+use Infuse\RestApi\Serializer\ModelSerializer;
 use Infuse\Test;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
@@ -63,11 +68,11 @@ class ModelControllerTest extends MockeryTestCase
         $controller = $this->getController();
 
         $serializer = $controller->getSerializer(new Request());
-        $this->assertInstanceOf('Infuse\RestApi\Serializer\ChainedSerializer', $serializer);
+        $this->assertInstanceOf(ChainedSerializer::class, $serializer);
         $serializers = $serializer->getSerializers();
         $this->assertCount(2, $serializers);
-        $this->assertInstanceOf('Infuse\RestApi\Serializer\ModelSerializer', $serializers[0]);
-        $this->assertInstanceOf('Infuse\RestApi\Serializer\JsonSerializer', $serializers[1]);
+        $this->assertInstanceOf(ModelSerializer::class, $serializers[0]);
+        $this->assertInstanceOf(JsonSerializer::class, $serializers[1]);
     }
 
     public function getController()

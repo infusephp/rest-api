@@ -1,16 +1,21 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Route;
+
+use Pulsar\Driver\DriverInterface;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\RestApi\Route\EditModelRoute;
-use Infuse\Test;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Infuse\RestApi\Tests\Book;
+use Infuse\RestApi\Tests\Person;
+use Infuse\RestApi\Tests\Post;
+use Mockery;
 
 class EditModelRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'Infuse\RestApi\Route\EditModelRoute';
+    const ROUTE_CLASS = EditModelRoute::class;
 
     public function testParseModelId()
     {
@@ -46,12 +51,12 @@ class EditModelRouteTest extends ModelTestBase
 
     public function testBuildResponseNotFound()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('queryModels')
                ->andReturn([]);
         Person::setDriver($driver);
 
-        $model = 'Person';
+        $model = Person::class;
         $route = $this->getRoute();
         $route->setModelId(100)
               ->setModel($model);
@@ -67,14 +72,14 @@ class EditModelRouteTest extends ModelTestBase
 
     public function testBuildResponseSetFail()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('queryModels')
                ->andReturn([['id' => 1]]);
         $driver->shouldReceive('updateModel')
                ->andReturn(false);
         Post::setDriver($driver);
 
-        $model = 'Post';
+        $model = Post::class;
         $route = $this->getRoute();
         $route->setModel($model)
               ->setModelId(1)
@@ -119,6 +124,7 @@ class EditModelRouteTest extends ModelTestBase
 
         try {
             $route->buildResponse();
+            $this->fail('buildResponse() should have returned an exception');
         } catch (InvalidRequest $e) {
         }
 
@@ -128,7 +134,7 @@ class EditModelRouteTest extends ModelTestBase
 
     public function testInvalidRequestBody()
     {
-        $this->expectException('Infuse\RestApi\Error\InvalidRequest');
+        $this->expectException(InvalidRequest::class);
 
         $req = Mockery::mock(new Request());
         $req->shouldReceive('request')
@@ -137,7 +143,7 @@ class EditModelRouteTest extends ModelTestBase
         $res = new Response();
 
         $route = new EditModelRoute($req, $res);
-        $route->setModel('Post');
+        $route->setModel(Post::class);
 
         $route->buildResponse();
     }

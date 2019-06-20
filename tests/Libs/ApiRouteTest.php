@@ -1,9 +1,12 @@
 <?php
 
-use Infuse\RestApi\Libs\ApiRoute;
+namespace Infuse\RestApi\Tests\Libs;
+
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\RestApi\Libs\ApiRoute;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Mockery;
 
 class ApiRouteTest extends MockeryTestCase
 {

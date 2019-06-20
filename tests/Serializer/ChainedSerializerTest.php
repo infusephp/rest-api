@@ -1,6 +1,9 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Serializer;
+
 use Infuse\RestApi\Serializer\ChainedSerializer;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class ChainedSerializerTest extends MockeryTestCase

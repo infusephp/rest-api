@@ -1,16 +1,20 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Route;
+
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\RestApi\Route\CreateModelRoute;
-use Infuse\Test;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Infuse\RestApi\Tests\Book;
+use Infuse\RestApi\Tests\Post;
+use Mockery;
+use Pulsar\Driver\DriverInterface;
 
 class CreateModelRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'Infuse\RestApi\Route\CreateModelRoute';
+    const ROUTE_CLASS = CreateModelRoute::class;
 
     public function testGetCreateParameters()
     {
@@ -38,12 +42,12 @@ class CreateModelRouteTest extends ModelTestBase
 
     public function testBuildResponseFail()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('createModel')
                ->andReturn(false);
         Post::setDriver($driver);
 
-        $model = 'Post';
+        $model = Post::class;
         $route = $this->getRoute();
         $route->setModel($model);
 
@@ -57,7 +61,7 @@ class CreateModelRouteTest extends ModelTestBase
 
     public function testBuildResponseFailWithError()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('createModel')
                ->andReturn(false);
         Post::setDriver($driver);
@@ -95,7 +99,7 @@ class CreateModelRouteTest extends ModelTestBase
 
     public function testInvalidRequestBody()
     {
-        $this->expectException('Infuse\RestApi\Error\InvalidRequest');
+        $this->expectException(InvalidRequest::class);
 
         $req = Mockery::mock(new Request());
         $req->shouldReceive('request')
@@ -104,7 +108,7 @@ class CreateModelRouteTest extends ModelTestBase
         $res = new Response();
 
         $route = new CreateModelRoute($req, $res);
-        $route->setModel('Post');
+        $route->setModel(Post::class);
 
         $route->buildResponse();
     }

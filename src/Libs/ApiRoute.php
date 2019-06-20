@@ -2,9 +2,9 @@
 
 namespace Infuse\RestApi\Libs;
 
-use Infuse\RestApi\Error;
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\RestApi\Error;
 
 /*
     An API request can be broken into 3 steps:
@@ -269,7 +269,7 @@ class ApiRoute
                         $parseStep = [$this->controller, $parseStep];
                     }
 
-                    if ($parseStep($this) === false) {
+                    if (false === $parseStep($this)) {
                         return false;
                     }
                 }
@@ -286,12 +286,12 @@ class ApiRoute
                         $transformStep = [$this->controller, $transformStep];
                     }
 
-                    if ($transformStep($result, $this) === false) {
+                    if (false === $transformStep($result, $this)) {
                         return false;
                     }
                 }
             }
-        // handle API exceptions
+            // handle API exceptions
         } catch (Error\Base $ex) {
             if (method_exists($this->controller, 'handleError')) {
                 $this->controller->handleError($ex, $this);

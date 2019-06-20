@@ -1,14 +1,19 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Route;
+
+use Infuse\Request;
 use Infuse\RestApi\Error\ApiError;
 use Infuse\RestApi\Error\InvalidRequest;
-use Infuse\Request;
-use Infuse\Test;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
+use Infuse\RestApi\Route\DeleteModelRoute;
+use Infuse\RestApi\Tests\Person;
+use Infuse\RestApi\Tests\Post;
+use Mockery;
+use Pulsar\Driver\DriverInterface;
 
 class DeleteModelRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'Infuse\RestApi\Route\DeleteModelRoute';
+    const ROUTE_CLASS = DeleteModelRoute::class;
 
     public function testParseModelId()
     {
@@ -34,12 +39,12 @@ class DeleteModelRouteTest extends ModelTestBase
 
     public function testBuildResponseNotFound()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('queryModels')
                ->andReturn([]);
         Person::setDriver($driver);
 
-        $model = 'Person';
+        $model = Person::class;
         $route = $this->getRoute();
         $route->setModelId(100)
               ->setModel($model);
@@ -55,14 +60,14 @@ class DeleteModelRouteTest extends ModelTestBase
 
     public function testBuildResponseDeleteFail()
     {
-        $driver = Mockery::mock('Pulsar\Driver\DriverInterface');
+        $driver = Mockery::mock(DriverInterface::class);
         $driver->shouldReceive('queryModels')
             ->andReturn([['id' => 1]]);
         $driver->shouldReceive('deleteModel')
                ->andReturn(false);
         Post::setDriver($driver);
 
-        $model = 'Post';
+        $model = Post::class;
         $route = $this->getRoute();
         $route->setModel($model)->setModelId(1);
 

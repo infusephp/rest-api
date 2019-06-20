@@ -1,13 +1,17 @@
 <?php
 
-use Infuse\RestApi\Error\InvalidRequest;
+namespace Infuse\RestApi\Tests\Route;
+
 use Infuse\Request;
+use Infuse\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Route\RetrieveModelRoute;
+use Infuse\RestApi\Tests\Person;
+use Mockery;
 use Pulsar\Driver\DriverInterface;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class RetrieveModelRouteTest extends ModelTestBase
 {
-    const ROUTE_CLASS = 'Infuse\RestApi\Route\RetrieveModelRoute';
+    const ROUTE_CLASS = RetrieveModelRoute::class;
 
     public function testParseModelId()
     {
@@ -34,7 +38,7 @@ class RetrieveModelRouteTest extends ModelTestBase
                ->andReturn([]);
         Person::setDriver($driver);
 
-        $model = 'Person';
+        $model = Person::class;
         $route = $this->getRoute();
         $route->setModelId(100)
               ->setModel($model);

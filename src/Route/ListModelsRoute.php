@@ -129,7 +129,7 @@ class ListModelsRoute extends AbstractModelRoute
      *
      * @return array
      */
-    function getExpand()
+    public function getExpand()
     {
         return $this->expand;
     }
@@ -141,9 +141,10 @@ class ListModelsRoute extends AbstractModelRoute
      *
      * @return $this
      */
-    function setExpand(array $expand)
+    public function setExpand(array $expand)
     {
         $this->expand = $expand;
+
         return $this;
     }
 
@@ -344,7 +345,7 @@ class ListModelsRoute extends AbstractModelRoute
         }
 
         // set the per_page value unless it's the default
-        if ($perPage != self::DEFAULT_PER_PAGE) {
+        if (self::DEFAULT_PER_PAGE != $perPage) {
             $requestQuery['per_page'] = $perPage;
         }
 
@@ -385,7 +386,7 @@ class ListModelsRoute extends AbstractModelRoute
      */
     protected function parseFilterInput(array $input)
     {
-        if (count($input) === 0) {
+        if (0 === count($input)) {
             return [];
         }
 

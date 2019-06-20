@@ -1,9 +1,12 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Serializer;
+
 use Infuse\Application;
 use Infuse\Request;
 use Infuse\Response;
 use Infuse\RestApi\Serializer\JsonSerializer;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class JsonSerializerTest extends MockeryTestCase
@@ -37,9 +40,9 @@ class JsonSerializerTest extends MockeryTestCase
         $this->assertEquals('blah', $result);
 
         // test object
-        $result = new stdClass();
+        $result = new \stdClass();
         $result->answer = 42;
-        $result->nested = new stdClass();
+        $result->nested = new \stdClass();
         $result->nested->id = 10;
         $result->nested->name = 'John Appleseed';
 

@@ -1,17 +1,18 @@
 <?php
 
-use Infuse\RestApi\Error\InvalidRequest;
-use Infuse\RestApi\Libs\ErrorStack;
-use Infuse\Application;
+namespace Infuse\RestApi\Tests\Route;
+
 use Infuse\Request;
-use Infuse\Test;
+use Infuse\RestApi\Error\InvalidRequest;
+use Infuse\RestApi\Tests\Post;
+use Mockery;
+use Pulsar\ACLModel;
 use Pulsar\Driver\DriverInterface;
 use Pulsar\Model;
-use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 abstract class ModelTestBase extends RouteTestBase
 {
-    static function setUpBeforeClass()
+    public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
 
@@ -29,29 +30,29 @@ abstract class ModelTestBase extends RouteTestBase
     public function testGetModel()
     {
         $req = new Request();
-        $req->setParams(['model' => 'Post']);
+        $req->setParams(['model' => Post::class]);
 
         $route = $this->getRoute($req);
-        $this->assertInstanceOf('Post', $route->getModel());
+        $this->assertInstanceOf(Post::class, $route->getModel());
 
         $model = new Post();
         $route->setModel($model);
         $this->assertEquals($model, $route->getModel());
 
         // try with model class name
-        $this->assertEquals($route, $route->setModel('Post'));
-        $this->assertInstanceOf('Post', $route->getModel());
+        $this->assertEquals($route, $route->setModel(Post::class));
+        $this->assertInstanceOf(Post::class, $route->getModel());
 
         // try with model ID
         $route->setModelId(11);
-        $this->assertEquals($route, $route->setModel('Post'));
+        $this->assertEquals($route, $route->setModel(Post::class));
         $model = $route->getModel();
-        $this->assertInstanceOf('Post', $model);
+        $this->assertInstanceOf(Post::class, $model);
         $this->assertEquals(11, $model->id());
 
         $route->setModelId(10);
         $model = $route->getModel();
-        $this->assertInstanceOf('Post', $model);
+        $this->assertInstanceOf(Post::class, $model);
         $this->assertEquals(10, $model->id());
     }
 
@@ -74,13 +75,14 @@ abstract class ModelTestBase extends RouteTestBase
     {
         $class = static::ROUTE_CLASS;
 
-        Test::$app['requester'] = $requester = Mockery::mock('Pulsar\Model');
+        $requester = Mockery::mock(Model::class);
+        ACLModel::setRequester($requester);
 
         $route = $this->getRoute();
-        $route->setModel('Post');
+        $route->setModel(Post::class);
         $this->assertTrue($route->hasPermission());
 
-        $model = Mockery::mock('Pulsar\ACLModel');
+        $model = Mockery::mock(ACLModel::class);
         $model->shouldReceive('ids')
               ->andReturn([1]);
         $model->shouldReceive('persisted')

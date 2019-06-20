@@ -1,5 +1,7 @@
 <?php
 
+namespace Infuse\RestApi\Tests\Error;
+
 use Infuse\RestApi\Error\InvalidRequest;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 

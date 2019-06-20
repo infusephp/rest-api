@@ -1,9 +1,12 @@
 <?php
 
-use Infuse\RestApi\Error\InvalidRequest;
+namespace Infuse\RestApi\Tests\Route;
+
 use Infuse\Request;
 use Infuse\Response;
+use Infuse\RestApi\Error\InvalidRequest;
 use Infuse\Test;
+use Mockery;
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 abstract class RouteTestBase extends MockeryTestCase

@@ -1,5 +1,7 @@
 <?php
 
+namespace Infuse\RestApi\Tests;
+
 use Pulsar\Model;
 
 class Post extends Model
@@ -63,8 +65,8 @@ class Person extends Model
         ],
         'address_shim' => [
             'relation' => 'Address',
-            'id_property' => 'address'
-        ]
+            'id_property' => 'address',
+        ],
     ];
 
     protected static $autoTimestamps;
@@ -89,7 +91,7 @@ class Book extends Model
 {
     protected static $properties = [
         'name' => [],
-        'author' => []
+        'author' => [],
     ];
 
     protected static $autoTimestamps;
